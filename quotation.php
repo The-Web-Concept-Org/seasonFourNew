@@ -43,7 +43,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 ");
                 $data = mysqli_fetch_assoc($result);
                 $next_increment = $data['Auto_increment']; ?>
-                <input type="text" name="next_increment" id="next_increment" value="SF-Q-<?= @empty($_REQUEST['edit_order_id']) ? $next_increment : $fetchOrder['quotation_id'] ?>" readonly class="form-control">
+                <input type="text" name="next_increment" id="next_increment" value="SF25-Q-<?= @empty($_REQUEST['edit_order_id']) ? $next_increment : $fetchOrder['quotation_id'] ?>" readonly class="form-control">
               </div>
               <div class="col-md-2">
                 <label>Date</label>

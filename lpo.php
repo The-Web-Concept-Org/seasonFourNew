@@ -41,7 +41,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 ");
                 $data = mysqli_fetch_assoc($result);
                 $next_increment = $data['Auto_increment']; ?>
-                <input type="text" name="next_increment" id="next_increment" value="SF-LPO-<?= @empty($_REQUEST['edit_purchase_id']) ? $next_increment : $fetchPurchase['lpo_id'] ?>" readonly class="form-control">
+                <input type="text" name="next_increment" id="next_increment" value="SF25-LPO-<?= @empty($_REQUEST['edit_purchase_id']) ? $next_increment : $fetchPurchase['lpo_id'] ?>" readonly class="form-control">
               </div>
               <div class="col-md-2">
                 <label>LPO Date</label>

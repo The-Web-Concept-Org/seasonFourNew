@@ -217,7 +217,7 @@
             $nameSHow = 'Supplier';
             $id_name = "Purchase Id";
             $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
-            $unique_id = 'SF-CP-' . $order['purchase_id'];
+            $unique_id = 'SF25-CP-' . $order['purchase_id'];
             $comment = $order['purchase_narration'];
             $table_row = "390px";
             $getDate = $order['purchase_date'];
@@ -231,7 +231,7 @@
             $nameSHow = 'Customer';
             $id_name = "Sale Id";
             $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
-            $unique_id = 'SF-S-' . $order['order_id'];
+            $unique_id = 'SF25-S-' . $order['order_id'];
             $unique_id = $order['order_id'];
             if ($order['payment_type'] == "credit_sale") {
                 $invoice_name = "Credit Sale Invoice";
@@ -257,7 +257,7 @@
             $id_name = "Quotation Id";
             $invoice_name = "Quotation";
             $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
-            $unique_id = 'SF-Q-' . $order['quotation_id'];
+            $unique_id = 'SF25-Q-' . $order['quotation_id'];
             $getDate = $order['quotation_date'];
             $comment = $order['quotation_narration'];
             $order_item = mysqli_query($dbc, "SELECT quotation_item.*,product.* FROM quotation_item INNER JOIN product ON quotation_item.product_id=product.product_id WHERE quotation_item.quotation_id='" . $_REQUEST['id'] . "'");
@@ -277,7 +277,7 @@
             $invoice_name = "LPO";
             $id_name = "LPO Id";
             $order = fetchRecord($dbc, "lpo", "lpo_id", $_REQUEST['id']);
-            $unique_id = 'SF-LPO-' . $order['lpo_id'];
+            $unique_id = 'SF25-LPO-' . $order['lpo_id'];
             $getDate = $order['lpo_date'];
             $comment = $order['lpo_narration'];
             $order_item = mysqli_query($dbc, "SELECT lpo_item.*,product.* FROM lpo_item INNER JOIN product ON lpo_item.product_id=product.product_id WHERE lpo_item.lpo_id='" . $_REQUEST['id'] . "'");
@@ -296,7 +296,7 @@
             $nameSHow = 'Supplier';
             $id_name = "Purchase Id";
             $order = fetchRecord($dbc, "purchase_return", "purchase_id", $_REQUEST['id']);
-            $unique_id = 'SF-CP-' . $order['purchase_id'];
+            $unique_id = 'SF25-PR-' . $order['purchase_id'];
             $comment = $order['purchase_narration'];
             $table_row = "390px";
             $getDate = $order['purchase_date'];
@@ -310,7 +310,7 @@
             $nameSHow = 'Customer';
             $id_name = "Sale Id";
             $order = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['id']);
-            $unique_id = 'SF-S-' . $order['order_id'];
+            $unique_id = 'SF25R-S-' . $order['order_id'];
             $unique_id = $order['order_id'];
             if ($order['payment_type'] == "credit_sale") {
                 $invoice_name = "Credit Sale Return Invoice";

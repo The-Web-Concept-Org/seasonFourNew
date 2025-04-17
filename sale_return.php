@@ -47,7 +47,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 ");
                                     $data = mysqli_fetch_assoc($result);
                                     $next_increment = $data['Auto_increment']; ?>
-                                    <input type="text" name="next_increment" id="next_increment" value="SF-S-<?= @empty($_REQUEST['edit_order_id']) ? $next_increment : $fetchOrder['order_id'] ?>" readonly class="form-control">
+                                    <input type="text" name="next_increment" id="next_increment" value="SF25-SR-<?= @empty($_REQUEST['edit_order_id']) ? $next_increment : $fetchOrder['order_id'] ?>" readonly class="form-control">
                                 </div>
 
                                 <div class="w-100 pe-1 pl-1">
