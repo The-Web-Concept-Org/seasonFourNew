@@ -42,11 +42,13 @@ if($_POST) {
       if($mainResult->num_rows == 1) {
         $value = $mainResult->fetch_assoc();
         $user_id = $value['user_id'];
+        $branch_id = $value['branch_id'];
         $_SESSION['user_id']= $value['user_id'];
           setcookie("user_id",$user_id,time()+(86400),"/");
 
         // set session
         $_SESSION['userId'] = $user_id;
+        $_SESSION['branch_id'] = $branch_id;
        header('location: dashboard.php');
 ?>
 

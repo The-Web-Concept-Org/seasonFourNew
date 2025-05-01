@@ -121,6 +121,7 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 		'user_role' => $_REQUEST['user_role'],
 		'address' => @$_REQUEST['address'],
 		'status' => $_REQUEST['status'],
+		'branch_id' => $_REQUEST['branch_id'],
 	];
 
 	if ($_REQUEST['new_user_id'] == '') {
@@ -175,6 +176,7 @@ if (isset($_REQUEST['user_edit'])) {
 		'user_role' => $_REQUEST['user_role'],
 		'address' => $_REQUEST['address'],
 		'status' => $_REQUEST['status'],
+		'branch_id' => $_REQUEST['user_branch'],
 
 
 	];
