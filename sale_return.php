@@ -31,14 +31,31 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 <div class="card-body">
                     <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
                         <input type="hidden" name="product_order_id" value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
+                        <input type="hidden" name="payment_type" id="payment_type" value="credit_sale">
+                        <input type="hidden" name="form_type" id="form_type" value="credit_sale">
+                        <input type="hidden" name="price_type" id="price_type" value="sale">
+                        <input type="hidden" name="quotation_form" id="quotation_form" value="">
+                        <input type="hidden" name="order_return" id="order_return" value="order_return">
+
+                        <?php if ($_SESSION['user_role'] == 'admin') { ?>
+                            <div class="dropdown-wrapper d-block mb-3 ml-auto">
+                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize d-block" required>
+                                    <option selected disabled>Select Branch</option>
+                                    <?php
+                                    $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                                    while ($row = mysqli_fetch_array($branch)) {
+                                    ?>
+                                        <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                                            <?= $row['branch_name'] ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        <?php } else { ?>
+                            <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                        <?php } ?>
+
                         <div class="row form-group">
-                            <input type="hidden" name="payment_type" id="payment_type" value="credit_sale">
-                            <input type="hidden" name="form_type" id="form_type" value="credit_sale">
-                            <input type="hidden" name="price_type" id="price_type" value="sale">
-                            <input type="hidden" name="quotation_form" id="quotation_form" value="">
-                            <input type="hidden" name="order_return" id="order_return" value="order_return">
-
-
                             <div class="col-md-4 d-flex ">
                                 <div class="w-100 pe-1">
                                     <label>ID#</label>

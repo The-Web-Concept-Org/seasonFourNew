@@ -504,7 +504,6 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                             <thead class="w-100">
                                                 <tr>
                                                     <th>Sr</th>
-                                                    <th>Bill No</th>
                                                     <th>Grand Total</th>
                                                     <th>Profit</th>
                                                 </tr>
@@ -540,7 +539,6 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     echo "
             <tr>
                 <td>{$serial_number}</td>
-                <td>{$bill_no}</td>
                 <td>{$grand_total}</td>
                 <td>{$profit}</td>
             </tr>

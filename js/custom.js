@@ -371,6 +371,7 @@ $(document).ready(function () {
     var credit_sale_type = $("#credit_sale_type").val();
     var payment_type = $("#payment_type").val();
     //   var podid=  $('#get_product_name :selected').val();
+    var branch_id = $("#branch_id").val();
 
     $.ajax({
       type: "POST",
@@ -390,6 +391,7 @@ $(document).ready(function () {
         type: "code",
         credit_sale_type: credit_sale_type,
         payment_type: payment_type,
+        branch_id: branch_id,
       },
       dataType: "json",
       success: function (response) {
@@ -464,6 +466,7 @@ $("#get_product_name").on("change", function () {
   var payment_type = $("#payment_type").val();
   var credit_sale_type = $("#credit_sale_type").val();
   var price_type = $("#price_type").val();
+  var branch_id = $("#branch_id").val();
 
   $.ajax({
     type: "POST",
@@ -484,7 +487,8 @@ $("#get_product_name").on("change", function () {
         type: "product",
         credit_sale_type: credit_sale_type,
         payment_type: payment_type,
-        price_type: price_type, // Pass either "purchase" or "sale"
+        price_type: price_type,
+        branch_id: branch_id, // Pass either "purchase" or "sale"
       },
       dataType: "json",
       success: function (response) {

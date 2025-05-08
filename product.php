@@ -9,7 +9,21 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
 ?>
 <style type="text/css">
   .badge {
-    font-size: 15px;
+    font-size: .9375rem;
+  }
+
+  @media print {
+
+    /* Hide action column (last column) */
+    #product_tb th:last-child,
+    #product_tb td:last-child {
+      display: none !important;
+    }
+
+    /* Hide print button itself */
+    .d-print-none {
+      display: none !important;
+    }
   }
 </style>
 
@@ -167,13 +181,33 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
           <?php else: ?>
             <div class="card-body">
 
-              <div class="d-flex justify-content-end mb-3">
-                <form action="php_action/download_products.php?action=upload_products" method="POST" enctype="multipart/form-data">
-                  <input type="file" name="excel_file" accept=".xlsx, .xls" required>
-                  <button type="submit" class="btn btn-success mr-3">Upload Products</button>
-                </form>
-                <a href="php_action/download_products.php?action=download_products" class="btn btn-primary mr-3">Download Products</a>
-                <a href="php_action/download_products.php?action=download_example" class="btn btn-danger">Download Example</a>
+              <div class="d-flex justify-content-between  mb-3 ">
+                <?php if ($_SESSION['user_role'] == 'admin') {   ?>
+                  <div>
+                    <form method="GET" class="form-inline mb-3">
+                      <label for="branch_id" class="mr-2">Filter by Branch:</label>
+                      <select name="branch_id" id="branch_id" class="form-control text-capitalize mr-2" onchange="this.form.submit()">
+                        <option value="">All Branches</option>
+                        <?php
+                        $branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                        while ($b = mysqli_fetch_assoc($branches)) {
+                          $selected = ($_GET['branch_id'] ?? '') == $b['branch_id'] ? 'selected' : '';
+                          echo "<option value='{$b['branch_id']}' class='text-capitalize' $selected>{$b['branch_name']}</option>";
+                        }
+                        ?>
+                      </select>
+                    </form>
+                  </div>
+                <?php } ?>
+                <div class="d-flex align-items-center ml-auto">
+                  <form action="php_action/download_products.php?action=upload_products" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="excel_file" accept=".xlsx, .xls" required>
+                    <button type="submit" class="btn btn-success mr-3">Upload Products</button>
+                  </form>
+                  <a href="php_action/download_products.php?action=download_products" class="btn btn-primary mr-3">Download Products</a>
+                  <a href="php_action/download_products.php?action=download_example" class="btn btn-danger mr-3">Download Example</a>
+                  <button onclick="printTable()" class="btn btn-success text-white d-print-none">Print Table</button>
+                </div>
               </div>
 
               <table class="table dataTable col-12" style="width: 100%" id="product_tb">
@@ -198,6 +232,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                       <th class="text-dark">Quanity instock</th>
                     <?php endif; ?> -->
                     <th class="text-dark" style="width: 15%;">Final Rate</th>
+                    <th class="text-dark" style="width: 15%;">Quantity</th>
                     <th class="d-print-none text-dark " style="width: 15%;">Action</th>
                   </tr>
                 </thead>
@@ -226,18 +261,39 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                       <td><?= $r['current_rate'] ?>
                       <td><?= $r['final_rate'] ?>
                       </td>
-                      <!-- <?php if ($get_company['stock_manage'] == 1): ?>
-                        <?php if ($r['quantity_instock'] > $r['alert_at']): ?>
-                          <td>
+                      <td>
+                        <?php
+                        $product_id = $r['product_id'];
+                        $user_id = $_SESSION['user_id'];
 
-                            <span class="badge p-1 badge-success d-print-none
-">        <?= $r['quantity_instock'] ?></span>
-                          </td>
-                        <?php else: ?>
-                          <td><span class="badge p-1  badge-danger"><?= $r['quantity_instock'] ?></span> </td>
+                        if ($_SESSION['user_role'] == 'admin') {
+                          $branch_id = $_GET['branch_id'] ?? '';
+                        } else {
+                          $branch_id = $_SESSION['branch_id'];
+                        }
 
-                        <?php endif; ?>
-                      <?php endif; ?> -->
+                        if (!empty($branch_id)) {
+                          $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'";
+                        } else {
+                          $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id'";
+                        }
+
+                        $inventory_stock = mysqli_query($dbc, $inventory_query);
+
+                        if (mysqli_num_rows($inventory_stock) > 0) {
+                          $i = mysqli_fetch_assoc($inventory_stock);
+                          $quantity = $i['quantity'] ?? 0;
+                          $badge_class = ($quantity <= 5) ? 'bg-danger text-white p-1 rounded' : 'bg-success text-white p-1 rounded';
+                        ?>
+                          <span class=' <?= $badge_class ?> '><?= $quantity ?></span>
+                        <?php
+                        } else {
+                        ?>
+                          <span class='<?= $badge_class ?>'>0</span>
+                        <?php
+                        }
+                        ?>
+                      </td>
                       <td class="d-flex">
 
                         <?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>
@@ -811,3 +867,40 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
 
 </html>
 <?php include_once 'includes/foot.php'; ?>
+<script>
+  function printTable() {
+    // If using DataTables
+    const table = $('#product_tb').DataTable();
+
+    // Save current page length
+    const oldLength = table.page.len();
+
+    // Show all rows
+    table.page.len(-1).draw();
+
+    setTimeout(() => {
+      // Open new print window
+      const tableHTML = document.getElementById('product_tb').outerHTML;
+      const printWindow = window.open('', '', 'height=700,width=1000');
+      printWindow.document.write('<html><head><title>Print Table</title>');
+      printWindow.document.write('<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">');
+      printWindow.document.write('<style>');
+      printWindow.document.write('@media print { .d-print-none { display: none !important; }');
+      printWindow.document.write('#product_tb th:last-child, #product_tb td:last-child { display: none !important; } }');
+      printWindow.document.write('</style></head><body>');
+      printWindow.document.write(tableHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+
+      // Print and close
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+
+        // Restore previous pagination
+        table.page.len(oldLength).draw();
+      }, 500);
+    }, 500);
+  }
+</script>

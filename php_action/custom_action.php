@@ -508,8 +508,18 @@ if (isset($_REQUEST['get_products_list'])) {
 if (!empty($_REQUEST['getPrice'])) {
 	if ($_REQUEST['type'] == "product") {
 		$record = fetchRecord($dbc, "product", "product_id", $_REQUEST['getPrice']);
+		// $inventory = fetchRecord($dbc, "inventory", "product_id", $_REQUEST['getPrice']);
+		if (isset($_REQUEST['branch_id'])) {
+			$branch_id = $_REQUEST['branch_id'];
+		} else {
+			$branch_id = $_SESSION['branch_id'];
+		}
+		$product_id = $_REQUEST['getPrice'];
+		$query = "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$branch_id'";
+		$inventory = mysqli_fetch_assoc(mysqli_query($dbc, $query));
 	} else {
 		$record = fetchRecord($dbc, "product", "product_code", $_REQUEST['getPrice']);
+		$inventory = fetchRecord($dbc, "inventory", "product_id", $_REQUEST['getPrice']);
 	}
 	if ($_REQUEST['price_type'] == "purchase") {
 		$price = @$record['purchase_rate'];
@@ -523,7 +533,7 @@ if (!empty($_REQUEST['getPrice'])) {
 
 	$response = [
 		"price" => isset($price) ? $price : 0,
-		"qty" => @(float)$record['quantity_instock'],
+		"qty" => @(float)$inventory['quantity_instock'],
 		"description" => $record['product_description'],
 		"final_rate" => $record['final_rate'],
 		"sts" => "success",
@@ -552,6 +562,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 			'vehicle_no' => @$_REQUEST['vehicle_no'],
 			'order_narration' => @$_REQUEST['order_narration'],
 			'freight' => @$_REQUEST['freight'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 
 		if ($_REQUEST['product_order_id'] == "") {
@@ -603,12 +614,35 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						'quantity' => $product_quantites,
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						@$qty = (float)$quantity_instock['quantity_instock'] - (float)$product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							if ($inventory_qty <= 0) {
+								$msg = "Not Efficient Inventory";
+								$sts = 'error';
+
+								echo json_encode(['msg' => $msg, 'sts' => $sts]);
+								exit;
+							}
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$msg = "Not Efficient Inventory";
+							$sts = 'error';
+							echo json_encode(['msg' => $msg, 'sts' => $sts]);
+							exit;
+						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -663,6 +697,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						update_data($dbc, "orders", $data, "order_id", $last_id);
 					}
 				}
+
 				if ($get_company['stock_manage'] == 1) {
 					$proQ = get($dbc, "order_item WHERE order_id='" . $last_id . "' ");
 
@@ -671,78 +706,116 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
 						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+						$branch_id = $_SESSION['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$msg = "Not Efficient Inventory";
+							$sts = 'error';
+							echo json_encode(['msg' => $msg, 'sts' => $sts]);
+							exit;
+						}
 					}
-				}
-				deleteFromTable($dbc, "order_item", 'order_id', $_REQUEST['product_order_id']);
 
-				$x = 0;
-				foreach ($_REQUEST['product_ids'] as $key => $value) {
-					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
 
-					$order_items = [
-						'product_id' => $_REQUEST['product_ids'][$x],
-						'rate' => $product_rates,
-						'total' => $total,
-						'order_id' => $_REQUEST['product_order_id'],
-						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
-						'order_item_status' => 1,
-					];
-					if ($get_company['stock_manage'] == 1) {
-						$product_id = $_REQUEST['product_ids'][$x];
-						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
-						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+					deleteFromTable($dbc, "order_item", 'order_id', $_REQUEST['product_order_id']);
+
+					$x = 0;
+					foreach ($_REQUEST['product_ids'] as $key => $value) {
+						$total = $qty = 0;
+						$product_quantites = (float)$_REQUEST['product_quantites'][$x];
+						$product_rates = (float)$_REQUEST['product_rates'][$x];
+						$total = $product_quantites * $product_rates;
+						$total_ammount += (float)$total;
+
+						$order_items = [
+							'product_id' => $_REQUEST['product_ids'][$x],
+							'rate' => $product_rates,
+							'total' => $total,
+							'order_id' => $_REQUEST['product_order_id'],
+							'quantity' => $product_quantites,
+							'product_detail' => $_REQUEST['product_detail'][$x],
+							'order_item_status' => 1,
+							'branch_id' => $_REQUEST['branch_id'],
+						];
+						if ($get_company['stock_manage'] == 1) {
+							$product_id = $_REQUEST['product_ids'][$x];
+							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
+							$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
+							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+							$branch_id = $_SESSION['branch_id'];
+							$user_id = $_SESSION['user_id'];
+							$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+							if (mysqli_num_rows($inventory) > 0) {
+								$inventory = mysqli_fetch_assoc($inventory);
+								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+								if ($inventory_qty <= 0) {
+									$msg = "Not Efficient Inventory";
+									$sts = 'error';
+
+									echo json_encode(['msg' => $msg, 'sts' => $sts]);
+									exit;
+								}
+								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+							} else {
+								$msg = "Not Efficient Inventory";
+								$sts = 'error';
+								echo json_encode(['msg' => $msg, 'sts' => $sts]);
+								exit;
+							}
+						}
+						//update_data($dbc,'order_item', $order_items , 'order_id',$_REQUEST['product_order_id']);
+						insert_data($dbc, 'order_item', $order_items);
+
+						$x++;
+					} //end of foreach
+					$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
+					$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+					if ($due_amount > 0) {
+						$payment_status = 0; //pending
+
+					} else {
+						$payment_status = 1; //completed
+
 					}
-					//update_data($dbc,'order_item', $order_items , 'order_id',$_REQUEST['product_order_id']);
-					insert_data($dbc, 'order_item', $order_items);
+					$newOrder = [
 
-					$x++;
-				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
-				if ($due_amount > 0) {
-					$payment_status = 0; //pending
-
-				} else {
-					$payment_status = 1; //completed
-
-				}
-				$newOrder = [
-
-					'total_amount' => $total_ammount,
-					'discount' => $_REQUEST['ordered_discount'],
-					'grand_total' => $total_grand,
-					'payment_status' => $payment_status,
-					'due' => $due_amount,
-				];
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
-				if ($paidAmount > 0) {
-					$credit1 = [
-						'credit' => @$_REQUEST['paid_ammount'],
-						'debit' => 0,
-						'customer_id' => @$_REQUEST['payment_account'],
-
+						'total_amount' => $total_ammount,
+						'discount' => $_REQUEST['ordered_discount'],
+						'grand_total' => $total_grand,
+						'payment_status' => $payment_status,
+						'due' => $due_amount,
 					];
-					$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
-					update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
-				}
-				if (update_data($dbc, 'orders', $newOrder, 'order_id', $_REQUEST['product_order_id'])) {
-					# code...
-					//echo "<script>alert('company Updated....!')</script>";
-					$msg = "Data Has been Updated";
-					$sts = 'success';
+					$paidAmount = @(float)$_REQUEST['paid_ammount'];
+					if ($paidAmount > 0) {
+						$credit1 = [
+							'credit' => @$_REQUEST['paid_ammount'],
+							'debit' => 0,
+							'customer_id' => @$_REQUEST['payment_account'],
+
+						];
+						$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
+						update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
+					}
+					if (update_data($dbc, 'orders', $newOrder, 'order_id', $_REQUEST['product_order_id'])) {
+						# code...
+						//echo "<script>alert('company Updated....!')</script>";
+						$msg = "Data Has been Updated";
+						$sts = 'success';
+					} else {
+						$msg = mysqli_error($dbc);
+						$sts = "danger";
+					}
 				} else {
 					$msg = mysqli_error($dbc);
 					$sts = "danger";
 				}
-			} else {
-				$msg = mysqli_error($dbc);
-				$sts = "danger";
 			}
 		}
 	} else {
@@ -771,6 +844,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 			'vehicle_no' => @$_REQUEST['vehicle_no'],
 			'return_days' => @$_REQUEST['return_days'],
 			'freight' => @$_REQUEST['freight'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 		//'payment_status'=>1,
 		if ($_REQUEST['product_order_id'] == "") {
@@ -807,6 +881,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 
 					if ($get_company['stock_manage'] == 1) {
@@ -814,6 +889,28 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							if ($inventory_qty <= 0) {
+								$msg = "Not Efficient Inventory";
+								$sts = 'error';
+
+								echo json_encode(['msg' => $msg, 'sts' => $sts]);
+								exit;
+							}
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$msg = "Not Efficient Inventory";
+							$sts = 'error';
+							echo json_encode(['msg' => $msg, 'sts' => $sts]);
+							exit;
+						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -903,6 +1000,20 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
 						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+						$branch_id =  $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$msg = "Not Efficient Inventory";
+							$sts = 'error';
+							echo json_encode(['msg' => $msg, 'sts' => $sts]);
+							exit;
+						}
 					}
 				}
 				deleteFromTable($dbc, "order_item", 'order_id', $_REQUEST['product_order_id']);
@@ -922,12 +1033,34 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							if ($inventory_qty <= 0) {
+								$msg = "Not Efficient Inventory";
+								$sts = 'error';
+
+								echo json_encode(['msg' => $msg, 'sts' => $sts]);
+								exit;
+							}
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$msg = "Not Efficient Inventory";
+							$sts = 'error';
+							echo json_encode(['msg' => $msg, 'sts' => $sts]);
+							exit;
+						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -1048,6 +1181,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 			'paid' => $_REQUEST['paid_ammount'],
 			'payment_status' => 1,
 			'payment_type' => $_REQUEST['payment_type'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 
 		if ($_REQUEST['product_purchase_id'] == "") {
@@ -1087,6 +1221,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 
 					insert_data($dbc, 'purchase_item', $order_items);
@@ -1096,6 +1231,24 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$update_inventory = mysqli_query($dbc, "UPDATE inventory SET quantity_instock='" . $inventory_qty . "' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$insert_inventory = [
+								'product_id' => $_REQUEST['product_ids'][$x],
+								'quantity_instock' => $product_quantites,
+								'branch_id' => $_REQUEST['branch_id'],
+								'user_id' => $_SESSION['user_id'],
+							];
+							insert_data($dbc, 'inventory', $insert_inventory);
+						}
 					}
 					// if (isset($_REQUEST['product_salerates'][$x])) {
 					// 	$product_id = $_REQUEST['product_ids'][$x];
@@ -1188,6 +1341,24 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
 						$newqty = (float)$quantity_instock['quantity_instock'] - (float)$proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+						$branch_id = $_SESSION['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $proR['quantity'];
+							$update_inventory = mysqli_query($dbc, "UPDATE inventory SET quantity_instock='" . $inventory_qty . "' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$insert_inventory = [
+								'product_id' => $_REQUEST['product_ids'][$x],
+								'quantity_instock' => $product_quantites,
+								'branch_id' => $_SESSION['branch_id'],
+								'user_id' => $_SESSION['user_id'],
+							];
+							insert_data($dbc, 'inventory', $insert_inventory);
+						}
 					}
 				}
 				deleteFromTable($dbc, "purchase_item", 'purchase_id', $_REQUEST['product_purchase_id']);
@@ -1210,6 +1381,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 
 					//update_data($dbc,'order_item', $order_items , 'purchase_id',$_REQUEST['product_purchase_id']);
@@ -1220,6 +1392,24 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_SESSION['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$update_inventory = mysqli_query($dbc, "UPDATE inventory SET quantity_instock='" . $inventory_qty . "' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$insert_inventory = [
+								'product_id' => $_REQUEST['product_ids'][$x],
+								'quantity_instock' => $product_quantites,
+								'branch_id' => $_SESSION['branch_id'],
+								'user_id' => $_SESSION['user_id'],
+							];
+							insert_data($dbc, 'inventory', $insert_inventory);
+						}
 					}
 
 					$x++;
@@ -1311,21 +1501,30 @@ if (isset($_REQUEST['get_products_code'])) {
 	echo json_encode($response);
 }
 if (isset($_REQUEST['getBalance'])) {
-	$from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $_REQUEST['getBalance'] . "'"));
-	$cust = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_id = '" . $_REQUEST['getBalance'] . "'"));
-	if (!empty($from_balance['from_balance'])) {
-		$response1 = [
-			'blnc' => round($from_balance['from_balance']),
-			'custLimit' => round($cust['customer_limit']),
-		];
-	} else {
-		$response1 = [
-			'blnc' => '0',
-			'custLimit' => round($cust['customer_limit']),
-		];
-	}
+	$customer_id = mysqli_real_escape_string($dbc, $_REQUEST['getBalance']);
+
+	$balance_query = mysqli_query($dbc, "
+        SELECT SUM(credit - debit) AS from_balance 
+        FROM transactions 
+        WHERE customer_id = '$customer_id'
+    ");
+	$from_balance = mysqli_fetch_assoc($balance_query);
+
+	$cust_query = mysqli_query($dbc, "
+        SELECT * 
+        FROM customers 
+        WHERE customer_id = '$customer_id'
+    ");
+	$cust = mysqli_fetch_assoc($cust_query);
+
+	$response1 = [
+		'blnc' => is_numeric($from_balance['from_balance']) ? round($from_balance['from_balance']) : 0,
+		'custLimit' => is_numeric($cust['customer_limit']) ? round($cust['customer_limit']) : 0,
+	];
+
 	echo json_encode($response1);
 }
+
 if (isset($_REQUEST['pending_bills_detils'])) {
 	$pending_bills_detils = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM orders WHERE order_id='" . base64_decode($_REQUEST['pending_bills_detils']) . "'"));
 	echo  json_encode($pending_bills_detils);
@@ -1918,6 +2117,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 			'paid' => $_REQUEST['paid_ammount'],
 			'payment_status' => 1,
 			'payment_type' => $_REQUEST['payment_type'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 
 		if ($_REQUEST['product_purchase_id'] == "") {
@@ -1957,6 +2157,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 
 					insert_data($dbc, 'purchase_return_item', $order_items);
@@ -1966,6 +2167,17 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 					// if (isset($_REQUEST['product_salerates'][$x])) {
 					// 	$product_id = $_REQUEST['product_ids'][$x];
@@ -2059,6 +2271,17 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
 						$newqty = (float)$quantity_instock['quantity_instock'] - (float)$proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $proR['quantity'];
+
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 				}
 				deleteFromTable($dbc, "purchase_return_item", 'purchase_id', $_REQUEST['product_purchase_id']);
@@ -2081,6 +2304,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 
 					//update_data($dbc,'order_item', $order_items , 'purchase_id',$_REQUEST['product_purchase_id']);
@@ -2091,6 +2315,28 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							if ($inventory_qty <= 0) {
+								$msg = "Not Efficient Inventory";
+								$sts = 'error';
+
+								echo json_encode(['msg' => $msg, 'sts' => $sts]);
+								exit;
+							}
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						} else {
+							$msg = "Not Efficient Inventory";
+							$sts = 'error';
+							echo json_encode(['msg' => $msg, 'sts' => $sts]);
+							exit;
+						}
 					}
 
 					$x++;
@@ -2186,6 +2432,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 			'vehicle_no' => @$_REQUEST['vehicle_no'],
 			'return_days' => @$_REQUEST['return_days'],
 			'freight' => @$_REQUEST['freight'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 		//'payment_status'=>1,
 		if ($_REQUEST['product_order_id'] == "") {
@@ -2222,6 +2469,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 
 					if ($get_company['stock_manage'] == 1) {
@@ -2229,6 +2477,17 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 					insert_data($dbc, 'order_return_item', $order_items);
 
@@ -2318,6 +2577,16 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
 						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 				}
 				deleteFromTable($dbc, "order_return_item", 'order_id', $_REQUEST['product_order_id']);
@@ -2337,12 +2606,23 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
+						$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -2437,6 +2717,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 			'vehicle_no' => @$_REQUEST['vehicle_no'],
 			'order_narration' => @$_REQUEST['order_narration'],
 			'freight' => @$_REQUEST['freight'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 
 		if ($_REQUEST['product_order_id'] == "") {
@@ -2488,12 +2769,24 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						'quantity' => $product_quantites,
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
 						@$qty = (float)$quantity_instock['quantity_instock'] + (float)$product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 					insert_data($dbc, 'order_return_item', $order_items);
 
@@ -2556,6 +2849,16 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
 						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 				}
 				deleteFromTable($dbc, "order_return_item", 'order_id', $_REQUEST['product_order_id']);
@@ -2576,12 +2879,23 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
+						'branch_id' => $_REQUEST['branch_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
+						$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+						$branch_id = $_REQUEST['branch_id'];
+						$user_id = $_SESSION['user_id'];
+						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						if (mysqli_num_rows($inventory) > 0) {
+
+							$inventory = mysqli_fetch_assoc($inventory);
+							$inventory_qty = (float)$inventory['quantity_instock'] -  $product_quantites;
+							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+						}
 					}
 					//update_data($dbc,'order_item', $order_items , 'order_id',$_REQUEST['product_order_id']);
 					insert_data($dbc, 'order_return_item', $order_items);

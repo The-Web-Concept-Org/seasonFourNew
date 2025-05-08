@@ -19,6 +19,29 @@
             </div>
 
           </div>
+          <?php
+          // Only show branch filter for admin
+          if ($_SESSION['user_role'] == 'admin') {
+            $branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+            $selected_branch_id = $_GET['branch_id'] ?? ''; // admin: default is all branches
+          ?>
+
+            <form method="GET" class="form-inline my-3 ml-4">
+              <label for="branch_id" class="mr-2">Filter by Branch:</label>
+              <select name="branch_id" id="branch_id" class="form-control text-capitalize mr-2" onchange="this.form.submit()">
+                <option value="">All Branches</option>
+                <?php
+                while ($b = mysqli_fetch_assoc($branches)) {
+                  $selected = ($selected_branch_id == $b['branch_id']) ? 'selected' : '';
+                  echo "<option value='{$b['branch_id']}' class='text-capitalize' $selected>{$b['branch_name']}</option>";
+                }
+                ?>
+              </select>
+            </form>
+
+          <?php
+          }
+          ?>
           <div class="card-body">
             <table class="table  dataTable" id="view_purchase_tb">
               <thead>
@@ -34,11 +57,25 @@
                 </tr>
               </thead>
               <tbody>
-                <?php $q = mysqli_query($dbc, "SELECT * FROM purchase_return ");
+                <?php
+                $branch_filter = "";
+
+                // Check role and apply branch filter
+                if ($_SESSION['user_role'] != 'admin') {
+                  $session_branch_id = $_SESSION['branch_id'];
+                  $branch_filter = "WHERE branch_id = '$session_branch_id'";
+                } elseif (!empty($selected_branch_id)) {
+                  $branch_filter = "WHERE branch_id = '$selected_branch_id'";
+                }
+
+                // Fetch purchases
+                $q = mysqli_query($dbc, "SELECT * FROM purchase_return $branch_filter ORDER BY purchase_date DESC");
+
                 $c = 0;
                 while ($r = mysqli_fetch_assoc($q)) {
                   $c++;
                 ?>
+
                   <tr>
                     <td><?= $r['purchase_date'] ?></td>
                     <td><?= ucfirst($r['client_name']) ?></td>

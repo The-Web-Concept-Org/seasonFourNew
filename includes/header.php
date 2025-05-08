@@ -1,7 +1,11 @@
   <?php
   date_default_timezone_set("Asia/Karachi");
   $user_id_current = $_SESSION['userId'];
+$branch_id_current = $_SESSION['branch_id'];
 
+  $get_company_user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM users WHERE branch_id = '$branch_id_current' AND user_id = '$user_id_current'"));
+  $get_company_br = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = '$branch_id_current' "));
+  
   $UserData = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM users WHERE user_id = '$user_id_current'"));
   $_SESSION['user_role'] = $UserData['user_role'];
   if (isset($_REQUEST['credit_type']) and $_REQUEST['credit_type'] == "15days") {
@@ -19,9 +23,15 @@
   ?>
   <nav class="navbar navbar-expand-lg navbar-light bg-white flex-row border-bottom shadow">
     <div class="container-fluid">
-      <a class="navbar-brand mx-lg-1 mr-0" href="dashboard.php">
-        <img src="img/logo/<?= $get_company['logo'] ?>" class="img-fluid" alt="" style="width: 40px;height: 40px;">
-      </a>
+      <div class="d-flex flex-row align-items-center">
+        <a class="navbar-brand mx-lg-1 mr-0" href="dashboard.php">
+          <img src="img/logo/<?= $get_company['logo'] ?>" class="img-fluid" alt="" style="width: 40px;height: 40px;">
+        </a>
+        <div class="pl-3 text-capitalize">
+          <p class="m-0 p-0 text-danger"><?= $get_company_br['branch_name'] ?></p>
+          <p class="m-0 p-0"><?= $get_company_user['username'] ?></p>
+        </div>
+      </div>
       <button class="navbar-toggler mt-2 mr-auto toggle-sidebar text-muted">
         <i class="fe fe-menu navbar-toggler-icon"></i>
       </button>

@@ -62,5 +62,44 @@
      .card-text {
        color: white;
      }
-   </style>
+  /* Wrapper for spacing */
+  .dropdown-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 200px;
+  }
+
+  /* Label styling */
+  .dropdown-label {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  /* Custom dropdown */
+  .custom-dropdown {
+    appearance: none;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%204%205'%3E%3Cpath%20fill='%23333'%20d='M2%205L0%200h4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 8px 10px;
+  }
+
+  /* On focus or hover */
+  .custom-dropdown:focus,
+  .custom-dropdown:hover {
+    border-color: #007bff;
+    background-color: #e6f0ff;
+  }
+</style>
  </head>
