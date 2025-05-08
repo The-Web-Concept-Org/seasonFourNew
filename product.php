@@ -296,13 +296,13 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                       </td>
                       <td class="d-flex">
 
-                        <?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>
+                        <?php if (@$userPrivileges['nav_edit'] == 1 ): ?>
                           <form action="product.php?act=add" method="POST">
                             <input type="hidden" name="edit_product_id" value="<?= base64_encode($r['product_id']) ?>">
                             <button type="submit" class="btn btn-admin btn-sm m-1 d-inline-block">Edit</button>
                           </form>
                         <?php endif ?>
-                        <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
+                        <?php if (@$userPrivileges['nav_delete'] == 1 ): ?>
                           <button type="button"
                             onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
                             class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
