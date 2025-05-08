@@ -398,6 +398,11 @@
                         <div>
                             <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id  ?></p>
                         </div>
+                        <div>
+                            <p class="text-uppercase"><strong>
+                                <?php $b =  fetchRecord($dbc, "branch", "branch_id", $order['branch_id']);?>
+                              Branch :</strong>   <?= $b['branch_name'] ?></p>
+                        </div>
 
                         <div>
                             <p class="text-capitalize"><strong>Customer Name :</strong> <?= $order['client_name']  ?></p>
