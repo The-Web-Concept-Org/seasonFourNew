@@ -121,9 +121,17 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   </div>
 
                   <div class="col-sm-2 mb-3 mt-3 mb-sm-0">
+                    <?php
+                    $result = mysqli_query($dbc, "SELECT MAX(product_code) AS max_code FROM product");
+                    $data = mysqli_fetch_assoc($result);
+                    $next_product_code = (int)$data['max_code'] + 1;
+
+                    ?>
+
                     <label for="">Product Code</label>
-                    <input type="text" class="form-control" id="product_code" placeholder="Product Code"
-                      name="product_code" required value="<?= @$fetchproduct['product_code'] ?>">
+                    <input type="text" class="form-control" id="product_code" name="product_code" required
+                      value="<?= @empty($_REQUEST['edit_product_id']) ? $next_product_code : $fetchproduct['product_code'] ?>"
+                      readonly>
                   </div>
                   <div class="col-sm-2 mb-3 mt-3 mb-sm-0">
                     <label for="">Product Name</label>
@@ -296,13 +304,13 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                       </td>
                       <td class="d-flex">
 
-                        <?php if (@$userPrivileges['nav_edit'] == 1 ): ?>
+                        <?php if (@$userPrivileges['nav_edit'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
                           <form action="product.php?act=add" method="POST">
                             <input type="hidden" name="edit_product_id" value="<?= base64_encode($r['product_id']) ?>">
                             <button type="submit" class="btn btn-admin btn-sm m-1 d-inline-block">Edit</button>
                           </form>
                         <?php endif ?>
-                        <?php if (@$userPrivileges['nav_delete'] == 1 ): ?>
+                        <?php if (@$userPrivileges['nav_delete'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
                           <button type="button"
                             onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
                             class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
@@ -609,7 +617,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
         <div class="modal-body">
 
 
-          <form action="php_action/panel.php" method="POST" role="form" id="formData">
+          <form action="php_action/panel.php" method="POST" role="form" id="formData1">
             <div class="msg"></div>
             <div class="form-group row">
               <div class="col-sm-4">

@@ -105,11 +105,7 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 	if (empty($_REQUEST['password'])) {
 		$password = md5($_REQUEST['password']);
 	} else {
-		if ($_REQUEST['new_user_id'] != '') {
-			$password = $_REQUEST['old_password'];
-		} else {
-			$password = md5($_REQUEST['old_password']);
-		}
+		$password = $_REQUEST['old_password'];
 	}
 
 	$data_user = [
@@ -128,7 +124,7 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 		if (insert_data($dbc, "users", $data_user)) {
 			$msg = "User Added Successfully";
 			$sts = "success";
-			redirect("users.php", 500);
+			// header("Location: users.php");
 		} else {
 			$msg = mysqli_error($dbc);
 			$sts = "error";
@@ -145,7 +141,9 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 			$sts = "error";
 		}
 	}
-
+	if ($sts == "success") {
+		// redirect("users.php", 500)
+	}
 	echo json_encode(['msg' => $msg, 'sts' => $sts]);
 }
 
@@ -274,7 +272,7 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_branch") {
 			$sts = "success";
 			redirect("../branch.php", 500);
 		} else {
-			$msg = mysqli_error($dbc);	
+			$msg = mysqli_error($dbc);
 			$sts = "error";
 		}
 	} else {

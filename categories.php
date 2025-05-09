@@ -304,7 +304,7 @@ $btn_name = isset($_REQUEST['edit_categories_id']) ? "Update" : "Add";
             <table class="table dataTable" id="tableData">
               <thead>
                 <tr>
-                  <th class="text-dark">ID</th>
+                  <th class="text-dark">Sr</th>
                   <th class="text-dark"> Name</th>
                   <!-- <th class="text-dark">Sale Price</th> -->
                   <th class="text-dark">Country</th>
@@ -318,9 +318,6 @@ $btn_name = isset($_REQUEST['edit_categories_id']) ? "Update" : "Add";
                 $c = 0;
                 while ($r = mysqli_fetch_assoc($q)) {
                   $c++;
-
-
-
                   ?>
                   <tr>
                     <td><?= $c ?></td>

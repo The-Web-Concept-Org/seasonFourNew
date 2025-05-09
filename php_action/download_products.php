@@ -5,7 +5,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-$conn = new mysqli("localhost", "twcppabi_erp", "twcppabi_erp", "twcppabi_erp");
+$conn = new mysqli("localhost", "root", "", "twcppabi_seasonfour");
 
 if ($_REQUEST['action'] == 'download_products') {
     // Database Connection
@@ -15,39 +15,19 @@ if ($_REQUEST['action'] == 'download_products') {
 
     // Fetch Product Data with Category and Brand Details
     $sql = "
-    SELECT 
-        p.product_id,
-        p.product_name,
-        p.product_code,
-        p.product_image,
-        p.brand_id,
-        p.category_id,
-        p.quantity_instock,
-        p.purchased,
-        p.current_rate,
-        p.f_days,
-        p.t_days,
-        p.purchase_rate,
-        p.final_rate,
-        p.status,
-        p.availability,
-        p.alert_at,
-        p.weight,
-        p.actual_rate,
-        p.product_description,
-        p.product_mm,
-        p.product_inch,
-        p.product_meter,
-        p.inventory,
-        c.categories_name AS category_name,
-        c.categories_country AS category_country,
-        b.brand_name AS brand_name,
-        b.category_id AS brand_category_name,  
-        b.brand_country AS brand_country
-    FROM product p
-    LEFT JOIN categories c ON p.category_id = c.categories_id
-    LEFT JOIN brands b ON p.brand_id = b.brand_id
-    ";
+SELECT 
+    p.product_id,
+    p.product_name,
+    p.quantity_instock,
+    p.purchase_rate,
+    p.current_rate,
+    p.final_rate,
+    c.categories_name AS category_name,
+    b.brand_name AS brand_name
+FROM product p
+LEFT JOIN categories c ON p.category_id = c.categories_id
+LEFT JOIN brands b ON p.brand_id = b.brand_id
+";
 
     // Execute the query and check for errors
     $result = $conn->query($sql);
@@ -62,33 +42,13 @@ if ($_REQUEST['action'] == 'download_products') {
     // Set Column Headers
     $headers = [
         'Product ID',
+        'Category',
+        'Brand',
         'Product Name',
-        'Product Code',
-        'Product Image',
-        'Brand ID',
-        'Category ID',
-        'Quantity In Stock',
-        'Purchased',
-        'Current Rate',
-        'F Days',
-        'T Days',
-        'Purchase Rate',
-        'Final Rate',
-        'Status',
-        'Availability',
-        'Alert At',
-        'Weight',
-        'Actual Rate',
-        'Product Description',
-        'Product MM',
-        'Product Inch',
-        'Product Meter',
-        'Inventory',
-        'Category Name',
-        'Category Country',
-        'Brand Name',
-        'Brand Category Name',
-        'Brand Country'
+        'Quantity',
+        'Purchase Price',
+        'Sale Price',
+        'Final Price'
     ];
 
     // Set headers in the Excel sheet
@@ -103,35 +63,16 @@ if ($_REQUEST['action'] == 'download_products') {
     while ($row = $result->fetch_assoc()) {
         $col = 'A';
         $sheet->setCellValue($col++ . $rowNum, $row['product_id']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_name']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_code']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_image']);
-        $sheet->setCellValue($col++ . $rowNum, $row['brand_id']);
-        $sheet->setCellValue($col++ . $rowNum, $row['category_id']);
-        $sheet->setCellValue($col++ . $rowNum, $row['quantity_instock']);
-        $sheet->setCellValue($col++ . $rowNum, $row['purchased']);
-        $sheet->setCellValue($col++ . $rowNum, $row['current_rate']);
-        $sheet->setCellValue($col++ . $rowNum, $row['f_days']);
-        $sheet->setCellValue($col++ . $rowNum, $row['t_days']);
-        $sheet->setCellValue($col++ . $rowNum, $row['purchase_rate']);
-        $sheet->setCellValue($col++ . $rowNum, $row['final_rate']);
-        $sheet->setCellValue($col++ . $rowNum, $row['status']);
-        $sheet->setCellValue($col++ . $rowNum, $row['availability']);
-        $sheet->setCellValue($col++ . $rowNum, $row['alert_at']);
-        $sheet->setCellValue($col++ . $rowNum, $row['weight']);
-        $sheet->setCellValue($col++ . $rowNum, $row['actual_rate']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_description']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_mm']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_inch']);
-        $sheet->setCellValue($col++ . $rowNum, $row['product_meter']);
-        $sheet->setCellValue($col++ . $rowNum, $row['inventory']);
         $sheet->setCellValue($col++ . $rowNum, $row['category_name']);
-        $sheet->setCellValue($col++ . $rowNum, $row['category_country']);
         $sheet->setCellValue($col++ . $rowNum, $row['brand_name']);
-        $sheet->setCellValue($col++ . $rowNum, $row['brand_category_name']);
-        $sheet->setCellValue($col++ . $rowNum, $row['brand_country']);
+        $sheet->setCellValue($col++ . $rowNum, $row['product_name']);
+        $sheet->setCellValue($col++ . $rowNum, $row['quantity_instock']);
+        $sheet->setCellValue($col++ . $rowNum, $row['purchase_rate']);
+        $sheet->setCellValue($col++ . $rowNum, $row['current_rate']);
+        $sheet->setCellValue($col++ . $rowNum, $row['final_rate']);
         $rowNum++;
     }
+
 
     // Set Headers for Download
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -204,7 +145,7 @@ if ($_REQUEST['action'] == 'download_example') {
     exit;
 }
 
-  
+
 if ($_REQUEST['action'] == 'upload_products') {
     if (isset($_FILES['excel_file']) && $_FILES['excel_file']['error'] == 0) {
         $file = $_FILES['excel_file']['tmp_name'];

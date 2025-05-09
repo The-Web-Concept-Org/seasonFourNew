@@ -33,22 +33,22 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <input type="hidden" name="lpo_form" id="lpo_form" value="lpo">
             <input type="hidden" name="price_type" id="price_type" value="purchase">
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
-                     <div class="dropdown-wrapper ml-auto mb-3">
-                       <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
-                         <option selected disabled>Select Branch</option>
-                         <?php
-                          $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                          while ($row = mysqli_fetch_array($branch)) {
-                          ?>
-                           <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
-                             <?= $row['branch_name'] ?>
-                           </option>
-                         <?php } ?>
-                       </select>
-                     </div>
-                   <?php } else { ?>
-                     <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
-                   <?php } ?>
+              <div class="dropdown-wrapper ml-auto mb-3">
+                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
+                  <option selected disabled>Select Branch</option>
+                  <?php
+                  $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                  while ($row = mysqli_fetch_array($branch)) {
+                  ?>
+                    <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                      <?= $row['branch_name'] ?>
+                    </option>
+                  <?php } ?>
+                </select>
+              </div>
+            <?php } else { ?>
+              <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+            <?php } ?>
             <div class="row form-group">
               <div class="col-md-2">
                 <label>LPO ID#</label>
@@ -123,15 +123,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
                     $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
                   ?>
-
-<<<<<<< HEAD
-                                         <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
-                       <?= $getCat["categories_name"] ?> -  <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
-=======
-                    <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>">
-                      <?= $row["product_name"] ?> </option>
->>>>>>> fb8be4c4d9a4475e31546d4d0366fea176d444b7
-
+                    <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
+                      <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
                   <?php   } ?>
                 </select>
                 <span class="text-center w-100" id="instockQty"></span>

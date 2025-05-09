@@ -18,7 +18,7 @@
 								</div>
 								<div class="card-body">
 									<?= getMessage(@$msg, @$sts); ?>
-									<form class="form-horizontal" method="POST" action="includes/code.php" id="formData">
+									<form class="form-horizontal" method="POST" action="includes/code.php" id="formData2">
 										<input type="hidden" name="action" value="add_new_user">
 										<input type="hidden" name="new_user_id" value="<?= @$_REQUEST['user_edit_id'] ?>">
 
@@ -117,7 +117,7 @@
 									<table class="table example1" id="myTable">
 										<thead>
 											<tr>
-												<th class="text-dark">User ID</th>
+												<th class="text-dark">Sr</th>
 												<th class="text-dark">Username</th>
 												<th class="text-dark">Email</th>
 												<th class="text-dark">Phone</th>
@@ -133,15 +133,16 @@
 
 
 
-											$sql = "SELECT * FROM users  ";
+											$sql = "SELECT * FROM users  Where status = 1";
 
 											$result = mysqli_query($dbc, $sql);
-
+											$i = 0;
 											if (mysqli_num_rows($result) > 0) {
 												while ($row = mysqli_fetch_array($result)) {
+													$i++;
 											?>
 													<tr>
-														<td><?= $row['user_id']; ?></td>
+														<td><?= $i ?></td>
 														<td class="text-capitalize"><?= $row['username']; ?></td>
 														<td class="text-capitalize"><?= $row['email']; ?></td>
 														<!-- <td>Encrypted </td> -->
