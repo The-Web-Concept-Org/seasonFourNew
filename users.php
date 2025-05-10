@@ -18,7 +18,7 @@
 								</div>
 								<div class="card-body">
 									<?= getMessage(@$msg, @$sts); ?>
-									<form class="form-horizontal" method="POST" action="includes/code.php" id="formData2">
+									<form class="form-horizontal" method="POST" action="includes/code.php" id="myForm">
 										<input type="hidden" name="action" value="add_new_user">
 										<input type="hidden" name="new_user_id" value="<?= @$_REQUEST['user_edit_id'] ?>">
 
@@ -54,18 +54,18 @@
 												<input type="hidden" name="old_password" value="<?= isset($_REQUEST['user_edit_id']) ? $fetchusers['password'] : '' ?>" />
 											</div>
 
-												<label for="branch_id" class="col-sm-2 control-label">Branch </label>
+											<label for="branch_id" class="col-sm-2 control-label">Branch </label>
 
-												<div class="col-sm-4">
-													<select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
-														<option selected disabled>Select Branch</option>
-														<?php $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-														while ($row = mysqli_fetch_array($branch)) { ?>
-															?>
-															<option <?= @($fetchusers['branch_id'] == $row['branch_id']) ? "seleted" : "" ?> value="<?= $row['branch_id'] ?>"><?= $row['branch_name'] ?></option>
-														<?php } ?>
-													</select>
-												</div>
+											<div class="col-sm-4">
+												<select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
+													<option selected disabled>Select Branch</option>
+													<?php $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+													while ($row = mysqli_fetch_array($branch)) { ?>
+														?>
+														<option <?= @($fetchusers['branch_id'] == $row['branch_id']) ? "seleted" : "" ?> value="<?= $row['branch_id'] ?>"><?= $row['branch_name'] ?></option>
+													<?php } ?>
+												</select>
+											</div>
 
 											<label for="clientContact" class="col-sm-2 control-label">UserRole</label>
 											<div class="col-sm-4">

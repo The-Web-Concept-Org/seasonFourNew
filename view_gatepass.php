@@ -36,17 +36,18 @@
                                 <tbody>
                                     <?php
                                     $branch_filter = "";
+                                    $session_branch_id = $_SESSION['branch_id'];
 
                                     // Check role and apply branch filter
                                     if ($_SESSION['user_role'] != 'admin') {
                                         $session_branch_id = $_SESSION['branch_id'];
-                                        $branch_filter = "WHERE branch_id = '$session_branch_id'";
+                                        $branch_filter = "WHERE to_branch = '$session_branch_id'";
                                     } elseif (!empty($selected_branch_id)) {
-                                        $branch_filter = "WHERE branch_id = '$selected_branch_id'";
+                                        $branch_filter = "WHERE to_branch = '$selected_branch_id'";
                                     }
 
                                     // Fetch purchases
-                                    $q = mysqli_query($dbc, "SELECT * FROM gatepass $branch_filter ORDER BY gatepass_date DESC");
+                                    $q = mysqli_query($dbc, "SELECT * FROM gatepass WHERE to_branch = '$session_branch_id' ORDER BY gatepass_date DESC");
 
                                     $c = 0;
                                     while ($r = mysqli_fetch_assoc($q)) {
@@ -89,6 +90,9 @@
 
 
                                                 <a target="_blank" href="print_sale.php?id=<?= $r['gatepass_id'] ?>&type=gatepass" class="btn btn-admin2 btn-sm m-1">Print</a>
+                                                <?php if ($r['stock_status'] != '1'): ?>
+                                                    <a href="#" onclick="approveAlert('<?= $r['gatepass_id'] ?>')" class="btn btn-danger btn-sm m-1">Approve</a>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php  } ?>

@@ -176,3 +176,49 @@ if (isset($_REQUEST['delete_bymanually'])) {
 
 	echo json_encode(['msg' => $msg, "sts" => $sts]);
 }
+
+// Approve Gatepass
+
+if (isset($_REQUEST['approve_bymanually'])) {
+	$gatepass_id = $_REQUEST['approve_bymanually'];
+
+	$gatepass = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM gatepass WHERE gatepass_id='$gatepass_id'"));
+	while ($gatepass) {
+		$gatepass_item = mysqli_query($dbc, "SELECT * FROM gatepass_item WHERE gatepass_id='$gatepass_id'");
+		while ($item = mysqli_fetch_assoc($gatepass_item)) {
+			$product_id = $item['product_id'];
+			$quantity = $item['quantity'];
+			$from_branch = $item['from_branch'];
+			$to_branch = $item['to_branch'];
+
+			$check_from = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch'");
+			if (mysqli_num_rows($check_from) > 0) {
+				mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock - $quantity WHERE product_id='$product_id' AND branch_id='$from_branch'");
+			} else {
+				mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, quantity_instock) VALUES ('$product_id', '$from_branch', -$quantity)");
+			}
+
+			$check_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch'");
+			if (mysqli_num_rows($check_to) > 0) {
+				mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock + $quantity WHERE product_id='$product_id' AND branch_id='$to_branch'");
+			} else {
+				mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, quantity_instock) VALUES ('$product_id', '$to_branch', $quantity)");
+			}
+		}
+		break;
+	}
+
+	$update_data = [
+		'stock_status' => 1,
+	];
+
+	if (update_data($dbc, 'gatepass', $update_data, 'gatepass_id', $gatepass_id)) {
+		$msg = "Gatepass has been approved successfully.";
+		$sts = "success";
+	} else {
+		$msg = mysqli_error($dbc);
+		$sts = "danger";
+	}
+
+	echo json_encode(['msg' => $msg, 'sts' => $sts]);
+}

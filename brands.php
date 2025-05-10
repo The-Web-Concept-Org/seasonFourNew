@@ -395,7 +395,7 @@ $btn_name = isset($_REQUEST['edit_brand_id']) ? "Update" : "Add";
 
         <div class="modal-body">
 
-          <form action="php_action/panel.php" method="POST" role="form" id="nnn">
+          <form action="php_action/panel.php" method="POST" role="form" id="myForm">
             <div class="msg"></div>
             <div class="form-group row">
               <div class="col-sm-4">

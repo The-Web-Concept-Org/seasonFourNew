@@ -6,7 +6,6 @@ include_once 'functions.php';
 
 
 ?>
-<!--comapany profile add-->
 <?php
 if (isset($_REQUEST['company_submit'])) {
 	if ($_FILES['logo']['tmp_name']) {
@@ -91,10 +90,8 @@ if (isset($_POST['company_update'])) {
 ?>
 
 
-<!--comapany profile end-->
 
 
-<!-- customer add -->
 <?php
 
 ?>
@@ -142,9 +139,10 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 			$sts = "error";
 		}
 	}
-    if($sts == "success"){
+	if ($sts == "success") {
 		// redirect("users.php", 500)
 	}
+	header('Content-Type: application/json');
 	echo json_encode(['msg' => $msg, 'sts' => $sts]);
 }
 
@@ -271,9 +269,8 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_branch") {
 		if (insert_data($dbc, "branch", $data_user)) {
 			$msg = "Branch Added Successfully";
 			$sts = "success";
-			redirect("../branch.php", 500);
 		} else {
-			$msg = mysqli_error($dbc);	
+			$msg = mysqli_error($dbc);
 			$sts = "error";
 		}
 	} else {
@@ -281,7 +278,6 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_branch") {
 		if (update_data($dbc, "branch", $data_user, 'branch_id', $_REQUEST['new_branch_id'])) {
 			$msg = "Branch Updated Successfully";
 			$sts = "success";
-			redirect("../branch.php", 500);
 		} else {
 			$msg = mysqli_error($dbc);
 
@@ -289,6 +285,7 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_branch") {
 		}
 	}
 
+	header('Content-Type: application/json');
 	echo json_encode(['msg' => $msg, 'sts' => $sts]);
 }
 

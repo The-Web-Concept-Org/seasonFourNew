@@ -17,7 +17,7 @@
                                 <h4 class="card-text"> Manage Branches</h4>
                             </div>
                             <div class="card-body">
-                                <form class="form-horizontal" method="POST" action="includes/code.php" id="formData">
+                                <form class="form-horizontal" method="POST" action="includes/code.php" id="myForm">
                                     <input type="hidden" name="action" value="add_new_branch">
                                     <input type="hidden" name="new_branch_id" value="<?= @$_REQUEST['branch_edit_id'] ?>">
 

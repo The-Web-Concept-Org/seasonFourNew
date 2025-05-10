@@ -2961,7 +2961,6 @@ if (isset($_REQUEST['gatepass'])) {
 		$data = [
 			'gatepass_date' => $_REQUEST['gatepass_date'],
 			'gatepass_narration' => @$_REQUEST['gatepass_narration'],
-			'payment_status' => 1,
 			'payment_type' => 'gatepass',
 			'from_branch' => $_REQUEST['from_branch'],
 			'to_branch' => $_REQUEST['to_branch'],
@@ -3005,37 +3004,6 @@ if (isset($_REQUEST['gatepass'])) {
 					];
 					insert_data($dbc, 'gatepass_item', $order_items);
 
-					// Stock Management
-					if ($get_company['stock_manage'] == 1) {
-						$from_branch = $_REQUEST['from_branch'];
-						$to_branch = $_REQUEST['to_branch'];
-						$user_id = $_SESSION['user_id'];
-						$product_id = $_REQUEST['product_ids'][$x];
-
-						// From branch
-						$inventory_from = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch' AND user_id='$user_id'");
-						if (mysqli_num_rows($inventory_from) > 0) {
-							$inv_data = mysqli_fetch_assoc($inventory_from);
-							$new_qty = max(0, (float)$inv_data['quantity_instock'] - $product_quantites);
-							mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$from_branch' AND user_id='$user_id'");
-						}
-
-						// To branch
-						$inventory_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' AND user_id='$user_id'");
-						if (mysqli_num_rows($inventory_to) > 0) {
-							$inv_data = mysqli_fetch_assoc($inventory_to);
-							$new_qty = $inv_data['quantity_instock'] + $product_quantites;
-							mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$to_branch' AND user_id='$user_id'");
-						} else {
-							$insert_inventory = [
-								'product_id' => $product_id,
-								'quantity_instock' => $product_quantites,
-								'branch_id' => $to_branch,
-								'user_id' => $user_id,
-							];
-							insert_data($dbc, 'inventory', $insert_inventory);
-						}
-					}
 				}
 				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;
 
@@ -3050,7 +3018,6 @@ if (isset($_REQUEST['gatepass'])) {
 					'total_amount' => @$total_amount,
 					'discount' => $_REQUEST['ordered_discount'],
 					'grand_total' => $total_grand,
-					'due' => $due_amount,
 				];
 
 				if (update_data($dbc, 'gatepass', $newOrder, 'gatepass_id', $last_id)) {
@@ -3169,7 +3136,6 @@ if (isset($_REQUEST['gatepass'])) {
 					'total_amount' => $total_amount,
 					'discount' => $_REQUEST['ordered_discount'],
 					'grand_total' => $total_grand,
-					'due' => $due_amount,
 				];
 				update_data($dbc, 'gatepass', $update_total, 'gatepass_id', $last_id);
 
@@ -3183,3 +3149,6 @@ if (isset($_REQUEST['gatepass'])) {
 	}
 	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "order_return", 'subtype' => $_REQUEST['payment_type']]);
 }
+
+
+
