@@ -20,7 +20,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                     <div class="row">
                         <div class="col-12 mx-auto h4">
-                            <b class="text-center card-text pb-3"> Sale Return</b>
+                            <b class="text-center card-text pb-3"> Sale </b>
 
 
                             <!-- <a href="#" onclick="reload_page()" class="btn btn-admin float-right btn-sm">Add New</a> -->

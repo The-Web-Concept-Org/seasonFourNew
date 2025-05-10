@@ -51,7 +51,7 @@
 
 											<div class="col-sm-4">
 												<input type="text" class="form-control" id="password" name="password" placeholder="Password" autocomplete="off" /><span style="color: red" class="text-center">Password Automatically encrypted due to security issues</span>
-												<input type="hidden" name="old_password" value="<?= isset($_REQUEST['user_edit_id']) ? $fetchusers['password'] : '123456' ?>" />
+												<input type="hidden" name="old_password" value="<?= isset($_REQUEST['user_edit_id']) ? $fetchusers['password'] : '' ?>" />
 											</div>
 
 												<label for="branch_id" class="col-sm-2 control-label">Branch </label>

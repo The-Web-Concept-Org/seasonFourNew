@@ -227,6 +227,26 @@
                 $invoice_name = "cash purchase invoice";
             }
             $order_item = mysqli_query($dbc, "SELECT purchase_item.*,product.* FROM purchase_item INNER JOIN product ON purchase_item.product_id=product.product_id WHERE purchase_item.purchase_id='" . $_REQUEST['id'] . "'");
+        } elseif ($_REQUEST['type'] == "gatepass") {
+            $nameSHow = 'Customer';
+            $invoice_name = "Gatepass";
+            $id_name = "Gatepass Id";
+            $order = fetchRecord($dbc, "gatepass", "gatepass_id", $_REQUEST['id']);
+            $unique_id = 'SF25-G-' . $order['gatepass_id'];
+            $getDate = $order['gatepass_date'];
+            $comment = $order['gatepass_narration'];
+            $order_item = mysqli_query($dbc, "SELECT gatepass_item.*,product.* FROM gatepass_item INNER JOIN product ON gatepass_item.product_id=product.product_id WHERE gatepass_item.gatepass_id='" . $_REQUEST['id'] . "'");
+            if ($order['payment_type'] == "gatepass") {
+                $table_row = "300px";
+                if ($order['payment_type'] == "none") {
+                    $order_type = "Gatepass";
+                } else {
+                    $order_type = " (Gatepass)";
+                }
+            } else {
+                $order_type = "Gatepass";
+                $table_row = "350px";
+            }
         } elseif ($_REQUEST['type'] == "order") {
             $nameSHow = 'Customer';
             $id_name = "Sale Id";
@@ -399,14 +419,27 @@
                             <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id  ?></p>
                         </div>
                         <div>
-                            <p class="text-uppercase"><strong>
-                                <?php $b =  fetchRecord($dbc, "branch", "branch_id", $order['branch_id']);?>
-                              Branch :</strong>   <?= $b['branch_name'] ?></p>
+                            <?php if ($_REQUEST['type'] == 'gatepass') {
+                                $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
+                                $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
+                            ?>
+                            <?php } else {
+                                $branch = fetchRecord($dbc, "branch", "branch_id", $order['branch_id']);
+                            ?>
+                                <p class="text-uppercase"><strong>Branch:</strong> <?= $branch['branch_name'] ?></p>
+                            <?php } ?>
                         </div>
 
                         <div>
-                            <p class="text-capitalize"><strong>Customer Name :</strong> <?= $order['client_name']  ?></p>
-                            <!-- <p><strong>Bill No:</strong> 1996</p> -->
+                            <?php
+                            if ($_REQUEST['type'] == 'gatepass') {
+                                $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
+                                $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
+                            ?>
+                                <p class="text-uppercase"><strong> From Branch:</strong> <?= $from['branch_name'] ?></p>
+                            <?php } else { ?>
+                                <p class="text-capitalize"><strong>Customer Name :</strong> <?= $order['client_name']  ?></p>
+                            <?php } ?>
                         </div>
                     </div>
                     <div class="invoice-details">
@@ -416,7 +449,15 @@
                             </p>
                         </div>
                         <div>
-                            <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p>
+                            <?php
+                            if ($_REQUEST['type'] == 'gatepass') {
+                                $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
+                                $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
+                            ?>
+                                <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
+                                <?php } else { ?>
+                                    <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p>
+                            <?php } ?>
                             <!-- <p><strong>Bill No:</strong> 1996</p> -->
                         </div>
                     </div>

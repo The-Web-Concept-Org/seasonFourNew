@@ -2949,3 +2949,237 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 	}
 	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "order_return", 'subtype' => $_REQUEST['payment_type']]);
 }
+
+
+/*---------------------- cash purchase   -------------------------------------------------------------------*/
+if (isset($_REQUEST['gatepass'])) {
+	if (!empty($_REQUEST['product_ids'])) {
+
+		$total_amount = $total_grand = $due_amount = 0;
+		$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
+
+		$data = [
+			'gatepass_date' => $_REQUEST['gatepass_date'],
+			'gatepass_narration' => @$_REQUEST['gatepass_narration'],
+			'payment_status' => 1,
+			'payment_type' => 'gatepass',
+			'from_branch' => $_REQUEST['from_branch'],
+			'to_branch' => $_REQUEST['to_branch'],
+		];
+
+		// ---------------------- ADD --------------------------
+		if ($_REQUEST['product_purchase_id'] == "") {
+			if (insert_data($dbc, 'gatepass', $data)) {
+				$last_id = mysqli_insert_id($dbc);
+
+				// Upload file if exists
+				if (!empty($_FILES['gatepass_file']['tmp_name'])) {
+					$uploadDir = '../img/uploads/';
+					$fileName = time() . '_' . basename($_FILES['gatepass_file']['name']);
+					$uploadPath = $uploadDir . $fileName;
+
+					if (move_uploaded_file($_FILES['gatepass_file']['tmp_name'], $uploadPath)) {
+						$file_data = ['gatepass_file' => $fileName];
+						update_data($dbc, "gatepass", $file_data, "gatepass_id", $last_id);
+					}
+				}
+
+				foreach ($_REQUEST['product_ids'] as $x => $value) {
+					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
+					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$total = $product_quantites * $product_rates;
+					$total_amount += $total;
+
+					$order_items = [
+						'product_id' => $_REQUEST['product_ids'][$x],
+						'rate' => $product_rates,
+						'sale_rate' => $product_salerates,
+						'total' => $total,
+						'gatepass_id' => $last_id,
+						'product_detail' => @$_REQUEST['product_detail'][$x],
+						'quantity' => $product_quantites,
+						'gatepass_item_status' => 1,
+						'from_branch' => $_REQUEST['from_branch'],
+						'to_branch' => $_REQUEST['to_branch'],
+					];
+					insert_data($dbc, 'gatepass_item', $order_items);
+
+					// Stock Management
+					if ($get_company['stock_manage'] == 1) {
+						$from_branch = $_REQUEST['from_branch'];
+						$to_branch = $_REQUEST['to_branch'];
+						$user_id = $_SESSION['user_id'];
+						$product_id = $_REQUEST['product_ids'][$x];
+
+						// From branch
+						$inventory_from = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch' AND user_id='$user_id'");
+						if (mysqli_num_rows($inventory_from) > 0) {
+							$inv_data = mysqli_fetch_assoc($inventory_from);
+							$new_qty = max(0, (float)$inv_data['quantity_instock'] - $product_quantites);
+							mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$from_branch' AND user_id='$user_id'");
+						}
+
+						// To branch
+						$inventory_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' AND user_id='$user_id'");
+						if (mysqli_num_rows($inventory_to) > 0) {
+							$inv_data = mysqli_fetch_assoc($inventory_to);
+							$new_qty = $inv_data['quantity_instock'] + $product_quantites;
+							mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$to_branch' AND user_id='$user_id'");
+						} else {
+							$insert_inventory = [
+								'product_id' => $product_id,
+								'quantity_instock' => $product_quantites,
+								'branch_id' => $to_branch,
+								'user_id' => $user_id,
+							];
+							insert_data($dbc, 'inventory', $insert_inventory);
+						}
+					}
+				}
+				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;
+
+				$ordered_discount = isset($_REQUEST['ordered_discount']) ? (float)$_REQUEST['ordered_discount'] : 0;
+				$paid_amount = isset($_REQUEST['paid_ammount']) ? (float)$_REQUEST['paid_ammount'] : 0;
+
+				$total_grand = $total_ammount - $ordered_discount;
+				$due_amount = $total_grand - $paid_amount;
+
+
+				$newOrder = [
+					'total_amount' => @$total_amount,
+					'discount' => $_REQUEST['ordered_discount'],
+					'grand_total' => $total_grand,
+					'due' => $due_amount,
+				];
+
+				if (update_data($dbc, 'gatepass', $newOrder, 'gatepass_id', $last_id)) {
+					$msg = "Gatepass has been added successfully.";
+					$sts = "success";
+				} else {
+					$msg = mysqli_error($dbc);
+					$sts = "danger";
+				}
+			} else {
+				$msg = mysqli_error($dbc);
+				$sts = "danger";
+			}
+		}
+
+		// ---------------------- UPDATE --------------------------
+		else {
+			$last_id = $_REQUEST['product_purchase_id'];
+
+			if (update_data($dbc, 'gatepass', $data, 'gatepass_id', $last_id)) {
+				// File Upload
+				if (!empty($_FILES['gatepass_file']['tmp_name'])) {
+					$uploadDir = '../img/uploads/';
+					$fileName = time() . '_' . basename($_FILES['gatepass_file']['name']);
+					$uploadPath = $uploadDir . $fileName;
+
+					if (move_uploaded_file($_FILES['gatepass_file']['tmp_name'], $uploadPath)) {
+						$file_data = ['gatepass_file' => $fileName];
+						update_data($dbc, "gatepass", $file_data, "gatepass_id", $last_id);
+					}
+				}
+
+				// Rollback old items
+				if ($get_company['stock_manage'] == 1) {
+					$proQ = get($dbc, "gatepass_item WHERE gatepass_id='$last_id'");
+					while ($proR = mysqli_fetch_assoc($proQ)) {
+						$product_id = $proR['product_id'];
+						$qty = $proR['quantity'];
+
+						$from_branch = $proR['from_branch'];
+						$to_branch = $proR['to_branch'];
+						$user_id = $_SESSION['user_id'];
+
+						// Revert from_branch
+						$inv_from = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch' AND user_id='$user_id'"));
+						mysqli_query($dbc, "UPDATE inventory SET quantity_instock=quantity_instock + $qty WHERE product_id='$product_id' AND branch_id='$from_branch' AND user_id='$user_id'");
+
+						// Revert to_branch
+						$inv_to = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' AND user_id='$user_id'"));
+						$new_qty = max(0, $inv_to['quantity_instock'] - $qty);
+						mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$to_branch' AND user_id='$user_id'");
+					}
+				}
+
+				// Delete old items
+				deleteFromTable($dbc, "gatepass_item", "gatepass_id", $last_id);
+
+				// Add new items
+				foreach ($_REQUEST['product_ids'] as $x => $value) {
+					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
+					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$total = $product_quantites * $product_rates;
+					$total_amount += $total;
+
+					$order_items = [
+						'product_id' => $_REQUEST['product_ids'][$x],
+						'rate' => $product_rates,
+						'sale_rate' => $product_salerates,
+						'total' => $total,
+						'gatepass_id' => $last_id,
+						'product_detail' => @$_REQUEST['product_detail'][$x],
+						'quantity' => $product_quantites,
+						'gatepass_item_status' => 1,
+						'from_branch' => $_REQUEST['from_branch'],
+						'to_branch' => $_REQUEST['to_branch'],
+					];
+					insert_data($dbc, 'gatepass_item', $order_items);
+
+					if ($get_company['stock_manage'] == 1) {
+						$product_id = $_REQUEST['product_ids'][$x];
+						$user_id = $_SESSION['user_id'];
+
+						// Decrease from_branch
+						$inv_from = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='{$_REQUEST['from_branch']}' AND user_id='$user_id'"));
+						$new_qty = max(0, $inv_from['quantity_instock'] - $product_quantites);
+						mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='{$_REQUEST['from_branch']}' AND user_id='$user_id'");
+
+						// Increase to_branch
+						$inv_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='{$_REQUEST['to_branch']}' AND user_id='$user_id'");
+						if (mysqli_num_rows($inv_to) > 0) {
+							$inv_data = mysqli_fetch_assoc($inv_to);
+							$new_qty = $inv_data['quantity_instock'] + $product_quantites;
+							mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='{$_REQUEST['to_branch']}' AND user_id='$user_id'");
+						} else {
+							$insert_inventory = [
+								'product_id' => $product_id,
+								'quantity_instock' => $product_quantites,
+								'branch_id' => $_REQUEST['to_branch'],
+								'user_id' => $user_id,
+							];
+							insert_data($dbc, 'inventory', $insert_inventory);
+						}
+					}
+				}
+				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;
+
+				$ordered_discount = isset($_REQUEST['ordered_discount']) ? (float)$_REQUEST['ordered_discount'] : 0;
+				$paid_amount = isset($_REQUEST['paid_ammount']) ? (float)$_REQUEST['paid_ammount'] : 0;
+
+				$total_grand = $total_ammount - $ordered_discount;
+				$due_amount = $total_grand - $paid_amount;
+
+				// Final update
+				$update_total = [
+					'total_amount' => $total_amount,
+					'discount' => $_REQUEST['ordered_discount'],
+					'grand_total' => $total_grand,
+					'due' => $due_amount,
+				];
+				update_data($dbc, 'gatepass', $update_total, 'gatepass_id', $last_id);
+
+				$msg = "Gatepass has been updated successfully.";
+				$sts = "success";
+			} else {
+				$msg = mysqli_error($dbc);
+				$sts = "danger";
+			}
+		}
+	}
+	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "order_return", 'subtype' => $_REQUEST['payment_type']]);
+}
