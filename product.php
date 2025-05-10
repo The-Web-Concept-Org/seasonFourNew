@@ -190,7 +190,6 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
             <div class="card-body">
 
               <div class="d-flex justify-content-between  mb-3 ">
-                <?php if ($_SESSION['user_role'] == 'admin') {   ?>
                   <div>
                     <form method="GET" class="form-inline mb-3">
                       <label for="branch_id" class="mr-2">Filter by Branch:</label>
@@ -206,7 +205,6 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                       </select>
                     </form>
                   </div>
-                <?php } ?>
                 <div class="d-flex align-items-center ml-auto">
                   <form action="php_action/download_products.php?action=upload_products" method="POST" enctype="multipart/form-data">
                     <input type="file" name="excel_file" accept=".xlsx, .xls" required>
