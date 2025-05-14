@@ -421,14 +421,16 @@
                         </div>
                         <div>
                             <?php if ($_REQUEST['type'] == 'gatepass') {
-                                $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
-                                $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
+                                $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
+                                $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
                             ?>
-                            <?php } else {
-                                $branch = fetchRecord($dbc, "branch", "branch_id", $order['branch_id']);
-                            ?>
-                                <p class="text-uppercase"><strong>Branch:</strong> <?= $branch['branch_name'] ?></p>
-                            <?php } ?>
+                                <?php } else {
+                                $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
+                                if (isset($branch['branch_name'])) {
+                                ?>
+                                    <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
+                            <?php }
+                            } ?>
                         </div>
 
                         <div>
@@ -437,9 +439,9 @@
                                 $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
                                 $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
                             ?>
-                                <p class="text-uppercase"><strong> From Branch:</strong> <?= $from['branch_name'] ?></p>
+                                <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
                             <?php } else { ?>
-                                <p class="text-capitalize"><strong>Customer Name :</strong> <?= $order['client_name']  ?></p>
+                                <p class="text-capitalize"><strong>Customer Name :</strong> <?= @$order['client_name']  ?></p>
                             <?php } ?>
                         </div>
                     </div>
