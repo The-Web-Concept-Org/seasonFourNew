@@ -359,7 +359,7 @@
     ?>
 
         <div class="invoice-container">
-            <div class="header">
+            <!-- <div class="header">
                 <div>
                     <div class="heding">
                         <h2><span class="seasonh">season</span> FOUR</h2>
@@ -399,12 +399,13 @@
                         <p><i class="fa-brands fa-instagram"></i> seasonfourkwt</p>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
-            <div class="label">
+            <!-- <div class="label">
                 <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
                 <p>جميع أنواع قطع غيار المكيفات والثلاجات والغسالات</p>
-            </div>
+            </div> -->
+            <div style="margin-top: 226.772px;"></div>
             <div class="invo">
                 <h2 class="text-uppercase"><?= $invoice_name ?></h2>
             </div>
@@ -455,8 +456,8 @@
                                 $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
                             ?>
                                 <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
-                                <?php } else { ?>
-                                    <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p>
+                            <?php } else { ?>
+                                <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p>
                             <?php } ?>
                             <!-- <p><strong>Bill No:</strong> 1996</p> -->
                         </div>
@@ -529,9 +530,9 @@
                 </div>
             </div>
 
+            <div style="margin-bottom: 170.0787401574803px;"></div>
 
-
-            <div>
+            <!-- <div>
                 <div class="return">
                     <p>
                         Goods can be returned within 14 days original packaging & Invoice
@@ -539,7 +540,7 @@
                     <p>يمكن إرجاع البضائع خلال 14 يومًا مع العبوة الأصلية والفاتورة</p>
                 </div>
 
-                <div class="footer">
+                <!-- <div class="footer">
                     <div>
                         <img class="qr" src="img/logo/frame.svg" alt="" />
                     </div>
@@ -556,8 +557,8 @@
                         </div>
                     </div>
                     <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
-                </div>
-            </div>
+                </div> -->
+        </div> -->
         </div><!-- end of container -->
     <?php endfor; ?>
 
