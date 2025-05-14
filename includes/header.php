@@ -29,7 +29,7 @@ $branch_id_current = $_SESSION['branch_id'];
           <img src="img/logo/<?= $get_company['logo'] ?>" class="img-fluid" alt="" style="width: 40px;height: 40px;">
         </a>
         <div class="pl-3 text-capitalize">
-          <p class="m-0 p-0 text-danger"><?= $get_company_br['branch_name'] ?></p>
+          <p class="m-0 p-0 text-danger"><?= @$get_company_br['branch_name'] ?></p>
           <p class="m-0 p-0"><?= $get_company_user['username'] ?></p>
         </div>
       </div>
