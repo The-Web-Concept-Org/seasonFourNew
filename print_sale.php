@@ -16,7 +16,9 @@
         padding: 0;
         background: white;
     }
-
+td{
+    font-size: 16px;
+}
     .invoice-container {
         width: 100%;
         /* A4 width */
@@ -47,7 +49,7 @@
     }
 
     .seasonh {
-        font-size: 20px;
+        font-size: 22px;
     }
 
     .header {
@@ -57,7 +59,7 @@
     }
 
     .header p {
-        font-size: 12px;
+        font-size: 16px;
     }
 
     .image {
@@ -74,11 +76,11 @@
     }
 
     .heding h2 {
-        font-size: 16px;
+        font-size: 18px;
     }
 
     .heding p {
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .invo {
@@ -86,7 +88,7 @@
     }
 
     .label {
-        font-size: 14px;
+        font-size: 16px;
         display: flex;
         justify-content: space-between;
         background-color: darkgreen;
@@ -155,7 +157,7 @@
     .tablefooter {
         border-top: 1px dotted darkgreen !important;
         margin-top: 20px;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
         text-align: center;
 
@@ -169,7 +171,7 @@
     .return {
         display: flex;
         justify-content: space-between;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: bold;
         border-bottom: 3px solid black;
         margin-top: 200px;
@@ -198,7 +200,18 @@
     }
 
     p {
-        font-size: 14px;
+        font-size: 16px;
+    }
+
+    @media print {
+        @page {
+            margin: 1in;
+            size: auto;
+        }
+
+        body {
+            margin: 0;
+        }
     }
 </style>
 
@@ -402,6 +415,31 @@
             return 'NUMBER TOO LARGE';
         }
 
+        function amountToWordsKD($amount)
+        {
+            $parts = explode('.', number_format($amount, 3, '.', ''));
+            $kd = (int)$parts[0];
+            $fils = isset($parts[1]) ? (int)round($parts[1]) : 0;
+
+            $kdPart = numberToWords($kd) . ' KD';
+            $filsPart = $fils > 0 ? ' AND ' . numberToWords($fils) . ' FILS' : '';
+
+            return $kdPart . $filsPart;
+        }
+
+        function formatKDandFils($amount)
+        {
+            $parts = explode('.', number_format($amount, 3, '.', ''));
+            $kd = (int)$parts[0];
+            $fils = (int)$parts[1];
+
+            $output = $kd . ' KD';
+            if ($fils > 0) {
+                $output .= ' AND ' . $fils . ' FILS';
+            }
+
+            return $output;
+        }
 
     ?>
 
@@ -517,8 +555,8 @@
                                 <th style="width: 5%;">S.No</th>
                                 <th style="width: 25%;">Description</th>
                                 <th style="width: 5%;">Qty</th>
-                                <th style="width: 10%;">Unit Price</th>
-                                <th style="width: 10%;">Amount</th>
+                                <th style="width: 5%;">Unit Price</th>
+                                <th style="width: 5%;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -548,9 +586,9 @@
                                 <td><?= $order['discount'] ?></td>
                             </tr>
                             <tr class="tablefooter" style="font-size: 14px;">
-                                <td colspan="3" class="text-left"><?= numberToWords($order['grand_total']) ?></td>
+                                <td colspan="3" class="text-left"><?= amountToWordsKD($order['grand_total']) ?></td>
                                 <td class="text-sm">Net Amount:</td>
-                                <td><?= $order['grand_total'] ?></td>
+                                <td><?= formatKDandFils($order['grand_total']) ?></td>
                             </tr>
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation') { ?>
                                 <?php if ($order['grand_total'] !== "") { ?>
@@ -587,7 +625,7 @@
                     </div>
                     <div class="col-9"></div>
                 </div>
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col-2">
 
                         <p><strong>Price Validity:</strong> </p>
