@@ -355,6 +355,53 @@
 
 
         $date = date('D d-M-Y h:i A', strtotime($order['timestamp'] . " +10 hours"));
+        function numberToWords($number)
+        {
+            $words = [
+                0 => 'ZERO',
+                1 => 'ONE',
+                2 => 'TWO',
+                3 => 'THREE',
+                4 => 'FOUR',
+                5 => 'FIVE',
+                6 => 'SIX',
+                7 => 'SEVEN',
+                8 => 'EIGHT',
+                9 => 'NINE',
+                10 => 'TEN',
+                11 => 'ELEVEN',
+                12 => 'TWELVE',
+                13 => 'THIRTEEN',
+                14 => 'FOURTEEN',
+                15 => 'FIFTEEN',
+                16 => 'SIXTEEN',
+                17 => 'SEVENTEEN',
+                18 => 'EIGHTEEN',
+                19 => 'NINETEEN',
+                20 => 'TWENTY',
+                30 => 'THIRTY',
+                40 => 'FORTY',
+                50 => 'FIFTY',
+                60 => 'SIXTY',
+                70 => 'SEVENTY',
+                80 => 'EIGHTY',
+                90 => 'NINETY'
+            ];
+
+            if ($number < 21) return $words[$number];
+            if ($number < 100) {
+                return $words[10 * floor($number / 10)] . ($number % 10 ? ' ' . $words[$number % 10] : '');
+            }
+            if ($number < 1000) {
+                return $words[floor($number / 100)] . ' HUNDRED' . ($number % 100 ? ' ' . numberToWords($number % 100) : '');
+            }
+            if ($number < 1000000) {
+                return numberToWords(floor($number / 1000)) . ' THOUSAND' . ($number % 1000 ? ' ' . numberToWords($number % 1000) : '');
+            }
+
+            return 'NUMBER TOO LARGE';
+        }
+
 
     ?>
 
@@ -405,7 +452,7 @@
                 <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
                 <p>جميع أنواع قطع غيار المكيفات والثلاجات والغسالات</p>
             </div> -->
-            <div style="margin-top: 226.772px;"></div>
+            <!-- <div style="margin-top: 226.772px;"></div> -->
             <div class="invo">
                 <h2 class="text-uppercase"><?= $invoice_name ?></h2>
             </div>
@@ -467,9 +514,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 10%;">S.No</th>
-                                <th style="width: 10%;">Description</th>
-                                <th style="width: 10%;">Qty</th>
+                                <th style="width: 5%;">S.No</th>
+                                <th style="width: 25%;">Description</th>
+                                <th style="width: 5%;">Qty</th>
                                 <th style="width: 10%;">Unit Price</th>
                                 <th style="width: 10%;">Amount</th>
                             </tr>
@@ -479,7 +526,6 @@
                             $totalAm = 0;
                             while ($r = mysqli_fetch_assoc($order_item)) {
                                 $c++;
-
                             ?>
                                 <tr>
                                     <td class="text-center">1</td>
@@ -502,9 +548,7 @@
                                 <td><?= $order['discount'] ?></td>
                             </tr>
                             <tr class="tablefooter" style="font-size: 14px;">
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td colspan="3" class="text-left"><?= numberToWords($order['grand_total']) ?></td>
                                 <td class="text-sm">Net Amount:</td>
                                 <td><?= $order['grand_total'] ?></td>
                             </tr>
@@ -532,7 +576,30 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 170.0787401574803px;"></div>
+            <div class="pt-5 mt-3 mb-5">
+                <div class="row">
+                    <div class="col-2">
+
+                        <p><strong>Payment Mode:</strong> </p>
+                    </div>
+                    <div class="col-1">
+                        <p>______________________ </p>
+                    </div>
+                    <div class="col-9"></div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+
+                        <p><strong>Price Validity:</strong> </p>
+                    </div>
+                    <div class="col-1">
+                        <p>______________________ </p>
+                    </div>
+                    <div class="col-9"></div>
+                </div>
+
+
+            </div>
 
             <!-- <div>
                 <div class="return">
