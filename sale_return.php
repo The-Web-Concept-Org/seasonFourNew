@@ -192,7 +192,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                         $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
                                     ?>
 
-                                        <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
+                                        <option data-price="<?= $row["currentrate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
                                             <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
 
                                     <?php   } ?>
