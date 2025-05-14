@@ -32,8 +32,25 @@ if (!empty($_REQUEST['edit_order_id'])) {
           <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
             <input type="hidden" name="product_order_id" value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
             <input type="hidden" name="quotation_form" id="quotation_form" value="quotation">
+            <?php if ($_SESSION['user_role'] == 'admin') { ?>
+              <div class="dropdown-wrapper ml-auto mb-3">
+                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
+                  <option selected disabled>Select Branch</option>
+                  <?php
+                  $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                  while ($row = mysqli_fetch_array($branch)) {
+                  ?>
+                    <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                      <?= $row['branch_name'] ?>
+                    </option>
+                  <?php } ?>
+                </select>
+              </div>
+            <?php } else { ?>
+              <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+            <?php } ?>
             <div class="row form-group">
-              <input type="hidden" name="payment_type" id="payment_type" value="quotation">
+              <input type="hidden" name="payment_type" id="payment_type" value="cash_in_hand">
               <input type="hidden" name="quotation_form" id="quotation_form" value="quotation_form">
               <input type="hidden" name="price_type" id="price_type" value="sale">
               <div class="col-md-1">
