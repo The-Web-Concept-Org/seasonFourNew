@@ -163,7 +163,8 @@
         text-align: left;
     }
 
-    .invoice-details ,  .invoice-details p {
+    .invoice-details,
+    .invoice-details p {
         margin: 4px;
     }
 
@@ -459,7 +460,7 @@
 
         function formatAmountWithKD($amount)
         {
-            return number_format($amount, 3) . ' KD';
+            return number_format($amount, 3) ;
         }
 
 
@@ -594,8 +595,8 @@
                                             | <?= strtoupper($r['product_detail']) ?>
                                         <?php endif; ?> </td>
                                     <td class="text-center"><?= $r['quantity'] ?></td>
-                                    <td class="text-center"><?= $r['rate'] ?></td>
-                                    <td class="text-center"><?= $r['rate'] *  $r['quantity'] ?></td>
+                                    <td class="text-center"><?= formatAmountWithKD($r['rate']) ?></td>
+                                    <td class="text-center"><?= formatAmountWithKD($r['rate'] *  $r['quantity']) ?></td>
                                 </tr>
                             <?php
                                 $totalQTY += $r['quantity'];
@@ -638,32 +639,32 @@
                     </tfoot>
                 </div>
             </div>
+            <?php if ($_REQUEST['type'] == "quotation") { ?>
+                <div class="pt-5 mt-3 mb-5">
+                    <div class="row">
+                        <div class="col-2">
 
-            <div class="pt-5 mt-3 mb-5">
-                <div class="row">
-                    <div class="col-2">
+                            <p><strong>Payment Mode:</strong> </p>
+                        </div>
+                        <div class="col-1">
+                            <p>______________________ </p>
+                        </div>
+                        <div class="col-9"></div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-2">
 
-                        <p><strong>Payment Mode:</strong> </p>
+                            <p><strong>Price Validity:</strong> </p>
+                        </div>
+                        <div class="col-1">
+                            <p>______________________ </p>
+                        </div>
+                        <div class="col-9"></div>
                     </div>
-                    <div class="col-1">
-                        <p>______________________ </p>
-                    </div>
-                    <div class="col-9"></div>
+
+
                 </div>
-                <div class="row mt-3">
-                    <div class="col-2">
-
-                        <p><strong>Price Validity:</strong> </p>
-                    </div>
-                    <div class="col-1">
-                        <p>______________________ </p>
-                    </div>
-                    <div class="col-9"></div>
-                </div>
-
-
-            </div>
-
+            <?php } ?>
             <!-- <div>
                 <div class="return">
                     <p>
