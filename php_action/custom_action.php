@@ -630,19 +630,8 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-							if ($inventory_qty <= 0) {
-								$msg = "Not Efficient Inventory";
-								$sts = 'error';
 
-								echo json_encode(['msg' => $msg, 'sts' => $sts]);
-								exit;
-							}
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} else {
-							$msg = "Not Efficient Inventory";
-							$sts = 'error';
-							echo json_encode(['msg' => $msg, 'sts' => $sts]);
-							exit;
 						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
@@ -715,11 +704,6 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} else {
-							$msg = "Not Efficient Inventory";
-							$sts = 'error';
-							echo json_encode(['msg' => $msg, 'sts' => $sts]);
-							exit;
 						}
 					}
 
@@ -756,19 +740,8 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 							if (mysqli_num_rows($inventory) > 0) {
 								$inventory = mysqli_fetch_assoc($inventory);
 								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-								if ($inventory_qty <= 0) {
-									$msg = "Not Efficient Inventory";
-									$sts = 'error';
 
-									echo json_encode(['msg' => $msg, 'sts' => $sts]);
-									exit;
-								}
 								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-							} else {
-								$msg = "Not Efficient Inventory";
-								$sts = 'error';
-								echo json_encode(['msg' => $msg, 'sts' => $sts]);
-								exit;
 							}
 						}
 						//update_data($dbc,'order_item', $order_items , 'order_id',$_REQUEST['product_order_id']);
@@ -898,19 +871,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-							if ($inventory_qty <= 0) {
-								$msg = "Not Efficient Inventory";
-								$sts = 'error';
-
-								echo json_encode(['msg' => $msg, 'sts' => $sts]);
-								exit;
-							}
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} else {
-							$msg = "Not Efficient Inventory";
-							$sts = 'error';
-							echo json_encode(['msg' => $msg, 'sts' => $sts]);
-							exit;
 						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
@@ -1009,12 +970,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} else {
-							$msg = "Not Efficient Inventory";
-							$sts = 'error';
-							echo json_encode(['msg' => $msg, 'sts' => $sts]);
-							exit;
-						}
+						} 
 					}
 				}
 				deleteFromTable($dbc, "order_item", 'order_id', $_REQUEST['product_order_id']);
@@ -1048,20 +1004,9 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						if (mysqli_num_rows($inventory) > 0) {
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-							if ($inventory_qty <= 0) {
-								$msg = "Not Efficient Inventory";
-								$sts = 'error';
-
-								echo json_encode(['msg' => $msg, 'sts' => $sts]);
-								exit;
-							}
+				
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} else {
-							$msg = "Not Efficient Inventory";
-							$sts = 'error';
-							echo json_encode(['msg' => $msg, 'sts' => $sts]);
-							exit;
-						}
+						} 
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -2324,19 +2269,8 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-							if ($inventory_qty <= 0) {
-								$msg = "Not Efficient Inventory";
-								$sts = 'error';
-
-								echo json_encode(['msg' => $msg, 'sts' => $sts]);
-								exit;
-							}
+			
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} else {
-							$msg = "Not Efficient Inventory";
-							$sts = 'error';
-							echo json_encode(['msg' => $msg, 'sts' => $sts]);
-							exit;
 						}
 					}
 
@@ -3004,7 +2938,6 @@ if (isset($_REQUEST['gatepass'])) {
 						'to_branch' => $_REQUEST['to_branch'],
 					];
 					insert_data($dbc, 'gatepass_item', $order_items);
-
 				}
 				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;
 
@@ -3150,6 +3083,3 @@ if (isset($_REQUEST['gatepass'])) {
 	}
 	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "order_return", 'subtype' => $_REQUEST['payment_type']]);
 }
-
-
-
