@@ -460,6 +460,10 @@
 
         function formatAmountWithKD($amount)
         {
+            return number_format($amount, 3) . ' KD';
+        }
+        function formatAmountWithoutKD($amount)
+        {
             return number_format($amount, 3) ;
         }
 
@@ -595,8 +599,8 @@
                                             | <?= strtoupper($r['product_detail']) ?>
                                         <?php endif; ?> </td>
                                     <td class="text-center"><?= $r['quantity'] ?></td>
-                                    <td class="text-center"><?= formatAmountWithKD($r['rate']) ?></td>
-                                    <td class="text-center"><?= formatAmountWithKD($r['rate'] *  $r['quantity']) ?></td>
+                                    <td class="text-center"><?= formatAmountWithoutKD($r['rate']) ?></td>
+                                    <td class="text-center"><?= formatAmountWithoutKD($r['rate'] *  $r['quantity']) ?></td>
                                 </tr>
                             <?php
                                 $totalQTY += $r['quantity'];
