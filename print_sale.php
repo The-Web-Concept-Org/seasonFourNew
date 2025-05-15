@@ -141,6 +141,7 @@ td{
         padding: 8px;
         text-align: center;
         color: darkgreen !important;
+        font-size: 18px;
     }
 
     table td {
