@@ -594,8 +594,8 @@
                                             | <?= strtoupper($r['product_detail']) ?>
                                         <?php endif; ?> </td>
                                     <td class="text-center"><?= $r['quantity'] ?></td>
-                                    <td class="text-center"><?= formatAmountWithKD($r['rate']) ?></td>
-                                    <td class="text-center"><?= formatAmountWithKD($r['rate'] *  $r['quantity']) ?></td>
+                                    <td class="text-center"><?= $r['rate'] ?></td>
+                                    <td class="text-center"><?= $r['rate'] *  $r['quantity'] ?></td>
                                 </tr>
                             <?php
                                 $totalQTY += $r['quantity'];
