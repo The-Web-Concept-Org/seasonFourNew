@@ -140,7 +140,7 @@
 
     table th {
         border: 1px dotted darkgreen;
-        padding: 8px;
+        padding: 6px 8px;
         text-align: center;
         color: darkgreen !important;
         font-size: 18px;
@@ -152,7 +152,7 @@
 
     table td {
         text-align: center;
-        padding: 10px 0px;
+        padding: 5px 0px;
         border-bottom: 1px solid #e9ecef;
         border: 1px solid #e9ecef;
     }
@@ -161,6 +161,10 @@
 
     table .descri {
         text-align: left;
+    }
+
+    .invoice-details ,  .invoice-details p {
+        margin: 4px;
     }
 
     .tablefooter {
@@ -207,6 +211,8 @@
         margin-top: 15px;
         width: 100px;
     }
+
+
 
     p {
         font-size: 16px;
@@ -517,7 +523,7 @@
                 </div> -->
                 <div class="content">
                     <div class="invoice-details">
-                        <div>
+                        <div class="m-0 p-0">
                             <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id  ?></p>
                         </div>
                         <div>
@@ -534,7 +540,7 @@
                             } ?>
                         </div>
 
-                        <div>
+                        <div class="m-0 p-0">
                             <?php
                             if ($_REQUEST['type'] == 'gatepass') {
                                 $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
@@ -547,12 +553,12 @@
                         </div>
                     </div>
                     <div class="invoice-details">
-                        <div>
+                        <div class="m-0 p-0">
                             <p><strong>DATE:</strong> <?= $date  ?> </p>
                             <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?> -->
                             </p>
                         </div>
-                        <div>
+                        <div class="m-0 p-0">
                             <?php
                             if ($_REQUEST['type'] == 'gatepass') {
                                 $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
@@ -582,14 +588,14 @@
                                 $c++;
                             ?>
                                 <tr>
-                                    <td class="text-center"><?= str_pad($c, 2, '0', STR_PAD_LEFT) ?></td>
+                                    <td class="text-center"><?= $c ?></td>
                                     <td class="text-left pl-3 " class="descri"><?= strtoupper($r['product_name']) ?>
                                         <?php if (!empty($r['product_detail'])): ?>
                                             | <?= strtoupper($r['product_detail']) ?>
                                         <?php endif; ?> </td>
                                     <td class="text-center"><?= $r['quantity'] ?></td>
-                                    <td class="text-center"><?= $r['rate'] ?></td>
-                                    <td class="text-center"><?= $r['rate'] *  $r['quantity'] ?></td>
+                                    <td class="text-center"><?= formatAmountWithKD($r['rate']) ?></td>
+                                    <td class="text-center"><?= formatAmountWithKD($r['rate'] *  $r['quantity']) ?></td>
                                 </tr>
                             <?php
                                 $totalQTY += $r['quantity'];
@@ -605,7 +611,7 @@
                                 <td><?= formatAmountWithKD($order['discount'])  ?> </td>
                             </tr>
                             <tr class="tablefooter" style="font-size: 14px;">
-                                <td colspan="3" class="text-left"><?= amountToWordsKD($order['grand_total']) ?></td>
+                                <td colspan="3" class="text-left pl-3"><?= amountToWordsKD($order['grand_total']) ?></td>
                                 <td class="text-sm">Net Amount:</td>
                                 <td><?= formatAmountWithKD($order['grand_total']); ?></td>
                             </tr>
