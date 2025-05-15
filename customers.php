@@ -64,6 +64,19 @@ if (@$getCustomer) {
 											<label for="email">Name:</label>
 											<input type="text" class="form-control" id="customer_name" name="customer_name" required autofocus="true" placeholder="Full Name" value="<?= @$Getdata['customer_name'] ?>">
 										</div>
+										<div class="col-sm-6 mt-3">
+											<label for="branch_id" class="control-label">Branch</label>
+											<select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
+												<option selected disabled>Select Branch</option>
+												<?php
+												$branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+												while ($row = mysqli_fetch_array($branch)) { ?>
+													<option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? 'selected' : '' ?> value="<?= $row['branch_id'] ?>">
+														<?= $row['branch_name'] ?>
+													</option>
+												<?php } ?>
+											</select>
+										</div>
 
 										<?php if ($_REQUEST['type'] != "bank" and $_REQUEST['type'] != "expense"): ?>
 											<div class="col-sm-6 mt-3">
@@ -85,7 +98,7 @@ if (@$getCustomer) {
 
 
 
-										<div class="col-sm-6 mt-3">
+										<div class="<?= ($_REQUEST['type'] == 'customer' || $_REQUEST['type'] == 'supplier') ? 'col-12' : 'col-sm-6' ?> mt-3">
 
 
 

@@ -12,6 +12,7 @@ if (isset($_REQUEST['add_manually_user'])) {
 		'customer_type' => @$_REQUEST['add_manually_user'],
 		'customer_limit' => @$_REQUEST['check_amount'],
 		'representatives' => @$_REQUEST['representative_values'],
+		'branch_id' => @$_REQUEST['branch_id'],
 	];
 	if ($_REQUEST['customer_id'] == "") {
 
