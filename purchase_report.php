@@ -26,14 +26,14 @@
 								<div class="col-sm-2">
 									<div class="form-group">
 										<label for="">Customer Account</label>
-										<select class="form-control" name="customer_id" autofocus="true">
+										<select class="form-control text-capitalize" name="customer_id" autofocus="true">
 											<option value="">~~SELECT~~</option>
 											<?php
-											$sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type='supplier'";
+											$sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type='supplier' ";
 											$result = $connect->query($sql);
 
 											while ($row = $result->fetch_array()) {
-												echo "<option value='" . $row[0] . "'>" . $row[1] . "</option>";
+												echo "<option class='" . 'text-capitalize' . "' value='" . $row['customer_id'] . "'>" . $row['customer_name'] . "</option>";
 											} // while
 
 											?>
