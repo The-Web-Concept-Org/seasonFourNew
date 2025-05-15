@@ -16,9 +16,11 @@
         padding: 0;
         background: white;
     }
-td{
-    font-size: 16px;
-}
+
+    td {
+        font-size: 16px;
+    }
+
     .invoice-container {
         width: 100%;
         /* A4 width */
@@ -144,11 +146,17 @@ td{
         font-size: 18px;
     }
 
+    table tbody tr:first-child td {
+        border-top: none !important;
+    }
+
     table td {
         text-align: center;
         padding: 10px 0px;
         border-bottom: 1px solid #e9ecef;
+        border: 1px solid #e9ecef;
     }
+
 
 
     table .descri {
@@ -423,7 +431,7 @@ td{
             $fils = isset($parts[1]) ? (int)round($parts[1]) : 0;
 
             $kdPart = numberToWords($kd) . ' KD';
-            $filsPart = $fils > 0 ? ' AND ' . numberToWords($fils) . ' FILS' : '';
+            $filsPart = $fils > 0 ? ' AND ' . numberToWords($fils) . ' FILLS' : '';
 
             return $kdPart . $filsPart;
         }
@@ -436,11 +444,18 @@ td{
 
             $output = $kd . ' KD';
             if ($fils > 0) {
-                $output .= ' AND ' . $fils . ' FILS';
+                $output .= ' AND ' . $fils . ' FILLS';
             }
 
             return $output;
         }
+
+
+        function formatAmountWithKD($amount)
+        {
+            return number_format($amount, 3) . ' KD';
+        }
+
 
     ?>
 
@@ -497,9 +512,9 @@ td{
             </div>
 
             <div class="invoice-bg">
-                <div class="bg-img">
+                <!-- <div class="bg-img">
                     <img class="bg-image" src="img/logo/<?= $get_company['logo'] ?>" alt="" />
-                </div>
+                </div> -->
                 <div class="content">
                     <div class="invoice-details">
                         <div>
@@ -554,7 +569,7 @@ td{
                         <thead>
                             <tr>
                                 <th style="width: 5%;">S.No</th>
-                                <th style="width: 25%;">Description</th>
+                                <th style="width: 25%;" class="text-left pl-3">Description</th>
                                 <th style="width: 5%;">Qty</th>
                                 <th style="width: 5%;">Unit Price</th>
                                 <th style="width: 5%;">Amount</th>
@@ -567,8 +582,11 @@ td{
                                 $c++;
                             ?>
                                 <tr>
-                                    <td class="text-center">1</td>
-                                    <td class="text-center" class="descri"><?= strtoupper($r['product_name']) ?> | <?= strtoupper($r['product_detail']) ?> </td>
+                                    <td class="text-center"><?= str_pad($c, 2, '0', STR_PAD_LEFT) ?></td>
+                                    <td class="text-left pl-3 " class="descri"><?= strtoupper($r['product_name']) ?>
+                                        <?php if (!empty($r['product_detail'])): ?>
+                                            | <?= strtoupper($r['product_detail']) ?>
+                                        <?php endif; ?> </td>
                                     <td class="text-center"><?= $r['quantity'] ?></td>
                                     <td class="text-center"><?= $r['rate'] ?></td>
                                     <td class="text-center"><?= $r['rate'] *  $r['quantity'] ?></td>
@@ -584,12 +602,12 @@ td{
                                 <td></td>
                                 <td></td>
                                 <td>Discount:</td>
-                                <td><?= $order['discount'] ?></td>
+                                <td><?= formatAmountWithKD($order['discount'])  ?> </td>
                             </tr>
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><?= amountToWordsKD($order['grand_total']) ?></td>
                                 <td class="text-sm">Net Amount:</td>
-                                <td><?= formatKDandFils($order['grand_total']) ?></td>
+                                <td><?= formatAmountWithKD($order['grand_total']); ?></td>
                             </tr>
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation') { ?>
                                 <?php if ($order['grand_total'] !== "") { ?>
