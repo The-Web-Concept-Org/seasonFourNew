@@ -383,7 +383,7 @@
         }
 
 
-        $date = date('D d-M-Y h:i A', strtotime($order['timestamp'] . " +10 hours"));
+        $date = date(' d-M-Y h:i A', strtotime($order['timestamp'] . " +10 hours"));
         function numberToWords($number)
         {
             $words = [
@@ -538,19 +538,7 @@
                         <div class="m-0 p-0">
                             <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id  ?></p>
                         </div>
-                        <div>
-                            <?php if ($_REQUEST['type'] == 'gatepass') {
-                                $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
-                                $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
-                            ?>
-                                <?php } else {
-                                $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
-                                if (isset($branch['branch_name'])) {
-                                ?>
-                                    <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
-                            <?php }
-                            } ?>
-                        </div>
+
 
                         <div class="m-0 p-0">
                             <p><strong>DATE:</strong> <?= $date  ?> </p>
@@ -581,10 +569,24 @@
                                 $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
                             ?>
                                 <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
-                            <?php } else { ?>
-                                <!-- <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p> -->
                             <?php } ?>
-                            <!-- <p><strong>Bill No:</strong> 1996</p> -->
+                        </div>
+
+
+                    </div>
+                    <div class="invoice-details">
+                        <div>
+                            <?php if ($_REQUEST['type'] == 'gatepass') {
+                                $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
+                                $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
+                            ?>
+                                <?php } else {
+                                $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
+                                if (isset($branch['branch_name'])) {
+                                ?>
+                                    <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
+                            <?php }
+                            } ?>
                         </div>
                     </div>
                     <table>
@@ -684,6 +686,16 @@
 
                 </div>
             <?php } ?>
+                <div class="row mt-5 pt-5 m-0 px-5 mr-4">
+                    <div class="col-9"></div>
+                    <div class="col-2">
+
+                        <p><strong>Prepared By:</strong> </p>
+                    </div>
+                    <div class="col-1">
+                        <p>______________________ </p>
+                    </div>
+                </div>
             <!-- <div>
                 <div class="return">
                     <p>
