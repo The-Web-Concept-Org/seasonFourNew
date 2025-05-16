@@ -47,7 +47,7 @@
                                     }
 
                                     // Fetch purchases
-                                    $q = mysqli_query($dbc, "SELECT * FROM gatepass WHERE to_branch = '$session_branch_id' ORDER BY gatepass_date DESC");
+                                    $q = mysqli_query($dbc, "SELECT * FROM gatepass ORDER BY gatepass_date DESC");
 
                                     $c = 0;
                                     while ($r = mysqli_fetch_assoc($q)) {

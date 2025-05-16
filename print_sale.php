@@ -553,6 +553,11 @@
                         </div>
 
                         <div class="m-0 p-0">
+                            <p><strong>DATE:</strong> <?= $date  ?> </p>
+                        </div>
+                    </div>
+                    <div class="invoice-details">
+                        <div class="m-0 p-0">
                             <?php
                             if ($_REQUEST['type'] == 'gatepass') {
                                 $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
@@ -560,15 +565,14 @@
                             ?>
                                 <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
                             <?php } else { ?>
-                                <p class="text-capitalize"><strong>Customer Name :</strong> <?= @$order['client_name']  ?></p>
+
+                                <p class="text-uppercase"><strong>Customer Name :</strong> <?= @$order['client_name']  ?></p>
+
                             <?php } ?>
-                        </div>
-                    </div>
-                    <div class="invoice-details">
-                        <div class="m-0 p-0">
-                            <p><strong>DATE:</strong> <?= $date  ?> </p>
-                            <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?> -->
-                            </p>
+
+                            <!-- <p><strong>DATE:</strong> <?= $date  ?> </p> -->
+                            <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?>
+                            </p> -->
                         </div>
                         <div class="m-0 p-0">
                             <?php
@@ -578,7 +582,7 @@
                             ?>
                                 <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
                             <?php } else { ?>
-                                <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p>
+                                <!-- <p class="text-capitalize"><strong>Customer Contact :</strong> <?= $order['client_contact']  ?></p> -->
                             <?php } ?>
                             <!-- <p><strong>Bill No:</strong> 1996</p> -->
                         </div>
@@ -598,10 +602,14 @@
                             $totalAm = 0;
                             while ($r = mysqli_fetch_assoc($order_item)) {
                                 $c++;
+                                $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
                             ?>
                                 <tr>
                                     <td class="text-center"><?= $c ?></td>
                                     <td class="text-left pl-3 " class="descri"><?= strtoupper($r['product_name']) ?>
+                                        <?php if (!empty($brand['brand_name'])): ?>
+                                            | <?= strtoupper($brand['brand_name']) ?>
+                                        <?php endif; ?>
                                         <?php if (!empty($r['product_detail'])): ?>
                                             | <?= strtoupper($r['product_detail']) ?>
                                         <?php endif; ?> </td>
@@ -627,7 +635,7 @@
                                 <td class="text-sm">Net Amount:</td>
                                 <td><?= formatAmountWithKD($order['grand_total']); ?></td>
                             </tr>
-                            <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation') { ?>
+                            <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
                                 <?php if ($order['grand_total'] !== "") { ?>
                                     <tr class="tablefooter" style="font-size: 14px;">
                                         <td></td>
