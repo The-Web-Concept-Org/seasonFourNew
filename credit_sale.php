@@ -37,8 +37,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         <input type="hidden" name="quotation_form" id="quotation_form" value="">
 
                         <?php if ($_SESSION['user_role'] == 'admin') { ?>
-                            <div class="dropdown-wrapper d-block mb-3 ml-auto">
-                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize d-block" required>
+                            <div class="dropdown-wrapper ml-auto mb-3">
+                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
                                     <option selected disabled>Select Branch</option>
                                     <?php
                                     $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
@@ -113,7 +113,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                     <select class="form-control searchableSelect" onchange="getBalance(this.value,'customer_account_exp')" name="credit_order_client_name" id="credit_order_client_name" aria-label="Username" aria-describedby="basic-addon1">
                                         <option value="">Customer Account</option>
                                         <?php
-                                        $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer'");
+                                        $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer' AND branch_id='" . $_SESSION['branch_id'] . "'");
                                         while ($r = mysqli_fetch_assoc($q)) {
                                         ?>
                                             <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?> data-id="<?= $r['customer_id'] ?>" data-contact="<?= $r['customer_phone'] ?>" value="<?= $r['customer_name'] ?>"><?= $r['customer_name'] ?> | <?= $r['customer_phone'] ?></option>
@@ -331,7 +331,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                 <div class="input-group">
                                                     <select class="form-control" onchange="getBalance(this.value,'payment_account_bl')" name="payment_account" id="payment_account" aria-label="Username" aria-describedby="basic-addon1">
 
-                                                        <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='bank'");
+                                                        <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='bank' AND branch_id='" . $_SESSION['branch_id'] . "'");
                                                         while ($r = mysqli_fetch_assoc($q)): ?>
                                                             <option <?= @($fetchOrder['payment_account'] == $r['customer_id']) ? "selected" : "" ?> value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
                                                         <?php endwhile; ?>

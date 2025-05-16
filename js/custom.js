@@ -1285,28 +1285,69 @@ $(document).ready(function () {
   $("#get_product_price, #get_product_quantity").on("input", calculateQuantity);
 });
 
-// Change Date Format
+$(document).ready(function () {
+  // Check if the dropdown exists before attaching the event
+  $("#branch_id").on("change", function () {
+    let branch_id = $(this).val();
 
-// $(document).ready(function () {
-//   $("input[type='date']").each(function () {
-//     let dateInput = $(this);
+    $.ajax({
+      url: "php_action/custom_action.php",
+      type: "POST",
+      data: { get_branch_data: branch_id },
+      dataType: "json",
+      success: function (response) {
+        // Empty the fields before adding
+        $("#customer_list").empty();
+        $("#bank_list").empty();
+        $("#supplier_list").empty();
 
-//     // Convert and set the initial value
-//     if (dateInput.val()) {
-//       dateInput.val(formatDate(dateInput.val()));
-//     }
+        // Populate customer type lists
+        if (response.customers.length) {
+          var $customerSelect = $("#credit_order_client_name");
+          $customerSelect
+            .empty()
+            .append('<option value="">Customer Account</option>');
 
-//     // On change, reformat the date
-//     dateInput.on("change", function () {
-//       let formattedDate = formatDate($(this).val());
-//       $(this).val(formattedDate);
-//     });
+          response.customers.forEach(function (cust) {
+            $customerSelect.append(
+              '<option data-id="' +
+                cust.customer_id +
+                '" data-contact="' +
+                cust.customer_phone +
+                '" value="' +
+                cust.customer_name +
+                '">' +
+                cust.customer_name +
+                " | " +
+                cust.customer_phone +
+                "</option>"
+            );
+          });
+        }
 
-//     // Function to format YYYY-MM-DD to DD-MM-YYYY
-//     function formatDate(date) {
-//       if (!date) return "";
-//       let [year, month, day] = date.split("-");
-//       return `${day}-${month}-${year}`;
-//     }
-//   });
-// });
+        if (response.banks.length) {
+          var $paymentSelect = $("#payment_account");
+          $paymentSelect
+            .empty()
+            .append('<option value="">Select Account</option>');
+
+          response.banks.forEach(function (bank) {
+            $paymentSelect.append(
+              '<option value="' +
+                bank.customer_id +
+                '">' +
+                bank.customer_name +
+                "</option>"
+            );
+          });
+        }
+
+        if (response.suppliers.length) {
+          response.suppliers.forEach(function (item) {
+            $("#supplier_list").append("<li>" + item.customer_name + "</li>");
+          });
+        }
+      },
+    });
+  });
+});

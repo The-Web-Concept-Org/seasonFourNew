@@ -970,7 +970,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} 
+						}
 					}
 				}
 				deleteFromTable($dbc, "order_item", 'order_id', $_REQUEST['product_order_id']);
@@ -1004,9 +1004,9 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						if (mysqli_num_rows($inventory) > 0) {
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-				
+
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
-						} 
+						}
 					}
 					insert_data($dbc, 'order_item', $order_items);
 
@@ -2269,7 +2269,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 
 							$inventory = mysqli_fetch_assoc($inventory);
 							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
-			
+
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -3081,5 +3081,39 @@ if (isset($_REQUEST['gatepass'])) {
 			}
 		}
 	}
-	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "order_return", 'subtype' => $_REQUEST['payment_type']]);
+	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "gatepass", 'subtype' => $_REQUEST['payment_type']]);
+}
+
+
+
+if ( isset($_POST['get_branch_data'])) {
+
+	$user_role = $_SESSION['user_role'] ?? '';
+	$session_branch_id = $_SESSION['branch_id'] ?? '';
+
+	// Use session branch_id if user is not admin
+	$branch_id = ($user_role !== 'admin') ? $session_branch_id : $_POST['get_branch_data'];
+
+	function getCustomersByType($dbc, $branch_id, $type)
+	{
+		$stmt = $dbc->prepare("SELECT * FROM customers WHERE branch_id = ? AND customer_type = ?");
+		$stmt->bind_param('is', $branch_id, $type);
+		$stmt->execute();
+		$result = $stmt->get_result();
+
+		$customers = [];
+		while ($row = $result->fetch_assoc()) {
+			$customers[] = $row;
+		}
+		return $customers;
+	}
+
+	$response = [
+		'customers' => getCustomersByType($dbc, $branch_id, 'customer'),
+		'banks'     => getCustomersByType($dbc, $branch_id, 'bank'),
+		'suppliers' => getCustomersByType($dbc, $branch_id, 'supplier')
+	];
+
+	echo json_encode($response);
+	exit;
 }

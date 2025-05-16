@@ -283,11 +283,16 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                         <div class="input-group">
                           <select class="form-control" onchange="getBalance(this.value,'payment_account_bl')" name="payment_account" id="payment_account" aria-label="Username" aria-describedby="basic-addon1">
                             <option value="">Select Account</option>
-                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='bank' AND branch_id='" . $_SESSION['branch_id'] . "'");
-                            while ($r = mysqli_fetch_assoc($q)): ?>
-                              <option <?= @($fetchPurchase['payment_account'] == $r['customer_id']) ? "selected" : "" ?> value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
-                            <?php endwhile; ?>
+                            <?php
+                            $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank' AND branch_id = '" . $_SESSION['branch_id'] . "'");
+                            while ($r = mysqli_fetch_assoc($q)):
+                            ?>
+                              <option <?= @($fetchPurchase['payment_account'] == $r['customer_id']) ? "selected" : "" ?> value="<?= $r['customer_id'] ?>">
+                                <?= $r['customer_name'] ?>
+                              </option>
+                            <?php endwhile; ?>d
                           </select>
+
                           <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Balance : <span id="payment_account_bl">0</span> </span>
                           </div>
