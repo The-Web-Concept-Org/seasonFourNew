@@ -569,25 +569,27 @@
                                 $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
                             ?>
                                 <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
+                            <?php } else { ?>
+                                <div>
+                                    <?php if ($_REQUEST['type'] == 'gatepass') {
+                                        $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
+                                        $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
+                                    ?>
+                                        <?php } else {
+                                        $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
+                                        if (isset($branch['branch_name'])) {
+                                        ?>
+                                            <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
+                                    <?php }
+                                    } ?>
+                                </div>
                             <?php } ?>
                         </div>
 
 
                     </div>
                     <div class="invoice-details">
-                        <div>
-                            <?php if ($_REQUEST['type'] == 'gatepass') {
-                                $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
-                                $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
-                            ?>
-                                <?php } else {
-                                $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
-                                if (isset($branch['branch_name'])) {
-                                ?>
-                                    <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
-                            <?php }
-                            } ?>
-                        </div>
+
                     </div>
                     <table>
                         <thead>
@@ -605,16 +607,19 @@
                             while ($r = mysqli_fetch_assoc($order_item)) {
                                 $c++;
                                 $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
+                                $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
                             ?>
                                 <tr>
                                     <td class="text-center"><?= $c ?></td>
-                                    <td class="text-left pl-3 " class="descri"><?= strtoupper($r['product_name']) ?>
+                                    <td class="text-left pl-3 " class="descri">
+                                        <?php if (!empty($cat['categories_name'])):  ?>
+                                            <?= strtoupper($cat['categories_name']) ?> |
+                                        <?php endif; ?>
+                                        <?= strtoupper($r['product_name']) ?>
                                         <?php if (!empty($brand['brand_name'])): ?>
                                             | <?= strtoupper($brand['brand_name']) ?>
                                         <?php endif; ?>
-                                        <?php if (!empty($r['product_detail'])): ?>
-                                            | <?= strtoupper($r['product_detail']) ?>
-                                        <?php endif; ?> </td>
+                                    </td>
                                     <td class="text-center"><?= $r['quantity'] ?></td>
                                     <td class="text-center"><?= formatAmountWithoutKD($r['rate']) ?></td>
                                     <td class="text-center"><?= formatAmountWithoutKD($r['rate'] *  $r['quantity']) ?></td>
@@ -681,14 +686,14 @@
                             <p>______________________ </p>
                         </div>
                         <div class="col-9  pr-5">
-                            <div class="row  px-5 mr-5">
-                                <div class="col-9"></div>
-                                <div class="col-2">
+                            <div class="row  ">
+                                <div class="col-3"></div>
+                                <div class="col-5 text-right">
 
                                     <p><strong>Prepared By:</strong> </p>
                                 </div>
-                                <div class="col-1">
-                                    <p>______________________ </p>
+                                <div class="col-1 ">
+                                    <p class="">______________________ </p>
                                 </div>
                             </div>
                         </div>
@@ -698,16 +703,15 @@
                 </div>
             <?php } else { ?>
 
-            <div class="row mt-5 pt-5 m-0 px-5 mr-4">
-                <div class="col-9"></div>
-                <div class="col-2">
-
-                    <p><strong>Prepared By:</strong> </p>
+                <div class="row mt-5 pt-5 m-0 px-5 mr-4" style="padding-right: 20px !important;">
+                    <div class="col-8"></div>
+                    <div class="col-3 text-right">
+                        <p><strong>Prepared By:</strong> </p>
+                    </div>
+                    <div class="col-1 pr-5">
+                        <p>______________________ </p>
+                    </div>
                 </div>
-                <div class="col-1">
-                    <p>______________________ </p>
-                </div>
-            </div>
             <?php } ?>
             <!-- <div>
                 <div class="return">

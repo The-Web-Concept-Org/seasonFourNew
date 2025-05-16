@@ -1702,6 +1702,7 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 			'paid' => @$_REQUEST['paid_ammount'],
 			'payment_status' => 1,
 			'payment_type' => "lpo",
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 
 		if ($_REQUEST['product_purchase_id'] == "") {
@@ -1877,6 +1878,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 			'payment_type' => 'quotation',
 			'credit_sale_type' => @$_REQUEST['credit_sale_type'],
 			'freight' => @$_REQUEST['freight'],
+			'branch_id' => $_REQUEST['branch_id'],
 		];
 		//'payment_status'=>1,
 		if ($_REQUEST['product_order_id'] == "") {
@@ -3086,7 +3088,7 @@ if (isset($_REQUEST['gatepass'])) {
 
 
 
-if ( isset($_POST['get_branch_data'])) {
+if (isset($_POST['get_branch_data'])) {
 
 	$user_role = $_SESSION['user_role'] ?? '';
 	$session_branch_id = $_SESSION['branch_id'] ?? '';
