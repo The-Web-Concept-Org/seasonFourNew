@@ -680,22 +680,35 @@
                         <div class="col-1">
                             <p>______________________ </p>
                         </div>
-                        <div class="col-9"></div>
+                        <div class="col-9  pr-5">
+                            <div class="row  px-5 mr-5">
+                                <div class="col-9"></div>
+                                <div class="col-2">
+
+                                    <p><strong>Prepared By:</strong> </p>
+                                </div>
+                                <div class="col-1">
+                                    <p>______________________ </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
 
                 </div>
+            <?php } else { ?>
+
+            <div class="row mt-5 pt-5 m-0 px-5 mr-4">
+                <div class="col-9"></div>
+                <div class="col-2">
+
+                    <p><strong>Prepared By:</strong> </p>
+                </div>
+                <div class="col-1">
+                    <p>______________________ </p>
+                </div>
+            </div>
             <?php } ?>
-                <div class="row mt-5 pt-5 m-0 px-5 mr-4">
-                    <div class="col-9"></div>
-                    <div class="col-2">
-
-                        <p><strong>Prepared By:</strong> </p>
-                    </div>
-                    <div class="col-1">
-                        <p>______________________ </p>
-                    </div>
-                </div>
             <!-- <div>
                 <div class="return">
                     <p>
