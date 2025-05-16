@@ -457,14 +457,21 @@
             return $output;
         }
 
-
         function formatAmountWithKD($amount)
         {
-            return number_format($amount, 3) . ' KD';
+            // If amount is not numeric or empty, default to 0
+            if (!is_numeric($amount) || $amount === '') {
+                $amount = 0;
+            }
+            return number_format((float)$amount, 3) . ' KD';
         }
+
         function formatAmountWithoutKD($amount)
         {
-            return number_format($amount, 3) ;
+            if (!is_numeric($amount) || $amount === '') {
+                $amount = 0;
+            }
+            return number_format((float)$amount, 3);
         }
 
 

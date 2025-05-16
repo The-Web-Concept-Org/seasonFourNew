@@ -31,7 +31,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
           <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
             <input type="hidden" name="product_purchase_id" value="<?= @empty($_REQUEST['edit_purchase_id']) ? "" : base64_decode($_REQUEST['edit_purchase_id']) ?>">
             <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
-            
+
             <input type="hidden" name="lpo_form" id="lpo_form" value="">
             <input type="hidden" name="price_type" id="price_type" value="purchase">
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
@@ -49,7 +49,20 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 </select>
               </div>
             <?php } else { ?>
-              <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+              <!-- <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>"> -->
+              <div class="dropdown-wrapper ml-auto mb-3 d-none">
+                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
+                  <option selected disabled>Select Branch</option>
+                  <?php
+                  $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = '" . $_SESSION['branch_id'] . "' ");
+                  while ($row = mysqli_fetch_array($branch)) {
+                  ?>
+                    <option selected class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                      <?= $row['branch_name'] ?>
+                    </option>
+                  <?php } ?>
+                </select>
+              </div>
             <?php } ?>
             <div class="row form-group">
               <div class="col-md-1">
@@ -270,7 +283,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                         <div class="input-group">
                           <select class="form-control" onchange="getBalance(this.value,'payment_account_bl')" name="payment_account" id="payment_account" aria-label="Username" aria-describedby="basic-addon1">
                             <option value="">Select Account</option>
-                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='bank'");
+                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='bank' AND branch_id='" . $_SESSION['branch_id'] . "'");
                             while ($r = mysqli_fetch_assoc($q)): ?>
                               <option <?= @($fetchPurchase['payment_account'] == $r['customer_id']) ? "selected" : "" ?> value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
                             <?php endwhile; ?>
