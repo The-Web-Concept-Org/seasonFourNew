@@ -251,9 +251,9 @@
             $table_row = "390px";
             $getDate = $order['purchase_date'];
             if ($order['payment_type'] == "credit_purchase") {
-                $invoice_name = "credit purchase invoice";
+                $invoice_name = " purchase invoice";
             } else {
-                $invoice_name = "cash purchase invoice";
+                $invoice_name = " purchase invoice";
             }
             $order_item = mysqli_query($dbc, "SELECT purchase_item.*,product.* FROM purchase_item INNER JOIN product ON purchase_item.product_id=product.product_id WHERE purchase_item.purchase_id='" . $_REQUEST['id'] . "'");
         } elseif ($_REQUEST['type'] == "gatepass") {
@@ -281,11 +281,9 @@
             $id_name = "Sale Id";
             $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
             $unique_id = 'SF25-S-' . $order['order_id'];
-            $unique_id = $order['order_id'];
-            if ($order['payment_type'] == "credit_sale") {
-                $invoice_name = "Credit Sale Invoice";
+            if ($order['payment_type'] == "credit_sale") {                $invoice_name = " Sale Invoice";
             } else {
-                $invoice_name = "Cash Sale Invoice";
+                $invoice_name = " Sale Invoice";
             }
             $getDate = $order['order_date'];
             $comment = $order['order_narration'];
@@ -304,8 +302,13 @@
         } elseif ($_REQUEST['type'] == "quotation") {
             $nameSHow = 'Customer';
             $id_name = "Quotation Id";
-            $invoice_name = "Quotation";
+       
             $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
+            if($order['is_delivery_note'] == 1){
+                $invoice_name = "Delivery Note";
+            }else{
+                $invoice_name = "Quotation";
+            }
             $unique_id = 'SF25-Q-' . $order['quotation_id'];
             $getDate = $order['quotation_date'];
             $comment = $order['quotation_narration'];

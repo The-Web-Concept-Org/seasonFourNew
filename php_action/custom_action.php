@@ -1879,6 +1879,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 			'credit_sale_type' => @$_REQUEST['credit_sale_type'],
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'is_delivery_note' => $_REQUEST['allow_stock'] ?? 0,
 		];
 		//'payment_status'=>1,
 		if ($_REQUEST['product_order_id'] == "") {
@@ -1917,13 +1918,25 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'quotation_item_status' => 1,
 					];
+					if (@$_REQUEST['allow_stock'] == 1) {
+						if ($get_company['stock_manage'] == 1) {
+							$product_id = $_REQUEST['product_ids'][$x];
+							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
+							$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
-					// if ($get_company['stock_manage'] == 1) {
-					// 	$product_id = $_REQUEST['product_ids'][$x];
-					// 	$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-					// 	$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
-					// 	$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
-					// }
+							$branch_id = $_REQUEST['branch_id'];
+							$user_id = $_SESSION['user_id'];
+							$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
+							if (mysqli_num_rows($inventory) > 0) {
+
+								$inventory = mysqli_fetch_assoc($inventory);
+								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+
+								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
+							}
+						}
+					}
 					insert_data($dbc, 'quotation_item', $order_items);
 
 					$x++;
@@ -1975,13 +1988,25 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 
 				if ($get_company['stock_manage'] == 1) {
 					$proQ = get($dbc, "quotation_item WHERE quotation_id='" . $last_id . "' ");
+					if (@$_REQUEST['allow_stock'] == 1) {
+						while ($proR = mysqli_fetch_assoc($proQ)) {
+							$newqty = 0;
+							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
+							$newqty = (float)$quantity_instock['quantity_instock'] - (float)$proR['quantity'];
+							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
-					// while ($proR = mysqli_fetch_assoc($proQ)) {
-					// 	$newqty = 0;
-					// 	$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-					// 	$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
-					// 	$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
-					// }
+							$branch_id = $_REQUEST['branch_id'];
+							$user_id = $_SESSION['user_id'];
+							$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
+							if (mysqli_num_rows($inventory) > 0) {
+
+								$inventory = mysqli_fetch_assoc($inventory);
+								$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+
+								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
+							}
+						}
+					}
 				}
 				deleteFromTable($dbc, "quotation_item", 'quotation_id', $_REQUEST['product_order_id']);
 
@@ -2002,12 +2027,25 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'quotation_item_status' => 1,
 					];
-					// if ($get_company['stock_manage'] == 1) {
-					// 	$product_id = $_REQUEST['product_ids'][$x];
-					// 	$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-					// 	$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
-					// 	$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
-					// }
+					if (@$_REQUEST['allow_stock'] == 1) {
+						if ($get_company['stock_manage'] == 1) {
+							$product_id = $_REQUEST['product_ids'][$x];
+							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
+							$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+							$branch_id = $_REQUEST['branch_id'];
+							$user_id = $_SESSION['user_id'];
+							$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
+							if (mysqli_num_rows($inventory) > 0) {
+
+								$inventory = mysqli_fetch_assoc($inventory);
+								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+
+								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
+							}
+						}
+					}
 					insert_data($dbc, 'quotation_item', $order_items);
 
 					$x++;
@@ -2347,6 +2385,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 	}
 	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "purchase_return", 'subtype' => $_REQUEST['payment_type']]);
 }
+
 
 
 /*---------------------- credit sale-order-return   -------------------------------------------------------------------*/

@@ -40,7 +40,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
                   ?>
-                    <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                    <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>
                   <?php } ?>
@@ -71,7 +71,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 <label>Customer Account</label>
                 <div class="input-group">
 
-                  <select class="form-control searchableSelect" onchange="getBalance(this.value,'customer_account_exp')" name="credit_order_client_name" id="credit_order_client_name" required aria-label="Username" aria-describedby="basic-addon1">
+                  <select class="form-control searchableSelect" onchange="getBalance(this.value,'customer_account_exp')" name="credit_order_client_name" id="credit_order_client_name" required aria-label="Username" aria- describedby="basic-addon1">
                     <option value="">Customer Account</option>
                     <?php
                     $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer' AND branch_id='" . $_SESSION['branch_id'] . "' ");
@@ -251,6 +251,28 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     </tr>
                     <tr>
                       <td colspan="5"></td>
+                      <td class="table-bordered"> Allow Stock : </td>
+                      <?php
+                      $allowStock = isset($fetchOrder['is_delivery_note']) ? $fetchOrder['is_delivery_note'] : '0';
+                      ?>
+
+                      <td class="table-bordered" id="product_allow_stock">
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_yes" value="1" <?= $allowStock == '1' ? 'checked' : '' ?>>
+                          <label class="form-check-label" for="allow_stock_yes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_no" value="0" <?= $allowStock == '0' ? 'checked' : '' ?>>
+                          <label class="form-check-label" for="allow_stock_no">No</label>
+                        </div>
+                      </td>
+
+
+
+                      <td class="table-bordered"> </td>
+                    </tr>
+                    <tr>
+                      <td colspan="5"></td>
                       <td class="table-bordered"> <strong>Net Total :</strong> </td>
                       <td class="table-bordered" id="product_grand_total_amount"><?= @$fetchOrder['grand_total'] ?></td>
                       <td class="table-bordered"> </td>
@@ -297,12 +319,11 @@ if (!empty($_REQUEST['edit_order_id'])) {
 }
 ?>
 
-<!-- <script>
-  setTimeout(function() {
-    $('#product_grand_total_amount').text("<?= @$fetchOrder['grand_total'] ?>");
-    $('#product_total_amount').text("<?= @$fetchOrder['total_amount'] ?>");
-    $('#remaining_ammount').val("<?= @$fetchOrder['due'] ?>");
-    $('#ordered_discount').val("<?= @$fetchOrder['discount'] ?>");
-    $('#paid_ammount').val("<?= @$fetchOrder['paid'] ?>");
-  }, 500);
-</script> -->
+<script>
+  if (<?= @$fetchOrder['branch_id'] ?> != "") {
+    setTimeout(function() {
+      $('#branch_id').val("<?= @$fetchOrder['branch_id'] ?>").change();
+      $('#allow_stock_yes').prop('checked', <?= @$fetchOrder['is_delivery_note'] ?> == '1');
+    }, 500);
+  }
+</script>

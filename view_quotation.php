@@ -33,7 +33,7 @@
                 </tr>
               </thead>
               <tbody>
-                <?php $q = mysqli_query($dbc, "SELECT * FROM quotations");
+                <?php $q = mysqli_query($dbc, "SELECT * FROM quotations ORDER BY quotation_id DESC");
                 $c = 0;
                 while ($r = mysqli_fetch_assoc($q)) {
                   $c++;
