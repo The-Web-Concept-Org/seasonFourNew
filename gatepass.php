@@ -127,8 +127,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                         <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
                                             <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
 
-                                        <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>">
-                                            <?= $row["product_name"] ?> </option>
+                                        <!-- <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>">
+                                            <?= $row["product_name"] ?> </option> -->
 
 
                                     <?php   } ?>

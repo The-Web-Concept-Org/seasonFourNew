@@ -153,7 +153,10 @@
     table td {
         text-align: center;
         padding: 5px 0px;
-        border-bottom: 1px solid #e9ecef;
+        /* border-bottom: 1px solid #e9ecef; */
+    }
+
+    .table-border {
         border: 1px solid #e9ecef;
     }
 
@@ -169,7 +172,7 @@
     }
 
     .tablefooter {
-        border-top: 1px dotted darkgreen !important;
+        /* border-top: 1px dotted darkgreen; */
         margin-top: 20px;
         font-size: 18px;
         font-weight: bold;
@@ -281,7 +284,8 @@
             $id_name = "Sale Id";
             $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
             $unique_id = 'SF25-S-' . $order['order_id'];
-            if ($order['payment_type'] == "credit_sale") {                $invoice_name = " Sale Invoice";
+            if ($order['payment_type'] == "credit_sale") {
+                $invoice_name = " Sale Invoice";
             } else {
                 $invoice_name = " Sale Invoice";
             }
@@ -302,11 +306,11 @@
         } elseif ($_REQUEST['type'] == "quotation") {
             $nameSHow = 'Customer';
             $id_name = "Quotation Id";
-       
+
             $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
-            if($order['is_delivery_note'] == 1){
+            if ($order['is_delivery_note'] == 1) {
                 $invoice_name = "Delivery Note";
-            }else{
+            } else {
                 $invoice_name = "Quotation";
             }
             $unique_id = 'SF25-Q-' . $order['quotation_id'];
@@ -612,9 +616,9 @@
                                 $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
                                 $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
                             ?>
-                                <tr>
-                                    <td class="text-center"><?= $c ?></td>
-                                    <td class="text-left pl-3 " class="descri">
+                                <tr class=" border">
+                                    <td class="text-center border"><?= $c ?></td>
+                                    <td class="text-left border pl-3 " class="descri">
                                         <?php if (!empty($cat['categories_name'])):  ?>
                                             <?= strtoupper($cat['categories_name']) ?> |
                                         <?php endif; ?>
@@ -623,9 +627,9 @@
                                             | <?= strtoupper($brand['brand_name']) ?>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-center"><?= $r['quantity'] ?></td>
-                                    <td class="text-center"><?= formatAmountWithoutKD($r['rate']) ?></td>
-                                    <td class="text-center"><?= formatAmountWithoutKD($r['rate'] *  $r['quantity']) ?></td>
+                                    <td class="text-center border"><?= $r['quantity'] ?></td>
+                                    <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
+                                    <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] *  $r['quantity']) ?></td>
                                 </tr>
                             <?php
                                 $totalQTY += $r['quantity'];
@@ -634,16 +638,14 @@
                         </tbody>
                         <tfoot>
                             <tr class="tablefooter" style="font-size: 14px;">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>Discount:</td>
-                                <td><?= formatAmountWithKD($order['discount'])  ?> </td>
+                                <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
+                                <td class="border">Discount:</td>
+                                <td class="border"><?= formatAmountWithKD($order['discount'])  ?> </td>
                             </tr>
-                            <tr class="tablefooter" style="font-size: 14px;">
-                                <td colspan="3" class="text-left pl-3"><?= amountToWordsKD($order['grand_total']) ?></td>
-                                <td class="text-sm">Net Amount:</td>
-                                <td><?= formatAmountWithKD($order['grand_total']); ?></td>
+                            <tr class="tablefooter" style="font-size: 14px; border: none !important;">
+                                <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?> ONLY</td>
+                                <td class="text-sm border">Net Amount:</td>
+                                <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
                             </tr>
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
                                 <?php if ($order['grand_total'] !== "") { ?>
@@ -651,15 +653,15 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td class="text-sm">Paid:</td>
-                                        <td><?= $order['paid'] ?></td>
+                                        <td class="text-sm border">Paid:</td>
+                                        <td class="border"><?= formatAmountWithoutKD($order['paid']) ?></td>
                                     </tr>
                                     <tr class="tablefooter" style="font-size: 14px;">
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td class="text-sm">Remaining:</td>
-                                        <td><?= $order['due'] ?></td>
+                                        <td class="text-sm border">Remaining:</td>
+                                        <td class="border"><?= formatAmountWithoutKD($order['due']) ?></td>
                                     </tr>
                             <?php }
                             } ?>
@@ -688,16 +690,22 @@
                         <div class="col-1">
                             <p>______________________ </p>
                         </div>
-                        <div class="col-9  pr-5">
-                            <div class="row  ">
-                                <div class="col-3"></div>
-                                <div class="col-5 text-right">
-
+                        <div class="col-9 w-100">
+                            <div class="row w-100 text-right ml-auto">
+                                <div class="col-12 text-right d-flex justify-content-end">
                                     <p><strong>Prepared By:</strong> </p>
+                                    <p class="text-capitalize pl-3 pr-2">
+                                        <?php
+                                        $user = fetchRecord($dbc, "users", "user_id", $_SESSION['user_id']);
+                                        if (isset($user['fullname'])) {
+                                            echo $user['fullname'];
+                                        } else {
+                                            echo "______________________";
+                                        }
+                                        ?> </p>
+
                                 </div>
-                                <div class="col-1 ">
-                                    <p class="">______________________ </p>
-                                </div>
+
                             </div>
                         </div>
                     </div>

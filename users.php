@@ -40,7 +40,7 @@
 											</div>
 											<label for="clientContact" class="col-sm-2 control-label">Email</label>
 											<div class="col-sm-4">
-												<input type="email" class="form-control" id="email" name="email" placeholder="Email" autocomplete="off" required value="<?= @$fetchusers['email'] ?>" />
+												<input type="email" class="form-control" id="email" name="email" placeholder="Email" autocomplete="off"  value="<?= @$fetchusers['email'] ?>" />
 											</div>
 
 										</div> <!--/form-group-->
@@ -92,7 +92,7 @@
 
 											<label for="clientContact" class="col-sm-2 control-label">Address</label>
 											<div class="col-sm-4">
-												<input type="text" class="form-control" id="address" name="address" placeholder="Enter Address" autocomplete="off" required value="<?= @$fetchusers['address'] ?>" />
+												<input type="text" class="form-control" id="address" name="address" placeholder="Enter Address" autocomplete="off"  value="<?= @$fetchusers['address'] ?>" />
 
 											</div>
 											<div class="col-sm-2 offset-10 ">

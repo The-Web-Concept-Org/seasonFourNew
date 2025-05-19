@@ -53,7 +53,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               <div class="col-md-2">
                 <label>LPO ID#</label>
                 <?php $result = mysqli_query($dbc, "
-    SHOW TABLE STATUS LIKE 'purchase'
+    SHOW TABLE STATUS LIKE 'lpo'
 ");
                 $data = mysqli_fetch_assoc($result);
                 $next_increment = $data['Auto_increment']; ?>
@@ -124,7 +124,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
                   ?>
                     <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
-                      <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
+                   <?= $getCat["categories_name"]  ?> -  <?=  $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
                   <?php   } ?>
                 </select>
                 <span class="text-center w-100" id="instockQty"></span>

@@ -28,6 +28,7 @@
                   <th class="text-dark">Phone</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Comment</th>
+                  <th class="text-dark">Type</th>
                   <th class="text-dark">File</th>
                   <th class="text-dark">Action</th>
                 </tr>
@@ -44,6 +45,12 @@
                     <td><?= $r['client_contact'] ?></td>
                     <td><?= $r['total_amount'] ?></td>
                     <td class="text-capitalize"><?= $r['quotation_narration'] ?></td>
+                    <td class="text-capitalize">
+                      <?php if ($r['is_delivery_note'] == 1) {
+                        echo "Delivery Note";
+                      } else {
+                        echo "Quotation";
+                      } ?></td>
                     <td>
                       <?php if (!empty($r['quotation_file'])): ?>
                         <a href="img/uploads/<?= htmlspecialchars($r['quotation_file']) ?>" target="_blank">

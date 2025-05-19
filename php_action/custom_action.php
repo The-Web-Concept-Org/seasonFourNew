@@ -2978,6 +2978,26 @@ if (isset($_REQUEST['gatepass'])) {
 						'from_branch' => $_REQUEST['from_branch'],
 						'to_branch' => $_REQUEST['to_branch'],
 					];
+					$product_id = $_REQUEST['product_ids'][$x];
+					$quantity =(float)$_REQUEST['product_quantites'][$x];
+					$from_branch = $_REQUEST['from_branch'];
+					$to_branch = $_REQUEST['to_branch'];
+
+					$check_from = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch'");
+					if (mysqli_num_rows($check_from) > 0) {
+						mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock - $quantity WHERE product_id='$product_id' AND branch_id='$from_branch'");
+					} else {
+						mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, quantity_instock) VALUES ('$product_id', '$from_branch', -$quantity)");
+					}
+
+					$check_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch'");
+					if (mysqli_num_rows($check_to) > 0) {
+						mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock + $quantity WHERE product_id='$product_id' AND branch_id='$to_branch'");
+					} else {
+						mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, quantity_instock) VALUES ('$product_id', '$to_branch', $quantity)");
+					}
+
+
 					insert_data($dbc, 'gatepass_item', $order_items);
 				}
 				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;

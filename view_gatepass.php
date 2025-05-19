@@ -89,10 +89,10 @@
                                                 <?php endif; ?>
 
 
-                                                <a target="_blank" href="print_sale.php?id=<?= $r['gatepass_id'] ?>&type=gatepass" class="btn btn-admin2 btn-sm m-1">Print</a>
+                                                <!-- <a target="_blank" href="print_sale.php?id=<?= $r['gatepass_id'] ?>&type=gatepass" class="btn btn-admin2 btn-sm m-1">Print</a>
                                                 <?php if ($r['stock_status'] != '1'): ?>
                                                     <a href="#" onclick="approveAlert('<?= $r['gatepass_id'] ?>')" class="btn btn-danger btn-sm m-1">Approve</a>
-                                                <?php endif; ?>
+                                                <?php endif; ?> -->
                                             </td>
                                         </tr>
                                     <?php  } ?>
