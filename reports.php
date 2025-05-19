@@ -162,6 +162,7 @@
                   <div class="col-sm-5 mt-3">
                     <h1 style="margin-left: -20px; color: red;font-weight: bold;font-size: 30px"><?= $get_company['name'] ?></h1>
                     <p style="margin-left: -10px; font-weight: bolder;font-size: 15px">PH No. :<?= $get_company['company_phone'] ?></p>
+                    <p  style="margin-left: -10px; margin-top: -12px; font-weight: bolder;font-size: 15px">Email :<?= $get_company['email'] ?></p>
 
 
 

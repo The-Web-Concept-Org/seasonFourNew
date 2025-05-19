@@ -31,6 +31,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <input type="hidden" name="product_purchase_id" value="<?= @empty($_REQUEST['edit_purchase_id']) ? "" : base64_decode($_REQUEST['edit_purchase_id']) ?>">
             <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
             <input type="hidden" name="lpo_form" id="lpo_form" value="">
+            <input type="hidden" name="user_id" value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
+
             <input type="hidden" name="purchase_return" id="purchase_return" value="purchase_return">
             <input type="hidden" name="price_type" id="price_type" value="purchase">
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
@@ -119,7 +121,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label>Product Code</label>
                 <input type="text" autocomplete="off" name="product_code" id="get_product_code" class="form-control">
               </div>
-              <div class="col-6 col-md-2">
+              <div class="col-6 col-md-4">
                 <label>Products</label>
                 <input type="hidden" id="add_pro_type" value="add">
                 <select class="form-control searchableSelect" id="get_product_name" name="product_id">
@@ -142,10 +144,10 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label class="invisible d-block">.</label>
                 <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#add_product_modal"> <i class="fa fa-plus"></i> </button>
               </div>
-              <div class="col-6 col-sm-2 col-md-2">
+              <!-- <div class="col-6 col-sm-2 col-md-2">
                 <label>Product Details</label>
                 <input type="text" class="form-control" id="get_product_detail">
-              </div>
+              </div> -->
               <div class="col-6 col-sm-1 col-md-2">
                 <label>Unit Price</label>
                 <input type="number" <?= ($_SESSION['user_role'] == "admin") ? "" : "readonly" ?> class="form-control" id="get_product_price">
@@ -173,7 +175,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     <tr>
                       <th class="text-dark">Code</th>
                       <th class="text-dark">Product Name</th>
-                      <th class="text-dark">Product Details</th>
+                      <!-- <th class="text-dark">Product Details</th> -->
                       <th class="text-dark">Unit Price</th>
                       <th class="text-dark">Quantity</th>
                       <th class="text-dark" style="width: 25%;">Amount</th>
@@ -191,12 +193,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           <input type="hidden" data-price="<?= $r['rate'] ?>" data-quantity="<?= $r['quantity'] ?>" id="product_ids_<?= $r['product_id'] ?>" class="product_ids" name="product_ids[]" value="<?= $r['product_id'] ?>">
                           <input type="hidden" id="product_quantites_<?= $r['product_id'] ?>" name="product_quantites[]" value="<?= $r['quantity'] ?>">
                           <input type="hidden" id="product_rate_<?= $r['product_id'] ?>" name="product_rates[]" value="<?= $r['rate'] ?>">
-                          <input type="hidden" id="product_detail_<?= $r['product_id'] ?>" name="product_detail[]" value="<?= $r['product_detail'] ?>">
+                     
                           <input type="hidden" id="product_totalrate_<?= $r['product_id'] ?>" name="product_totalrates[]" value="<?= $r['rate'] ?>">
                           <input type="hidden" id="product_salerate_<?= $r['product_id'] ?>" name="product_salerates[]" value="<?= $r['sale_rate'] ?>">
                           <td><?= $r['product_code'] ?></td>
                           <td><?= $r['product_name'] ?></td>
-                          <td><?= $r['product_detail'] ?></td>
+                          
                           <td><?= $r['rate'] ?></td>
                           <td><?= $r['quantity'] ?></td>
                           <td><?= (float)$r['rate'] * (float)$r['quantity'] ?></?>
@@ -204,7 +206,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           <td>
 
                             <button type="button" onclick="removeByid(`#product_idN_<?= $r['product_id'] ?>`)" class="fa fa-trash text-danger" href="#"></button>
-                            <button type="button" onclick="editByid(<?= $r['product_id'] ?>,`<?= $r['product_code'] ?>`,`<?= $r['product_detail'] ?>`,<?= $r['rate'] ?>,<?= $r['quantity'] ?>)" class="fa fa-edit text-success ml-2 "></button>
+                            <button type="button" onclick="editByid(<?= $r['product_id'] ?>,`<?= $r['product_code'] ?>`,<?= $r['rate'] ?>,<?= $r['quantity'] ?>)" class="fa fa-edit text-success ml-2 "></button>
 
                           </td>
                         </tr>

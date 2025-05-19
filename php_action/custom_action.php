@@ -564,6 +564,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 			'order_narration' => @$_REQUEST['order_narration'],
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 
 		if ($_REQUEST['product_order_id'] == "") {
@@ -616,6 +617,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
@@ -727,6 +729,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 							'product_detail' => $_REQUEST['product_detail'][$x],
 							'order_item_status' => 1,
 							'branch_id' => $_REQUEST['branch_id'],
+							'user_id' => $_REQUEST['user_id'],
 						];
 						if ($get_company['stock_manage'] == 1) {
 							$product_id = $_REQUEST['product_ids'][$x];
@@ -819,6 +822,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 			'return_days' => @$_REQUEST['return_days'],
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 		//'payment_status'=>1,
 		if ($_REQUEST['product_order_id'] == "") {
@@ -856,6 +860,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 
 					if ($get_company['stock_manage'] == 1) {
@@ -991,6 +996,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
@@ -1128,6 +1134,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 			'payment_status' => 1,
 			'payment_type' => $_REQUEST['payment_type'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 
 		if ($_REQUEST['product_purchase_id'] == "") {
@@ -1703,6 +1710,7 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 			'payment_status' => 1,
 			'payment_type' => "lpo",
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 
 		if ($_REQUEST['product_purchase_id'] == "") {
@@ -1743,6 +1751,7 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'quantity' => $product_quantites,
 						'lpo_item_status' => 1,
+						'user_id' => $_REQUEST['user_id']
 					];
 
 					insert_data($dbc, 'lpo_item', $order_items);
@@ -1879,6 +1888,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 			'credit_sale_type' => @$_REQUEST['credit_sale_type'],
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 			'is_delivery_note' => $_REQUEST['allow_stock'] ?? 0,
 		];
 		//'payment_status'=>1,
@@ -1916,6 +1926,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						'quotation_id' => $last_id,
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
+						'user_id' => $_REQUEST['user_id'],
 						'quotation_item_status' => 1,
 					];
 					if (@$_REQUEST['allow_stock'] == 1) {
@@ -2025,6 +2036,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						'quotation_id' => $_REQUEST['product_order_id'],
 						'quantity' => $product_quantites,
 						'product_detail' => $_REQUEST['product_detail'][$x],
+						'user_id' => $_REQUEST['user_id'],
 						'quotation_item_status' => 1,
 					];
 					if (@$_REQUEST['allow_stock'] == 1) {
@@ -2104,6 +2116,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 			'payment_status' => 1,
 			'payment_type' => $_REQUEST['payment_type'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 
 		if ($_REQUEST['product_purchase_id'] == "") {
@@ -2144,6 +2157,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 
 					insert_data($dbc, 'purchase_return_item', $order_items);
@@ -2291,6 +2305,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 
 					//update_data($dbc,'order_item', $order_items , 'purchase_id',$_REQUEST['product_purchase_id']);
@@ -2409,6 +2424,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 			'return_days' => @$_REQUEST['return_days'],
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 		//'payment_status'=>1,
 		if ($_REQUEST['product_order_id'] == "") {
@@ -2446,6 +2462,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 
 					if ($get_company['stock_manage'] == 1) {
@@ -2583,6 +2600,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
@@ -2694,6 +2712,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 			'order_narration' => @$_REQUEST['order_narration'],
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 
 		if ($_REQUEST['product_order_id'] == "") {
@@ -2856,6 +2875,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						'product_detail' => $_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
@@ -2940,6 +2960,7 @@ if (isset($_REQUEST['gatepass'])) {
 			'payment_type' => 'gatepass',
 			'from_branch' => $_REQUEST['from_branch'],
 			'to_branch' => $_REQUEST['to_branch'],
+			'user_id' => $_REQUEST['user_id'],
 		];
 
 		// ---------------------- ADD --------------------------
@@ -2977,6 +2998,7 @@ if (isset($_REQUEST['gatepass'])) {
 						'gatepass_item_status' => 1,
 						'from_branch' => $_REQUEST['from_branch'],
 						'to_branch' => $_REQUEST['to_branch'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 					$product_id = $_REQUEST['product_ids'][$x];
 					$quantity =(float)$_REQUEST['product_quantites'][$x];

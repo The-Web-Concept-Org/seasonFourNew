@@ -121,17 +121,18 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   </div>
 
                   <div class="col-sm-2 mb-3 mt-3 mb-sm-0">
-                    <?php
-                    $result = mysqli_query($dbc, "SELECT MAX(product_code) AS max_code FROM product");
-                    $data = mysqli_fetch_assoc($result);
-                    $next_product_code = (int)$data['max_code'] + 1;
+                   <?php
+$result = mysqli_query($dbc, "SELECT MAX(CAST(product_code AS UNSIGNED)) AS max_code FROM product");
+$data = mysqli_fetch_assoc($result);
+$next_product_code = isset($data['max_code']) ? ((int)$data['max_code'] + 1) : 1;
+?>
 
-                    ?>
 
                     <label for="">Product Code</label>
-                    <input type="text" class="form-control" id="product_code" name="product_code" required
-                      value="<?= @empty($_REQUEST['edit_product_id']) ? $next_product_code : $fetchproduct['product_code'] ?>"
-                      readonly>
+<input type="text" class="form-control" id="product_code" name="product_code" required
+  value="<?= @empty($_REQUEST['edit_product_id']) ? $next_product_code : $fetchproduct['product_code'] ?>"
+  readonly>
+
                   </div>
                   <div class="col-sm-2 mb-3 mt-3 mb-sm-0">
                     <label for="">Product Name</label>

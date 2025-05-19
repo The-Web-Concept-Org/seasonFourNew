@@ -578,7 +578,7 @@ $("#addProductPurchase").on("click", function () {
   var payment_type = $("#payment_type").val();
   var form = $("#quotation_form").val();
   var name = $("#get_product_name :selected").text();
-  var pro_details = $("#get_product_detail").val();
+  // var pro_details = $("#get_product_detail").val();
 
   var price = $("#get_product_price").val();
   var sale_price = $("#get_product_sale_price").val();
@@ -606,7 +606,7 @@ $("#addProductPurchase").on("click", function () {
 
   //      sweeetalert("Remainig Limit Exceed 😊 ","error",1500);
   // }else{
-  $("#get_product_detail").val("");
+  // $("#get_product_detail").val("");
   $("#get_product_name").val(null).trigger("change");
   if (
     id != "" &&
@@ -619,7 +619,7 @@ $("#addProductPurchase").on("click", function () {
     $("#get_product_code").val("");
     $("#get_product_price").val("");
     $("#get_product_sale_price").val("");
-    $("#get_product_detail").val("");
+    // $("#get_product_detail").val("");
     $("#get_final_rate").val("");
     $("#instockQty").text("instock :0");
 
@@ -646,13 +646,13 @@ $("#addProductPurchase").on("click", function () {
             <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
                    id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
             <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
-            <input type="hidden" id="product_detail_${id}" name="product_detail[]" value="${pro_details}">
+           
             <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
             <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
             <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
             <td>${code}</td>
             <td>${name}</td>
-            <td>${pro_details}</td>
+            
             <td>${price}</td>
             ${
               payment_type === "credit_sale" || payment_type === "cash_in_hand"
@@ -667,7 +667,7 @@ $("#addProductPurchase").on("click", function () {
             <td>
                 <button type="button" onclick="removeByid('#product_idN_${id}')" 
                         class="fa fa-trash text-danger"></button>
-                <button type="button" onclick="editByid(${id}, '${code}', '${pro_details}', '${price}', '${product_quantity}' , '${final_rate}')" 
+                <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}' , '${final_rate}')" 
                         class="fa fa-edit text-success"></button>
             </td>
         </tr>
@@ -685,13 +685,13 @@ $("#addProductPurchase").on("click", function () {
         <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
                id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
         <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
-        <input type="hidden" id="product_detail_${id}" name="product_detail[]" value="${pro_details}">
+       
         <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
         <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
         <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
         <td>${code}</td>
         <td>${name}</td>
-        <td>${pro_details}</td>
+        
         <td>${price}</td>
         ${
           payment_type === "credit_sale" || payment_type === "cash_in_hand"
@@ -706,7 +706,7 @@ $("#addProductPurchase").on("click", function () {
         <td>
             <button type="button" onclick="removeByid('#product_idN_${id}')" 
                     class="fa fa-trash text-danger"></button>
-            <button type="button" onclick="editByid(${id}, '${code}', '${pro_details}', '${price}','${product_quantity}')" 
+            <button type="button" onclick="editByid(${id}, '${code}',  '${price}','${product_quantity}')" 
                     class="fa fa-edit text-success"></button>
         </td>
     </tr>

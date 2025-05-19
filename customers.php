@@ -51,7 +51,7 @@ if (@$getCustomer) {
 				<div class="row">
 					<div class="col-sm-12">
 
-
+						
 						<div class="card card-info">
 							<div class="card-header text-center h4"><?= ucfirst($_REQUEST['type']) ?> Information</div>
 							<div class=" card-body">
@@ -62,27 +62,34 @@ if (@$getCustomer) {
 										<div class="col-sm-6 mt-3">
 
 											<label for="email">Name:</label>
-											<input type="text" class="form-control" id="customer_name" name="customer_name" required autofocus="true" placeholder="Full Name" value="<?= @$Getdata['customer_name'] ?>">
+											<input type="text" class="form-control" id="customer_name"
+												name="customer_name" required autofocus="true" placeholder="Full Name"
+												value="<?= @$Getdata['customer_name'] ?>">
 										</div>
-										<div class="col-sm-6 mt-3">
-											<label for="branch_id" class="control-label">Branch</label>
-											<select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
-												<option selected disabled>Select Branch</option>
-												<?php
-												$branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-												while ($row = mysqli_fetch_array($branch)) { ?>
-													<option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? 'selected' : '' ?> value="<?= $row['branch_id'] ?>">
-														<?= $row['branch_name'] ?>
-													</option>
-												<?php } ?>
-											</select>
-										</div>
+										<?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+											<div class="col-sm-6 mt-3">
+												<label for="branch_id" class="control-label">Branch</label>
+												<select class="form-control searchableSelect" name="branch_id"
+													id="branch_id" required>
+													<option selected disabled>Select Branch</option>
+													<?php
+													$branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+													while ($row = mysqli_fetch_array($branch)) { ?>
+														<option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? 'selected' : '' ?> value="<?= $row['branch_id'] ?>">
+															<?= $row['branch_name'] ?>
+														</option>
+													<?php } ?>
+												</select>
+											</div>
+										<?php endif; ?>
 
 										<?php if ($_REQUEST['type'] != "bank" and $_REQUEST['type'] != "expense"): ?>
 											<div class="col-sm-6 mt-3">
 
 												<label for="email">Email:</label>
-												<input type="email" class="form-control" id="customer_email" name="customer_email" placeholder="Email" value="<?= @$Getdata['customer_email'] ?>">
+												<input type="email" class="form-control" id="customer_email"
+													name="customer_email" placeholder="Email"
+													value="<?= @$Getdata['customer_email'] ?>">
 
 											</div>
 										<?php endif ?>
@@ -92,13 +99,16 @@ if (@$getCustomer) {
 											<div class="col-sm-6 mt-3">
 
 												<label for="email">Phone:</label>
-												<input type="number" class="form-control" id="customer_phone" name="customer_phone" placeholder="Phone" value="<?= @$Getdata['customer_phone'] ?>" required>
+												<input type="number" class="form-control" id="customer_phone"
+													name="customer_phone" placeholder="Phone"
+													value="<?= @$Getdata['customer_phone'] ?>" required>
 											</div>
 										<?php endif ?>
 
 
 
-										<div class="<?= ($_REQUEST['type'] == 'customer' || $_REQUEST['type'] == 'supplier') ? 'col-12' : 'col-sm-6' ?> mt-3">
+										<div
+											class="<?= ($_REQUEST['type'] == 'customer' || $_REQUEST['type'] == 'supplier') ? 'col-12' : 'col-sm-6' ?> mt-3">
 
 
 
@@ -113,13 +123,18 @@ if (@$getCustomer) {
 
 											<div class="col-sm-12 mt-3">
 												<label for="representatives">Representative :</label>
-												<div class="tag-container" style="border: 1px solid #ccc; padding: 5px; min-height: 40px; display: flex; flex-wrap: wrap;"></div>
-												<input type="text" class="form-control mt-3" id="representatives" name="representatives" placeholder="Write Here...">
-												<input type="hidden" id="representative_values" name="representative_values">
+												<div class="tag-container"
+													style="border: 1px solid #ccc; padding: 5px; min-height: 40px; display: flex; flex-wrap: wrap;">
+												</div>
+												<input type="text" class="form-control mt-3" id="representatives"
+													name="representatives" placeholder="Write Here...">
+												<input type="hidden" id="representative_values"
+													name="representative_values">
 											</div>
 
 											<!-- Hidden field to store JSON data -->
-											<input type="hidden" id="existing_tags" value='<?= @$Getdata["representatives"] ?>'>
+											<input type="hidden" id="existing_tags"
+												value='<?= @$Getdata["representatives"] ?>'>
 
 
 										<?php endif ?>
@@ -127,7 +142,8 @@ if (@$getCustomer) {
 									<?php if ($_REQUEST['type'] == 'customer') { ?>
 										<div class="col-sm-12 my-3 mx-0 px-0">
 											<label for="email">Limit Amount:</label>
-											<input type="number" class="form-control" id="check_amount" name="check_amount" placeholder="Amount Here" value="<?= @$Getdata['customer_limit'] ?>">
+											<input type="number" class="form-control" id="check_amount" name="check_amount"
+												placeholder="Amount Here" value="<?= @$Getdata['customer_limit'] ?>">
 										</div>
 									<?php } ?>
 
@@ -136,7 +152,9 @@ if (@$getCustomer) {
 
 										<div class="form-group">
 											<label for="address">Address:</label>
-											<textarea name="customer_address" id="customer_address" cols="30" rows="4" placeholder="Address" class="form-control"><?= @$Getdata['customer_address'] ?></textarea>
+											<textarea name="customer_address" id="customer_address" cols="30" rows="4"
+												placeholder="Address"
+												class="form-control"><?= @$Getdata['customer_address'] ?></textarea>
 										</div>
 									<?php endif ?>
 
@@ -144,13 +162,15 @@ if (@$getCustomer) {
 									<div class="modal-footer">
 										<?php
 										if (isset($_REQUEST['id'])) {
-										?>
-											<button type="submit" id="formData_btn" class="btn btn-admin2" name="edit_customer">Update</button>
-										<?php
+											?>
+											<button type="submit" id="formData_btn" class="btn btn-admin2"
+												name="edit_customer">Update</button>
+											<?php
 										} else {
-										?>
-											<button type="submit" id="formData_btn" class="btn btn-admin" name="add_customer">ADD</button>
-										<?php
+											?>
+											<button type="submit" id="formData_btn" class="btn btn-admin"
+												name="add_customer">ADD</button>
+											<?php
 										}
 										?>
 									</div>
@@ -165,7 +185,8 @@ if (@$getCustomer) {
 
 						<div class="card card-info mt-3">
 							<div class="card-header" align="center">
-								<h5><span class="glyphicon glyphicon-user"></span> <?= ucfirst($_REQUEST['type']) ?> Management system</h5>
+								<h5><span class="glyphicon glyphicon-user"></span> <?= ucfirst($_REQUEST['type']) ?>
+									Management system</h5>
 							</div>
 							<div class="card-body">
 
@@ -208,7 +229,7 @@ if (@$getCustomer) {
 										<?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='" . $_REQUEST['type'] . "'");
 										while ($r = mysqli_fetch_assoc($q)):
 											$customer_id = $r['customer_id'];
-										?>
+											?>
 											<tr>
 												<?php if (@$_REQUEST['type'] == 'expense') { ?>
 													<td><?= $r['customer_id'] ?></td>
@@ -230,12 +251,13 @@ if (@$getCustomer) {
 														</td>
 
 													<?php } ?>
-													<?php if (@$_REQUEST['type'] !== 'supplier' && @$_REQUEST['type']   !== 'expense') { ?>
+													<?php if (@$_REQUEST['type'] !== 'supplier' && @$_REQUEST['type'] !== 'expense') { ?>
 														<td class="text-capitalize"><?= $r['customer_address'] ?></td>
 														<?php if ($_REQUEST['type'] == 'customer'): ?>
 															<td><?= $r['customer_limit'] ?></td>
 														<?php endif; ?>
-														<td class="text-capitalize"><?= $r['customer_status'] == 1 ? 'Active' : 'Inactive' ?></td>
+														<td class="text-capitalize">
+															<?= $r['customer_status'] == 1 ? 'Active' : 'Inactive' ?></td>
 													<?php } ?>
 
 												<?php } ?>
@@ -249,11 +271,14 @@ if (@$getCustomer) {
 												<td class="d-flex">
 													<!-- <button class="btn btn-admin btn-sm float-right" onclick="SetLimit(<?= $r['customer_id'] ?>,'<?= $r['customer_name'] ?>')" id="limit">Limit</button> -->
 													<?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>
-														<form action="customers.php?type=<?= $_REQUEST['type'] ?>" method="POST">
+														<form action="customers.php?type=<?= $_REQUEST['type'] ?>"
+															method="POST">
 															<input type="hidden" name="id" value="<?= $r['customer_id'] ?>">
 															<button type="submit" class="btn btn-admin btn-sm">Edit</button>
 														</form>
-														<a href="#" onclick="deleteAlert('<?= $r['customer_id'] ?>','customers','customer_id','tableData')" class="btn btn-danger btn-sm ml-1">Delete</a>
+														<a href="#"
+															onclick="deleteAlert('<?= $r['customer_id'] ?>','customers','customer_id','tableData')"
+															class="btn btn-danger btn-sm ml-1">Delete</a>
 
 													<?php endif ?>
 
@@ -296,10 +321,10 @@ if (@$getCustomer) {
 				LimitCustomerajax: customer_id
 			},
 			dataType: 'json',
-			beforeSend: function() {
+			beforeSend: function () {
 
 			},
-			success: function(response) {
+			success: function (response) {
 
 				if (response.sts == "success") {
 					$("#td_check_no").val(response.check_no);
@@ -322,7 +347,7 @@ if (@$getCustomer) {
 <?php include_once 'includes/foot.php'; ?>
 
 <script>
-	$(document).ready(function() {
+	$(document).ready(function () {
 		let existingTags = $("#existing_tags").val(); // Get stored tags from hidden input
 		let tagContainer = $(".tag-container");
 
@@ -330,7 +355,7 @@ if (@$getCustomer) {
 			try {
 				let tagsArray = JSON.parse(existingTags); // Parse JSON string to array
 
-				tagsArray.forEach(function(tag) {
+				tagsArray.forEach(function (tag) {
 					addTag(tag); // Function to create tag UI
 				});
 
@@ -340,7 +365,7 @@ if (@$getCustomer) {
 			}
 		}
 
-		$("#representatives").keypress(function(event) {
+		$("#representatives").keypress(function (event) {
 			if (event.which === 13) { // Enter key pressed
 				event.preventDefault();
 				let tagText = $(this).val().trim();
@@ -355,7 +380,7 @@ if (@$getCustomer) {
 
 		function addTag(tagText) {
 			let tag = $("<div class='tag'></div>").text(tagText);
-			let removeBtn = $("<span class='remove'>&times;</span>").click(function() {
+			let removeBtn = $("<span class='remove'>&times;</span>").click(function () {
 				$(this).parent().remove();
 				updateHiddenInput();
 			});
@@ -366,7 +391,7 @@ if (@$getCustomer) {
 
 		function updateHiddenInput() {
 			let tags = [];
-			$(".tag").each(function() {
+			$(".tag").each(function () {
 				tags.push($(this).text().replace("×", "").trim()); // Remove close button text
 			});
 			$("#representative_values").val(JSON.stringify(tags)); // Store updated tags as JSON

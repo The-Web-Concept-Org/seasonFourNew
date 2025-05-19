@@ -235,7 +235,7 @@
 </style>
 
 <body>
-    <?php for ($i = 0; $i < 1; $i++) :
+    <?php for ($i = 0; $i < 1; $i++):
         $totalQTY = 0;
         if ($i > 0) {
             $margin = "margin-top:-270px !important";
@@ -424,7 +424,8 @@
                 90 => 'NINETY'
             ];
 
-            if ($number < 21) return $words[$number];
+            if ($number < 21)
+                return $words[$number];
             if ($number < 100) {
                 return $words[10 * floor($number / 10)] . ($number % 10 ? ' ' . $words[$number % 10] : '');
             }
@@ -441,8 +442,8 @@
         function amountToWordsKD($amount)
         {
             $parts = explode('.', number_format($amount, 3, '.', ''));
-            $kd = (int)$parts[0];
-            $fils = isset($parts[1]) ? (int)round($parts[1]) : 0;
+            $kd = (int) $parts[0];
+            $fils = isset($parts[1]) ? (int) round($parts[1]) : 0;
 
             $kdPart = numberToWords($kd) . ' KD';
             $filsPart = $fils > 0 ? ' AND ' . numberToWords($fils) . ' FILLS' : '';
@@ -453,8 +454,8 @@
         function formatKDandFils($amount)
         {
             $parts = explode('.', number_format($amount, 3, '.', ''));
-            $kd = (int)$parts[0];
-            $fils = (int)$parts[1];
+            $kd = (int) $parts[0];
+            $fils = (int) $parts[1];
 
             $output = $kd . ' KD';
             if ($fils > 0) {
@@ -470,7 +471,7 @@
             if (!is_numeric($amount) || $amount === '') {
                 $amount = 0;
             }
-            return number_format((float)$amount, 3) . ' KD';
+            return number_format((float) $amount, 3) . ' KD';
         }
 
         function formatAmountWithoutKD($amount)
@@ -478,11 +479,11 @@
             if (!is_numeric($amount) || $amount === '') {
                 $amount = 0;
             }
-            return number_format((float)$amount, 3);
+            return number_format((float) $amount, 3);
         }
 
 
-    ?>
+        ?>
 
         <div class="invoice-container">
             <!-- <div class="header">
@@ -543,12 +544,12 @@
                 <div class="content">
                     <div class="invoice-details">
                         <div class="m-0 p-0">
-                            <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id  ?></p>
+                            <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id ?></p>
                         </div>
 
 
                         <div class="m-0 p-0">
-                            <p><strong>DATE:</strong> <?= $date  ?> </p>
+                            <p><strong>DATE:</strong> <?= $date ?> </p>
                         </div>
                     </div>
                     <div class="invoice-details">
@@ -557,15 +558,15 @@
                             if ($_REQUEST['type'] == 'gatepass') {
                                 $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
                                 $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
-                            ?>
+                                ?>
                                 <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
                             <?php } else { ?>
 
-                                <p class="text-uppercase"><strong>Customer Name :</strong> <?= @$order['client_name']  ?></p>
+                                <p class="text-uppercase"><strong>Customer Name :</strong> <?= @$order['client_name'] ?></p>
 
                             <?php } ?>
 
-                            <!-- <p><strong>DATE:</strong> <?= $date  ?> </p> -->
+                            <!-- <p><strong>DATE:</strong> <?= $date ?> </p> -->
                             <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?>
                             </p> -->
                         </div>
@@ -574,20 +575,20 @@
                             if ($_REQUEST['type'] == 'gatepass') {
                                 $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
                                 $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
-                            ?>
+                                ?>
                                 <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
                             <?php } else { ?>
                                 <div>
                                     <?php if ($_REQUEST['type'] == 'gatepass') {
                                         $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
                                         $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
-                                    ?>
-                                        <?php } else {
+                                        ?>
+                                    <?php } else {
                                         $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
                                         if (isset($branch['branch_name'])) {
-                                        ?>
+                                            ?>
                                             <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
-                                    <?php }
+                                        <?php }
                                     } ?>
                                 </div>
                             <?php } ?>
@@ -615,35 +616,38 @@
                                 $c++;
                                 $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
                                 $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-                            ?>
+                                ?>
                                 <tr class=" border">
                                     <td class="text-center border"><?= $c ?></td>
                                     <td class="text-left border pl-3 " class="descri">
-                                        <?php if (!empty($cat['categories_name'])):  ?>
+                                        <?php if (!empty($cat['categories_name'])): ?>
                                             <?= strtoupper($cat['categories_name']) ?> |
                                         <?php endif; ?>
                                         <?= strtoupper($r['product_name']) ?>
-                                        <?php if (!empty($brand['brand_name'])): ?>
-                                            | <?= strtoupper($brand['brand_name']) ?>
-                                        <?php endif; ?>
+                                       <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_country']) !== 'china'): ?>
+    | <?= strtoupper($brand['brand_name']) ?>
+<?php endif; ?>
+
                                     </td>
                                     <td class="text-center border"><?= $r['quantity'] ?></td>
                                     <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
-                                    <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] *  $r['quantity']) ?></td>
+                                    <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
+                                    </td>
                                 </tr>
-                            <?php
+                                <?php
                                 $totalQTY += $r['quantity'];
-                                $totalAm += $r['rate'] *  $r['quantity'];
+                                $totalAm += $r['rate'] * $r['quantity'];
                             } ?>
                         </tbody>
                         <tfoot>
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
                                 <td class="border">Discount:</td>
-                                <td class="border"><?= formatAmountWithKD($order['discount'])  ?> </td>
+                                <td class="border"><?= formatAmountWithKD($order['discount']) ?> </td>
                             </tr>
                             <tr class="tablefooter" style="font-size: 14px; border: none !important;">
-                                <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?> ONLY</td>
+                                <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?>
+                                    ONLY</td>
                                 <td class="text-sm border">Net Amount:</td>
                                 <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
                             </tr>
@@ -663,7 +667,7 @@
                                         <td class="text-sm border">Remaining:</td>
                                         <td class="border"><?= formatAmountWithoutKD($order['due']) ?></td>
                                     </tr>
-                            <?php }
+                                <?php }
                             } ?>
 
                     </table>
@@ -702,7 +706,8 @@
                                         } else {
                                             echo "______________________";
                                         }
-                                        ?> </p>
+                                        ?>
+                                    </p>
 
                                 </div>
 
@@ -720,7 +725,23 @@
                         <p><strong>Prepared By:</strong> </p>
                     </div>
                     <div class="col-1 pr-5">
-                        <p>______________________ </p>
+                        <!-- <p>______________________ </p> -->
+                        <?php
+                        $branchId = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+
+                        if ($branchId == 0) {
+                            $branchName = "ADMIN BRANCH";
+                        } else {
+                            $branch = fetchRecord($dbc, "branch", "branch_id", $branchId);
+                            $branchName = !empty($branch['branch_name']) ? strtoupper($branch['branch_name']) : "UNKNOWN BRANCH";
+                        }
+                        ?>
+
+                        <span style="white-space: nowrap;">
+                            <?= $branchName ?>
+                        </span>
+
+
                     </div>
                 </div>
             <?php } ?>
