@@ -211,7 +211,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="text" name="product_code" autocomplete="off" id="get_product_code"
                                     class="form-control">
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-4">
                                 <label>Products</label>
                                 <input type="hidden" id="add_pro_type" value="add">
                                 <select class="form-control searchableSelect" id="get_product_name" name="product_id">
@@ -225,7 +225,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                         <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>"
                                             style="text-transform: capitalize;">
-                                            <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?>
+                                           <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
                                         </option>
 
                                     <?php } ?>

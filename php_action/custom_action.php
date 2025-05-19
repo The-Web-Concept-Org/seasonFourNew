@@ -1175,6 +1175,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 
 					insert_data($dbc, 'purchase_item', $order_items);
@@ -1335,6 +1336,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						'quantity' => $product_quantites,
 						'purchase_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 
 					//update_data($dbc,'order_item', $order_items , 'purchase_id',$_REQUEST['product_purchase_id']);
@@ -2765,6 +2767,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
+						'user_id' => $_REQUEST['user_id'],
 					];
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];

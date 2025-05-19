@@ -227,7 +227,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                         <option data-price="<?= @$row["currentrate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>"
                                             style="text-transform: capitalize;">
-                                            <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?>
+                                           <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
                                         </option>
 
                                     <?php } ?>

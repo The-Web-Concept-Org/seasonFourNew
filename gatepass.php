@@ -41,25 +41,31 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
                         <div class="row form-group">
                             <!-- Gatepass ID -->
-                            <div class="col-md-1">
-                                <label>ID#</label>
-                                <?php
-                                $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'gatepass'");
-                                $data = mysqli_fetch_assoc($result);
-                                $next_increment = $data['Auto_increment'];
-                                ?>
-                                <input type="text" name="next_increment" id="next_increment"
-                                    value="SF25-G-<?= empty($_REQUEST['edit_purchase_id']) ? $next_increment : htmlspecialchars($fetchGatepass['gatepass_id']) ?>"
-                                    readonly class="form-control">
+                            <div class="col-md-3">
+                                <div class="row">
+                                    <!-- ID# (approx 50%) -->
+                                    <div class="col-6 pr-1">
+                                        <label>ID#</label>
+                                        <?php
+                                        $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'gatepass'");
+                                        $data = mysqli_fetch_assoc($result);
+                                        $next_increment = $data['Auto_increment'];
+                                        ?>
+                                        <input type="text" name="next_increment" id="next_increment"
+                                            value="SF25-G-<?= empty($_REQUEST['edit_purchase_id']) ? $next_increment : htmlspecialchars($fetchGatepass['gatepass_id']) ?>"
+                                            readonly class="form-control">
+                                    </div>
+
+                                    <!-- Gatepass Date (approx 50%) -->
+                                    <div class="col-6 pl-1">
+                                        <label>Gatepass Date</label>
+                                        <input type="text" name="gatepass_date" id="gatepass_date"
+                                            value="<?= empty($_REQUEST['edit_purchase_id']) ? date('Y-m-d') : htmlspecialchars($fetchGatepass['gatepass_date']) ?>"
+                                            readonly class="form-control">
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Gatepass Date -->
-                            <div class="col-md-2">
-                                <label>Gatepass Date</label>
-                                <input type="text" name="gatepass_date" id="gatepass_date"
-                                    value="<?= empty($_REQUEST['edit_purchase_id']) ? date('Y-m-d') : htmlspecialchars($fetchGatepass['gatepass_date']) ?>"
-                                    readonly class="form-control">
-                            </div>
 
                             <!-- From Branch -->
                             <div class="col-sm-2">
@@ -135,7 +141,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                         <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>"
                                             style="text-transform: capitalize;">
                                             <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> -
-                                            <?= $getBrand["brand_name"] ?>
+                                            <?= @$getBrand["brand_name"] ?>
                                         </option>
 
                                         <!-- <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>">
@@ -242,7 +248,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
                                             <td class="table-bordered"> Sub Total :</td>
                                             <td class="table-bordered" id="product_total_amount">
-                                                <?= @$fetchGatepass['total_amount'] ?></td>
+                                                <?= @$fetchGatepass['total_amount'] ?>
+                                            </td>
                                             </td>
                                             <td class="table-bordered"></td>
                                         </tr>
@@ -262,7 +269,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                             <td colspan="4" class="table-bordered"></td>
                                             <td class="table-bordered"> <strong>Net Total :</strong> </td>
                                             <td class="table-bordered" id="product_grand_total_amount">
-                                                <?= @$fetchGatepass['grand_total'] ?></td>
+                                                <?= @$fetchGatepass['grand_total'] ?>
+                                            </td>
                                             </td>
                                             <td class="table-bordered"></td>
 

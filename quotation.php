@@ -30,7 +30,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
         </div>
         <div class="card-body">
           <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
-            <input type="hidden" name="product_order_id" value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
+            <input type="hidden" name="product_order_id"
+              value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
             <input type="hidden" name="quotation_form" id="quotation_form" value="quotation">
             <input type="hidden" name="user_id" value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
@@ -41,8 +42,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   <?php
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
-                  ?>
-                    <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                    ?>
+                    <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
+                      value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>
                   <?php } ?>
@@ -55,34 +57,49 @@ if (!empty($_REQUEST['edit_order_id'])) {
               <input type="hidden" name="payment_type" id="payment_type" value="cash_in_hand">
               <input type="hidden" name="quotation_form" id="quotation_form" value="quotation_form">
               <input type="hidden" name="price_type" id="price_type" value="sale">
-              <div class="col-md-1">
-                <label> ID#</label>
-                <?php $result = mysqli_query($dbc, "
-    SHOW TABLE STATUS LIKE 'orders'
-");
-                $data = mysqli_fetch_assoc($result);
-                $next_increment = $data['Auto_increment']; ?>
-                <input type="text" name="next_increment" id="next_increment" value="SF25-Q-<?= @empty($_REQUEST['edit_order_id']) ? $next_increment : $fetchOrder['quotation_id'] ?>" readonly class="form-control">
+              <div class="col-md-3">
+                <div class="row">
+                  <div class="col-6 pr-1">
+                    <label>ID#</label>
+                    <?php
+                    $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'orders'");
+                    $data = mysqli_fetch_assoc($result);
+                    $next_increment = $data['Auto_increment'];
+                    ?>
+                    <input type="text" name="next_increment" id="next_increment"
+                      value="SF25-Q-<?= @empty($_REQUEST['edit_order_id']) ? $next_increment : $fetchOrder['quotation_id'] ?>"
+                      readonly class="form-control">
+                  </div>
+                  <div class="col-6 pl-1">
+                    <label>Date</label>
+                    <input type="text" name="order_date" id="order_date"
+                      value="<?= @empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['quotation_date'] ?>"
+                      readonly class="form-control">
+                  </div>
+                </div>
               </div>
-              <div class="col-md-2">
-                <label>Date</label>
-                <input type="text" name="order_date" id="order_date" value="<?= @empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['quotation_date'] ?>" readonly class="form-control">
-              </div>
+
               <input type="hidden" name="credit_sale_type" value="<?= @$credit_sale_type ?>" id="credit_sale_type">
-              <div class="col-sm-5">
+              <div class="col-sm-3">
                 <label>Customer Account</label>
                 <div class="input-group">
 
-                  <select class="form-control searchableSelect" onchange="getBalance(this.value,'customer_account_exp')" name="credit_order_client_name" id="credit_order_client_name" required aria-label="Username" aria- describedby="basic-addon1">
+                  <select class="form-control searchableSelect" onchange="getBalance(this.value,'customer_account_exp')"
+                    name="credit_order_client_name" id="credit_order_client_name" required aria-label="Username" aria-
+                    describedby="basic-addon1">
                     <option value="">Customer Account</option>
                     <?php
                     $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer' AND branch_id='" . $_SESSION['branch_id'] . "' ");
                     while ($r = mysqli_fetch_assoc($q)) {
-                    ?>
-                      <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?> data-id="<?= $r['customer_id'] ?>" data-contact="<?= $r['customer_phone'] ?>" value="<?= $r['customer_name'] ?>"><?= $r['customer_name'] ?> | <?= $r['customer_phone'] ?></option>
-                    <?php   } ?>
+                      ?>
+                      <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?>
+                        data-id="<?= $r['customer_id'] ?>" data-contact="<?= $r['customer_phone'] ?>"
+                        value="<?= $r['customer_name'] ?>"><?= $r['customer_name'] ?> | <?= $r['customer_phone'] ?>
+                      </option>
+                    <?php } ?>
                   </select><br />
                 </div>
+
                 <div class="input-group-prepend">
                   <!-- <span class="input-group-text" id="basic-addon1">Balance : <span id="customer_account_exp">0</span> </span> -->
                   <!-- <span class="input-group-text" id="basic-addon1">Limit : <span id="customer_Limit">0</span> </span> -->
@@ -91,14 +108,21 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 
 
-                <input type="hidden" name="customer_account" id="customer_account" value="<?= @$fetchOrder['customer_account'] ?>">
-                <input type="hidden" name="client_contact" id="client_contact" value="<?= @$fetchOrder['client_contact'] ?>">
+                <input type="hidden" name="customer_account" id="customer_account"
+                  value="<?= @$fetchOrder['customer_account'] ?>">
+                <input type="hidden" name="client_contact" id="client_contact"
+                  value="<?= @$fetchOrder['client_contact'] ?>">
                 <input type="hidden" name="R_Limit" id="R_LimitInput" />
 
               </div>
+              <div class="col-sm-1">
+                <br>
+                <a href="customers.php?type=customer" class="btn btn-admin2 btn-sm mt-2">Add</a>
+              </div>
               <div class="col-sm-2">
                 <label>Comment</label>
-                <input type="text" autocomplete="off" name="order_narration" id="order_narration" value="<?= @$fetchOrder['quotation_narration'] ?>" class="form-control">
+                <input type="text" autocomplete="off" name="order_narration" id="order_narration"
+                  value="<?= @$fetchOrder['quotation_narration'] ?>" class="form-control">
 
               </div>
               <div class="col-sm-2">
@@ -109,18 +133,19 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     </a>
                   <?php endif; ?>
                 </label>
-                <input type="file" autocomplete="off" value="<?= @$fetchOrder['quotation_file'] ?>" class="form-control" name="quotation_file">
+                <input type="file" autocomplete="off" value="<?= @$fetchOrder['quotation_file'] ?>" class="form-control"
+                  name="quotation_file">
               </div>
               <!-- <div class="col-sm-2">
                  <label>Vehicle NO </label>
                  <input type="text" id="vehicle_no" value="<?= @$fetchOrder['vehicle_no'] ?>" class="form-control" autocomplete="off" name="vehicle_no" list="vehicle_no_list">
                  <datalist id="vehicle_no_list">
                    <?php
-                    $q = mysqli_query($dbc, "SELECT DISTINCT vehicle_no FROM orders");
-                    while ($r = mysqli_fetch_assoc($q)) {
-                    ?>
+                   $q = mysqli_query($dbc, "SELECT DISTINCT vehicle_no FROM orders");
+                   while ($r = mysqli_fetch_assoc($q)) {
+                     ?>
                      <option value="<?= $r['vehicle_no'] ?>"><?= $r['vehicle_no'] ?></option>
-                   <?php   } ?>
+                   <?php } ?>
                  </datalist>
                </div> -->
             </div> <!-- end of form-group -->
@@ -139,10 +164,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   while ($row = mysqli_fetch_array($result)) {
                     $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
                     $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
-                  ?>
-                    <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
-                      <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option>
-                  <?php   } ?>
+                    ?>
+                    <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?>
+                      value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
+                      <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
+                    </option>
+                  <?php } ?>
                 </select>
                 <span class="text-center w-100" id="instockQty"></span>
               </div>
@@ -168,7 +195,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
               </div>
               <div class="col-sm-1">
                 <br>
-                <button type="button" class="btn btn-success btn-sm mt-2 float-right" id="addProductPurchase"><i class="fa fa-plus"></i> <b>Add</b></button>
+                <button type="button" class="btn btn-success btn-sm mt-2 float-right" id="addProductPurchase"><i
+                    class="fa fa-plus"></i> <b>Add</b></button>
               </div>
 
             </div>
@@ -180,7 +208,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     <tr>
                       <th class="text-dark">Code</th>
                       <th class="text-dark">Product Name</th>
-                     
+
                       <th class="text-dark">Unit Price</th>
                       <th class="text-dark">Final Price</th>
                       <th class="text-dark">Quantity</th>
@@ -194,30 +222,39 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                       while ($r = mysqli_fetch_assoc($q)) {
 
-                    ?>
+                        ?>
                         <tr id="product_idN_<?= $r['product_id'] ?>">
-                          <input type="hidden" data-price="<?= $r['rate'] ?>" data-quantity="<?= $r['quantity'] ?>" id="product_ids_<?= $r['product_id'] ?>" class="product_ids" name="product_ids[]" value="<?= $r['product_id'] ?>">
-                          <input type="hidden" id="product_quantites_<?= $r['product_id'] ?>" name="product_quantites[]" value="<?= $r['quantity'] ?>">
-                  
-                          <input type="hidden" id="product_rate_<?= $r['product_id'] ?>" name="product_rates[]" value="<?= $r['rate'] ?>">
-                          <input type="hidden" id="product_final_rate_<?= $r['product_id'] ?>" name="product_final_rates[]" value="<?= $r['final_rate'] ?>">
-                          <input type="hidden" id="product_totalrate_<?= $r['product_id'] ?>" name="product_totalrates[]" value="<?= $r['rate'] ?>">
+                          <input type="hidden" data-price="<?= $r['rate'] ?>" data-quantity="<?= $r['quantity'] ?>"
+                            id="product_ids_<?= $r['product_id'] ?>" class="product_ids" name="product_ids[]"
+                            value="<?= $r['product_id'] ?>">
+                          <input type="hidden" id="product_quantites_<?= $r['product_id'] ?>" name="product_quantites[]"
+                            value="<?= $r['quantity'] ?>">
+
+                          <input type="hidden" id="product_rate_<?= $r['product_id'] ?>" name="product_rates[]"
+                            value="<?= $r['rate'] ?>">
+                          <input type="hidden" id="product_final_rate_<?= $r['product_id'] ?>" name="product_final_rates[]"
+                            value="<?= $r['final_rate'] ?>">
+                          <input type="hidden" id="product_totalrate_<?= $r['product_id'] ?>" name="product_totalrates[]"
+                            value="<?= $r['rate'] ?>">
                           <td><?= $r['product_code'] ?></td>
                           <td><?= $r['product_name'] ?></td>
-                          
+
                           <td><?= $r['rate'] ?></td>
                           <td><?= $r['final_rate'] ?></td>
                           <td><?= $r['quantity'] ?></td>
-                          <td><?= (float)$r['rate'] * (float)$r['quantity'] ?></?>
+                          <td><?= (float) $r['rate'] * (float) $r['quantity'] ?></?>
                           </td>
                           <td>
 
-                            <button type="button" onclick="removeByid(`#product_idN_<?= $r['product_id'] ?>`)" class="fa fa-trash text-danger" href="#"></button>
-                            <button type="button" onclick="editByid(<?= $r['product_id'] ?>,`<?= $r['product_code'] ?>`,<?= $r['rate'] ?>,<?= $r['quantity'] ?>,<?= $r['final_rate'] ?>)" class="fa fa-edit text-success ml-2 "></button>
+                            <button type="button" onclick="removeByid(`#product_idN_<?= $r['product_id'] ?>`)"
+                              class="fa fa-trash text-danger" href="#"></button>
+                            <button type="button"
+                              onclick="editByid(<?= $r['product_id'] ?>,`<?= $r['product_code'] ?>`,<?= $r['rate'] ?>,<?= $r['quantity'] ?>,<?= $r['final_rate'] ?>)"
+                              class="fa fa-edit text-success ml-2 "></button>
 
                           </td>
                         </tr>
-                    <?php }
+                      <?php }
                     endif ?>
                   </tbody>
 
@@ -237,11 +274,16 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                           <div class="col-12 pr-0">
 
-                            <input onkeyup="getOrderTotal()" type="number" id="ordered_discount" class="form-control form-control-sm " value="<?= @empty($_REQUEST['edit_order_id']) ? "0" : $fetchOrder['discount'] ?>" min="0" name="ordered_discount">
+                            <input onkeyup="getOrderTotal()" type="number" id="ordered_discount"
+                              class="form-control form-control-sm "
+                              value="<?= @empty($_REQUEST['edit_order_id']) ? "0" : $fetchOrder['discount'] ?>" min="0"
+                              name="ordered_discount">
 
                           </div>
                           <div class="col-sm-6 pl-0">
-                            <input onkeyup="getOrderTotal()" type="number" id="freight" class="form-control form-control-sm d-none" placeholder="Freight" value="0" min="0" name="freight">
+                            <input onkeyup="getOrderTotal()" type="number" id="freight"
+                              class="form-control form-control-sm d-none" placeholder="Freight" value="0" min="0"
+                              name="freight">
 
 
                           </div>
@@ -260,11 +302,13 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                       <td class="table-bordered" id="product_allow_stock">
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_yes" value="1" <?= $allowStock == '1' ? 'checked' : '' ?>>
+                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_yes" value="1"
+                            <?= $allowStock == '1' ? 'checked' : '' ?>>
                           <label class="form-check-label" for="allow_stock_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_no" value="0" <?= $allowStock == '0' ? 'checked' : '' ?>>
+                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_no" value="0"
+                            <?= $allowStock == '0' ? 'checked' : '' ?>>
                           <label class="form-check-label" for="allow_stock_no">No</label>
                         </div>
                       </td>
@@ -288,7 +332,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
             <div class="row">
               <div class="col-sm-12 d-flex justify-content-end">
                 <a href="quotation.php" class="btn btn-dark pt-2 float-right btn-sm">Cancel</a>
-                <button class="btn btn-admin ml-2 " name="sale_order_btn" value="print" type="submit" id="sale_order_btn">Save and Print</button>
+                <button class="btn btn-admin ml-2 " name="sale_order_btn" value="print" type="submit"
+                  id="sale_order_btn">Save and Print</button>
 
               </div>
             </div>
@@ -309,7 +354,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 <?php
 if (!empty($_REQUEST['edit_order_id'])) {
-?>
+  ?>
   <script type="text/javascript">
     var custid = $("#customer_account").val();
 
@@ -317,13 +362,13 @@ if (!empty($_REQUEST['edit_order_id'])) {
     getBalance(custid, 'customer_account_exp');
   </script>
 
-<?php
+  <?php
 }
 ?>
 
 <script>
   if (<?= @$fetchOrder['branch_id'] ?> != "") {
-    setTimeout(function() {
+    setTimeout(function () {
       $('#branch_id').val("<?= @$fetchOrder['branch_id'] ?>").change();
       $('#allow_stock_yes').prop('checked', <?= @$fetchOrder['is_delivery_note'] ?> == '1');
     }, 500);
