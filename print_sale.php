@@ -249,10 +249,10 @@
             $nameSHow = 'Supplier';
             $id_name = "Purchase Id";
             $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
-           if ($order['payment_type'] == "credit_purchase") {
-                 $unique_id = 'SF-CRP-' . $order['purchase_id'];
+            if ($order['payment_type'] == "credit_purchase") {
+                $unique_id = 'SF-CRP-' . $order['purchase_id'];
             } else {
-                 $unique_id = 'SF25-CP-' . $order['purchase_id'];
+                $unique_id = 'SF25-CP-' . $order['purchase_id'];
             }
             // $unique_id = 'SF25-CP-' . $order['purchase_id'];
             $comment = $order['purchase_narration'];
@@ -610,8 +610,10 @@
                                 <th style="width: 5%;">S.No</th>
                                 <th style="width: 25%;" class="text-left pl-3">Description</th>
                                 <th style="width: 5%;">Qty</th>
-                                <th style="width: 5%;">Unit Price</th>
-                                <th style="width: 5%;">Amount</th>
+                                <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                    <th style="width: 5%;">Unit Price</th>
+                                    <th style="width: 5%;">Amount</th>
+                                <?php } ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -629,14 +631,16 @@
                                             <?= strtoupper($cat['categories_name']) ?> |
                                         <?php endif; ?>
                                         <?= strtoupper($r['product_name']) ?>
-                                       <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_country']) !== 'china'): ?>
-    | <?= strtoupper($brand['brand_name']) ?>
-<?php endif; ?>
+                                        <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_country']) !== 'china'): ?>
+                                            | <?= strtoupper($brand['brand_name']) ?>
+                                        <?php endif; ?>
 
                                     </td>
                                     <td class="text-center border"><?= $r['quantity'] ?></td>
-                                    <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
-                                    <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
+                                    <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                        <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
+                                        <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                                 <?php
@@ -647,14 +651,18 @@
                         <tfoot>
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
-                                <td class="border">Discount:</td>
-                                <td class="border"><?= formatAmountWithKD($order['discount']) ?> </td>
+                                <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                    <td class="border">Discount:</td>
+                                    <td class="border"><?= formatAmountWithKD($order['discount']) ?> </td>
+                                <?php } ?>
                             </tr>
                             <tr class="tablefooter" style="font-size: 14px; border: none !important;">
                                 <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?>
                                     ONLY</td>
-                                <td class="text-sm border">Net Amount:</td>
-                                <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
+                                <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                    <td class="text-sm border">Net Amount:</td>
+                                    <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
+                                <?php } ?>
                             </tr>
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
                                 <?php if ($order['grand_total'] !== "") { ?>
@@ -679,7 +687,7 @@
                     </tfoot>
                 </div>
             </div>
-            <?php if ($_REQUEST['type'] == "quotation") { ?>
+            <?php if ($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) { ?>
                 <div class="pt-5 mt-3 mb-5">
                     <div class="row">
                         <div class="col-2">
@@ -734,10 +742,10 @@
                         <?php
                         $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
-                        
-                            $user = fetchRecord($dbc, "users", "user_id", $userId);
-                            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "UNKNOWN USER";
-                        
+
+                        $user = fetchRecord($dbc, "users", "user_id", $userId);
+                        $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "UNKNOWN USER";
+
                         ?>
 
                         <span style="white-space: nowrap;">

@@ -60,7 +60,7 @@ if (isset($_REQUEST['orderdate']) && $_REQUEST['orderdate'] !== '') {
     }
 } elseif (isset($_REQUEST['start_date']) && $_REQUEST['start_date'] !== '' && empty($_REQUEST['end_date'])) {
 
-    $start_date =  $_REQUEST['start_date'];
+    $start_date = $_REQUEST['start_date'];
 
     $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '$start_date'";
 } elseif (isset($_REQUEST['start_date']) && $_REQUEST['start_date'] !== '' && isset($_REQUEST['end_date'])) {
@@ -79,23 +79,27 @@ if (isset($_REQUEST['orderdate']) && $_REQUEST['orderdate'] !== '') {
 
 // Total Profit
 // Calculate today's total profit
+$branch_filter = '';
+if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+    $branch_id = intval($_SESSION['branch_id']);
+    $branch_filter = " AND ord.branch_id = $branch_id";
+}
+
 @$total_profit = mysqli_fetch_assoc(mysqli_query($dbc, "
-     SELECT 
-    COALESCE(SUM((o.rate - p.rate) * o.quantity), 0) AS total_profit
-FROM 
-    order_item o
-LEFT JOIN 
-    purchase_item p 
-ON 
-    o.product_id = p.product_id
-LEFT JOIN 
-    orders ord 
-ON 
-    o.order_id = ord.order_id
-WHERE 
-    1=1 $date_select 
-    "))['total_profit'];
+    SELECT 
+        COALESCE(SUM((o.rate - p.rate) * o.quantity), 0) AS total_profit
+    FROM 
+        order_item o
+    LEFT JOIN 
+        purchase_item p ON o.product_id = p.product_id
+    LEFT JOIN 
+        orders ord ON o.order_id = ord.order_id
+    WHERE 
+        1=1 $branch_filter $date_select
+"))['total_profit'];
+
 $total_profit = isset($total_profit) ? $total_profit : 0;
+
 ?>
 <style>
     .table-card {
@@ -113,7 +117,8 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                     <div class="col-12">
                         <div class="row align-items-center mb-2">
                             <div class="col-4 d-flex align-items-center ">
-                                <button type="button" class="btn btn-primary  filter_btn" data-toggle="modal" data-target="#modalCookie1"><i class="fa fa-filter"></i></button>
+                                <button type="button" class="btn btn-primary  filter_btn" data-toggle="modal"
+                                    data-target="#modalCookie1"><i class="fa fa-filter"></i></button>
                             </div>
                             <div class="col-8 justify-content-end d-flex align-items-center">
                                 <div class="w-75 justify-content-end d-flex align-items-center">
@@ -178,11 +183,22 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                 <p class="small text-white mb-0">Today Sales</p>
                                                 <span class="h3 mb-0 text-white">
                                                     <?php
-                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(grand_total) as total_sales , timestamp FROM orders where 1=1  $date_select "))['total_sales'];
-                                                    // echo "SELECT sum(grand_total) as total_sales , timestamp FROM orders where 1=1 $date_select ";
-                                                    $total = isset($total_sales) ? $total_sales : "0";
+                                                    // Ensure session is started
+                                                    
+                                                    $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    $query = "SELECT SUM(grand_total) AS total_sales, timestamp FROM orders WHERE 1=1 $branch_filter $date_select";
+                                                    $result = mysqli_query($dbc, $query);
+                                                    @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
+
+                                                    $total = isset($total_sales) ? $total_sales : 0;
                                                     echo number_format($total - $total_profit);
                                                     ?>
+
                                                 </span>
                                                 <!--   <span class="small text-white">+5.5%</span> -->
                                             </div>
@@ -203,9 +219,21 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                 <p class="small text-white mb-0">Today Purchase</p>
                                                 <span class="h3 mb-0 text-white">
                                                     <?php
-                                                    @$total_purchase = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(grand_total) as total_sales , timestamp FROM purchase where 1=1 $date_select "))['total_sales'];
+
+
+                                                    $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    $query = "SELECT SUM(grand_total) AS total_sales, timestamp FROM purchase WHERE 1=1 $branch_filter $date_select";
+                                                    $result = mysqli_query($dbc, $query);
+                                                    @$total_purchase = mysqli_fetch_assoc($result)['total_sales'];
+
                                                     echo $total_purchase2 = isset($total_purchase) ? $total_purchase : "0";
                                                     ?>
+
                                                 </span>
                                                 <!--   <span class="small text-white">+5.5%</span> -->
                                             </div>
@@ -228,7 +256,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     <span class="h3 mb-0 text-white">
                                                         <?php
 
-                                                        echo  number_format($total_profit);
+                                                        echo number_format($total_profit);
                                                         ?>
                                                     </span>
                                                 </span>
@@ -317,17 +345,23 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                 <span class="h3 mb-0 text-white">
                                                     <?php
                                                     // Count today's total purchases
-                                                    @$total_purchases = mysqli_fetch_assoc(mysqli_query($dbc, "
-        SELECT 
-            COUNT(*) AS total_purchases
-        FROM 
-            purchase    
-        WHERE 
-            1=1 $date_select 
-    "))['total_purchases'];
-                                                    $total_purchases = isset($total_purchases) ? $total_purchases : 0;
+                                                    $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
 
-                                                    echo  number_format($total_purchases);
+                                                    @$total_purchases = mysqli_fetch_assoc(mysqli_query($dbc, "
+    SELECT 
+        COUNT(*) AS total_purchases
+    FROM 
+        purchase    
+    WHERE 
+        1=1 $branch_filter $date_select
+"))['total_purchases'];
+
+                                                    $total_purchases = isset($total_purchases) ? $total_purchases : 0;
+                                                    echo number_format($total_purchases);
                                                     ?>
                                                 </span>
                                             </div>
@@ -349,17 +383,24 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                 <span class="h3 mb-0 text-white">
                                                     <?php
                                                     // Count today's total orders
-                                                    @$total_orders = mysqli_fetch_assoc(mysqli_query($dbc, "
-        SELECT 
-            COUNT(*) AS total_orders
-        FROM 
-            orders
-        WHERE 
-            1=1 $date_select 
-    "))['total_orders'];
-                                                    $total_orders = isset($total_orders) ? $total_orders : 0;
+                                                    $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
 
+                                                    @$total_orders = mysqli_fetch_assoc(mysqli_query($dbc, "
+    SELECT 
+        COUNT(*) AS total_orders
+    FROM 
+        orders
+    WHERE 
+        1=1 $branch_filter $date_select
+"))['total_orders'];
+
+                                                    $total_orders = isset($total_orders) ? $total_orders : 0;
                                                     echo number_format($total_orders);
+
                                                     ?>
                                                 </span>
                                             </div>
@@ -464,27 +505,86 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                 <p class="text-muted mb-1">Today</p>
                                                 <h6 class="mb-1">
                                                     <?php
-                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(grand_total) as total_sales FROM orders where 1=1 $date_select  "))['total_sales'];
+                                                    $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "
+    SELECT SUM(grand_total) AS total_sales 
+    FROM orders 
+    WHERE 1=1 $branch_filter $date_select
+"))['total_sales'];
+
                                                     $total = isset($total_sales) ? $total_sales : "0";
                                                     echo number_format($total);
+
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
                                             </div>
                                             <div class="col-6 text-center mb-3">
                                                 <p class="text-muted mb-1">Yesterday</p>
-                                                <h6 class="mb-1"><?= getOrders($dbc, "WHERE 1=1 $date_select ", "grand_total") ?></h6>
+                                                <h6 class="mb-1">
+                                                    <?= $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "
+    SELECT SUM(grand_total) AS total_sales 
+    FROM orders 
+    WHERE 1=1 $branch_filter $date_select
+"))['total_sales'];
+
+                                                    $total = isset($total_sales) ? $total_sales : "0";
+                                                    echo number_format($total);
+                                                    ?>
+                                                </h6>
                                                 <p class="text-muted"></p>
                                             </div>
 
                                             <div class="col-6 text-center border-right">
                                                 <p class="text-muted mb-1">This Week</p>
-                                                <h6 class="mb-1"><?= getOrders($dbc, "WHERE 1=1 $date_select  ", "grand_total") ?></h6>
+                                                <h6 class="mb-1">
+                                                    <?= $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "
+    SELECT SUM(grand_total) AS total_sales 
+    FROM orders 
+    WHERE 1=1 $branch_filter $date_select
+"))['total_sales'];
+
+                                                    $total = isset($total_sales) ? $total_sales : 0;
+                                                    echo number_format($total);
+                                                    ?>
+                                                </h6>
                                                 <p class="text-muted mb-2"></p>
                                             </div>
                                             <div class="col-6 text-center">
                                                 <p class="text-muted mb-1">Last Week</p>
-                                                <h6 class="mb-1"><?= getOrders($dbc, "WHERE 1=1 $date_select  ", "grand_total") ?></h6>
+                                                <h6 class="mb-1">
+                                                    <?= $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    $query = "SELECT SUM(grand_total) AS total_sales FROM orders WHERE 1=1 $branch_filter $date_select";
+                                                    $result = mysqli_query($dbc, $query);
+
+                                                    @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
+                                                    $total_sales = isset($total_sales) ? $total_sales : 0;
+
+                                                    echo number_format($total_sales);
+                                                    ?>
+                                                </h6>
                                                 <p class="text-muted"></p>
                                             </div>
                                         </div>
@@ -511,25 +611,31 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                             <tbody>
                                                 <?php
                                                 // Query to get today's orders along with profit
+                                                $branch_filter = '';
+                                                if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                    $branch_id = intval($_SESSION['branch_id']);
+                                                    $branch_filter = " AND ord.branch_id = $branch_id";
+                                                }
+
                                                 $query = "
-            SELECT 
-                ord.bill_no AS bill_no,
-                ord.grand_total,
-                COALESCE(SUM((oi.rate - pi.rate) * oi.quantity), 0) AS profit
-            FROM 
-                orders ord
-            LEFT JOIN 
-                order_item oi ON ord.order_id = oi.order_id
-            LEFT JOIN 
-                purchase_item pi ON oi.product_id = pi.product_id
-            WHERE 
-                1=1 $date_select 
-            GROUP BY 
-                ord.order_id
-        ";
+    SELECT 
+        ord.bill_no AS bill_no,
+        ord.grand_total,
+        COALESCE(SUM((oi.rate - pi.rate) * oi.quantity), 0) AS profit
+    FROM 
+        orders ord
+    LEFT JOIN 
+        order_item oi ON ord.order_id = oi.order_id
+    LEFT JOIN 
+        purchase_item pi ON oi.product_id = pi.product_id
+    WHERE 
+        1=1 $branch_filter $date_select 
+    GROUP BY 
+        ord.order_id
+";
 
                                                 $result = mysqli_query($dbc, $query);
-                                                $serial_number = 1; // Start serial number from 1
+                                                $serial_number = 1;
 
                                                 while ($row = mysqli_fetch_assoc($result)) {
                                                     $bill_no = $row['bill_no'];
@@ -537,15 +643,16 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     $profit = number_format($row['profit']);
 
                                                     echo "
-            <tr>
-                <td>{$serial_number}</td>
-                <td>{$grand_total}</td>
-                <td>{$profit}</td>
-            </tr>
-            ";
+        <tr>
+            <td>{$serial_number}</td>
+            <td>{$grand_total}</td>
+            <td>{$profit}</td>
+        </tr>
+    ";
 
                                                     $serial_number++;
                                                 }
+
                                                 ?>
                                             </tbody>
                                         </table>
@@ -625,7 +732,8 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
 
                     </div> <!-- .container-fluid -->
 
-                    <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+                    <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog"
+                        aria-labelledby="defaultModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -686,7 +794,8 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
 
 
     <!--Modal: modalCookie-->
-    <div class="modal fade top" id="modalCookie1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="true">
+    <div class="modal fade top" id="modalCookie1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true" data-backdrop="true">
         <div class="modal-dialog modal-frame modal-lg modal-top modal-notify modal-info" role="document">
             <!--Content-->
             <div class="modal-content">
@@ -716,12 +825,15 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                     <option value="lastmonth">Last Month</option>
                                 </select>
                             </div>
-                            <div class=" py-3 d-flex align-items-end justify-content-end col-md-12 col-sm-12 col-lg-12 col-xl-12">
+                            <div
+                                class=" py-3 d-flex align-items-end justify-content-end col-md-12 col-sm-12 col-lg-12 col-xl-12">
                                 <div>
-                                    <input class=" btn btn-success text-white waves-effect" type="submit" name="saleByDate" value="Filter Sale">
+                                    <input class=" btn btn-success text-white waves-effect" type="submit"
+                                        name="saleByDate" value="Filter Sale">
                                 </div>
                                 <div>
-                                    <a type="button" class="mx-2 btn btn-danger text-white waves-effect" data-dismiss="modal">Cancel</a>
+                                    <a type="button" class="mx-2 btn btn-danger text-white waves-effect"
+                                        data-dismiss="modal">Cancel</a>
                                 </div>
                             </div>
                         </div>
@@ -765,11 +877,11 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
     <script src='js/uppy.min.js'></script>
     <script src='js/quill.min.js'></script>
     <script>
-        $(document).ready(function() {
-            $(".filter_btn").hover(function() {
+        $(document).ready(function () {
+            $(".filter_btn").hover(function () {
                 // Add "Filter by Date" text and icon
                 $(this).html('<i class="fa fa-filter"></i> Filter By Date');
-            }, function() {
+            }, function () {
                 // Remove text when mouse out
                 $(this).html('<i class="fa fa-filter"></i>');
             });
@@ -862,42 +974,42 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                 ['bold', 'italic', 'underline', 'strike'],
                 ['blockquote', 'code-block'],
                 [{
-                        'header': 1
-                    },
-                    {
-                        'header': 2
-                    }
+                    'header': 1
+                },
+                {
+                    'header': 2
+                }
                 ],
                 [{
-                        'list': 'ordered'
-                    },
-                    {
-                        'list': 'bullet'
-                    }
+                    'list': 'ordered'
+                },
+                {
+                    'list': 'bullet'
+                }
                 ],
                 [{
-                        'script': 'sub'
-                    },
-                    {
-                        'script': 'super'
-                    }
+                    'script': 'sub'
+                },
+                {
+                    'script': 'super'
+                }
                 ],
                 [{
-                        'indent': '-1'
-                    },
-                    {
-                        'indent': '+1'
-                    }
+                    'indent': '-1'
+                },
+                {
+                    'indent': '+1'
+                }
                 ], // outdent/indent
                 [{
                     'direction': 'rtl'
                 }], // text direction
                 [{
-                        'color': []
-                    },
-                    {
-                        'background': []
-                    }
+                    'color': []
+                },
+                {
+                    'background': []
+                }
                 ], // dropdown with defaults from theme
                 [{
                     'align': []
@@ -912,14 +1024,14 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
             });
         }
         // Example starter JavaScript for disabling form submissions if there are invalid fields
-        (function() {
+        (function () {
             'use strict';
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 // Fetch all the forms we want to apply custom Bootstrap validation styles to
                 var forms = document.getElementsByClassName('needs-validation');
                 // Loop over them and prevent submission
-                var validation = Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
                         if (form.checkValidity() === false) {
                             event.preventDefault();
                             event.stopPropagation();
@@ -949,8 +1061,8 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
             });
         }
 
-        $(document).ready(function() {
-            $("#refresh").on('click', function() {
+        $(document).ready(function () {
+            $("#refresh").on('click', function () {
                 location.reload();
             })
         });
