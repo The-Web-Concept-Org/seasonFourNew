@@ -97,19 +97,81 @@ if (isset($_POST['company_update'])) {
 ?>
 <?php
 /*Add Channel*/
+// if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
+
+// 	if (empty($_REQUEST['password'])) {
+// 		$password = $_REQUEST['old_password'];
+// 	} else {
+// 		$password = md5($_REQUEST['password']);
+// 		// echo $msg = "Please Enter Password";
+// 	}
+
+// 	$data_user = [
+// 		'fullname' => @$_REQUEST['fullname'],
+// 		'username' => $_REQUEST['username'],
+// 		'email' => $_REQUEST['email'],
+// 		'phone' => $_REQUEST['phone'],
+// 		'password' => $password,
+// 		'user_role' => $_REQUEST['user_role'],
+// 		'address' => @$_REQUEST['address'],
+// 		'status' => $_REQUEST['status'],
+// 		'branch_id' => $_REQUEST['branch_id'],
+// 	];
+
+// 	if ($_REQUEST['new_user_id'] == '') {
+// 		if (insert_data($dbc, "users", $data_user)) {
+// 			$msg = "User Added Successfully";
+// 			$sts = "success";
+// 			// header("Location: users.php");
+// 		} else {
+// 			$msg = mysqli_error($dbc);
+// 			$sts = "error";
+// 		}
+// 	} else {
+
+// 		if (update_data($dbc, "users", $data_user, 'user_id', $_REQUEST['new_user_id'])) {
+// 			$msg = "Users Updated Successfully";
+// 			$sts = "success";
+// 			redirect("users.php", 500);
+// 		} else {
+// 			$msg = mysqli_error($dbc);
+
+// 			$sts = "error";
+// 		}
+// 	}
+// 	if ($sts == "success") {
+// 		// redirect("users.php", 500)
+// 	}
+// 	header('Content-Type: application/json');
+// 	echo json_encode(['msg' => $msg, 'sts' => $sts]);
+// }
 if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 
 	if (empty($_REQUEST['password'])) {
 		$password = $_REQUEST['old_password'];
 	} else {
 		$password = md5($_REQUEST['password']);
-		// echo $msg = "Please Enter Password";
+	}
+
+	$email = $_REQUEST['email'];
+	$new_user_id = $_REQUEST['new_user_id'];
+
+	// Check if email already exists (excluding current user when updating)
+	$check_email_sql = "SELECT * FROM users WHERE email = '$email'";
+	if (!empty($new_user_id)) {
+		$check_email_sql .= " AND user_id != '$new_user_id'";
+	}
+
+	$result = mysqli_query($dbc, $check_email_sql);
+	if (mysqli_num_rows($result) > 0) {
+		echo json_encode(['msg' => "Email Already Exists", 'sts' => 'error']);
+		exit;
 	}
 
 	$data_user = [
 		'fullname' => @$_REQUEST['fullname'],
 		'username' => $_REQUEST['username'],
-		'email' => $_REQUEST['email'],
+		'email' => $email,
 		'phone' => $_REQUEST['phone'],
 		'password' => $password,
 		'user_role' => $_REQUEST['user_role'],
@@ -118,33 +180,29 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 		'branch_id' => $_REQUEST['branch_id'],
 	];
 
-	if ($_REQUEST['new_user_id'] == '') {
+	if (empty($new_user_id)) {
 		if (insert_data($dbc, "users", $data_user)) {
 			$msg = "User Added Successfully";
 			$sts = "success";
-			// header("Location: users.php");
 		} else {
 			$msg = mysqli_error($dbc);
 			$sts = "error";
 		}
 	} else {
-
-		if (update_data($dbc, "users", $data_user, 'user_id', $_REQUEST['new_user_id'])) {
-			$msg = "Users Updated Successfully";
+		if (update_data($dbc, "users", $data_user, 'user_id', $new_user_id)) {
+			$msg = "User Updated Successfully";
 			$sts = "success";
 			redirect("users.php", 500);
 		} else {
 			$msg = mysqli_error($dbc);
-
 			$sts = "error";
 		}
 	}
-	if ($sts == "success") {
-		// redirect("users.php", 500)
-	}
+
 	header('Content-Type: application/json');
 	echo json_encode(['msg' => $msg, 'sts' => $sts]);
 }
+
 
 /*Delete budget_category_del_id */
 if (!empty($_REQUEST['user_del_id'])) {
