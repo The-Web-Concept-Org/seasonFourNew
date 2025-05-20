@@ -249,7 +249,12 @@
             $nameSHow = 'Supplier';
             $id_name = "Purchase Id";
             $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
-            $unique_id = 'SF25-CP-' . $order['purchase_id'];
+           if ($order['payment_type'] == "credit_purchase") {
+                 $unique_id = 'SF-CRP-' . $order['purchase_id'];
+            } else {
+                 $unique_id = 'SF25-CP-' . $order['purchase_id'];
+            }
+            // $unique_id = 'SF25-CP-' . $order['purchase_id'];
             $comment = $order['purchase_narration'];
             $table_row = "390px";
             $getDate = $order['purchase_date'];
@@ -719,7 +724,7 @@
                 </div>
             <?php } else { ?>
 
-                <div class="row mt-5 pt-5 m-0 px-5 mr-4" style="padding-right: 20px !important;">
+                <div class="row mt-5 pt-5 m-0 px-5 mr-4" style=" !important;">
                     <div class="col-8"></div>
                     <div class="col-3 text-right">
                         <p><strong>Prepared By:</strong> </p>
@@ -727,18 +732,16 @@
                     <div class="col-1 pr-5">
                         <!-- <p>______________________ </p> -->
                         <?php
-                        $branchId = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+                        $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
-                        if ($branchId == 0) {
-                            $branchName = "ADMIN BRANCH";
-                        } else {
-                            $branch = fetchRecord($dbc, "branch", "branch_id", $branchId);
-                            $branchName = !empty($branch['branch_name']) ? strtoupper($branch['branch_name']) : "UNKNOWN BRANCH";
-                        }
+                        
+                            $user = fetchRecord($dbc, "users", "user_id", $userId);
+                            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "UNKNOWN USER";
+                        
                         ?>
 
                         <span style="white-space: nowrap;">
-                            <?= $branchName ?>
+                            <?= $fullName ?>
                         </span>
 
 

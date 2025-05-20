@@ -96,8 +96,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label for="purchase_type">Purchase Type</label>
                 <select name="purchase_type" onchange="updatePurchaseId(this.value)" class="form-control"
                   id="purchase_type">
-                  <option value="cash" <?= @$fetchPurchase['payment_type'] == "cash" ? "selected" : "" ?>>Cash</option>
-                  <option value="credit" <?= @$fetchPurchase['payment_type'] == "credit" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
+                  <option value="cash_purchase" <?= @$fetchPurchase['payment_type'] == "cash" ? "selected" : "" ?>>Cash</option>
+                  <option value="credit_purchase" <?= @$fetchPurchase['payment_type'] == "credit" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
                 </select>
               </div>
 

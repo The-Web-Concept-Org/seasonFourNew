@@ -28,8 +28,6 @@ if (isset($_REQUEST['id'])) {
 
               <?php if ($_REQUEST['act'] == "general_voucher") { ?>
 
-
-
                 <div class="col-sm-12">
                   <form action="php_action/custom_action.php" method="POST" id="voucher_general_fm">
                     <div class="form-group row">
@@ -45,7 +43,8 @@ if (isset($_REQUEST['id'])) {
                           <input type="date" class="form-control" name="new_voucher_date" value="<?= date('Y-m-d') ?>">
 
                         <?php endif ?>
-                        <input type="hidden" class="form-control" name="voucher_id" value="<?= @$voucher['voucher_id'] ?>">
+                        <input type="hidden" class="form-control" name="voucher_id"
+                          value="<?= @$voucher['voucher_id'] ?>">
                         <input type="hidden" class="form-control" name="voucher_group" value="general_voucher">
                       </div>
 
@@ -80,13 +79,18 @@ if (isset($_REQUEST['id'])) {
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
-                              ?>
+                              $branchId = $r['branch_id']
+                                ?>
+                              <?php $branchRes = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = $branchId");
+                              $branchRow = mysqli_fetch_assoc($branchRes); ?>
                               <?php if ($type != $type2): ?>
                                 <optgroup label="<?= $r['customer_type'] ?>">
                                 <?php endif ?>
 
                                 <option <?= @($voucher['customer_id1'] == $r['customer_id']) ? "selected" : "" ?>
-                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
+                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?> -
+                                  <?= !empty($branchRow['branch_name']) ? $branchRow['branch_name'] : 'Admin Branch' ?>
+                                </option>
 
                                 <?php if ($type != $type2): ?>
                                 </optgroup>
@@ -126,13 +130,17 @@ if (isset($_REQUEST['id'])) {
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
-                              ?>
+                              $branchId = $r['branch_id']
+                                ?>
                               <?php if ($type != $type2): ?>
                                 <optgroup label="<?= $r['customer_type'] ?>">
                                 <?php endif ?>
-
+                                <?php $branchRes = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = $branchId");
+                                $branchRow = mysqli_fetch_assoc($branchRes); ?>
                                 <option <?= @($voucher['customer_id2'] == $r['customer_id']) ? "selected" : "" ?>
-                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
+                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?> -
+                                  <?= !empty($branchRow['branch_name']) ? $branchRow['branch_name'] : 'Admin Branch' ?>
+                                </option>
 
                                 <?php if ($type != $type2): ?>
                                 </optgroup>
@@ -172,7 +180,8 @@ if (isset($_REQUEST['id'])) {
                     <div class="form-group row">
                       <div class="col-sm-2 text-right">DD/ Check No.</div>
                       <div class="col-sm-4">
-                        <input type="text" class="form-control" name="td_check_no" value="<?= @$voucher['td_check_no'] ?>">
+                        <input type="text" class="form-control" name="td_check_no"
+                          value="<?= @$voucher['td_check_no'] ?>">
                       </div>
                       <div class="col-sm-2 text-right">Bank Name</div>
 
@@ -248,7 +257,8 @@ if (isset($_REQUEST['id'])) {
                           <input type="date" class="form-control" name="new_voucher_date" value="<?= date('Y-m-d') ?>">
 
                         <?php endif ?>
-                        <input type="hidden" class="form-control" name="voucher_id" value="<?= @$voucher['voucher_id'] ?>">
+                        <input type="hidden" class="form-control" name="voucher_id"
+                          value="<?= @$voucher['voucher_id'] ?>">
                         <input type="hidden" class="form-control" name="voucher_group" value="expense_voucher">
 
                       </div>
@@ -284,13 +294,18 @@ if (isset($_REQUEST['id'])) {
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
-                              ?>
+                              $branchId = $r['branch_id']
+                                ?>
                               <?php if ($type != $type2): ?>
                                 <optgroup label="<?= $r['customer_type'] ?>">
                                 <?php endif ?>
-
+                                <?php $branchRes = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = $branchId");
+                                $branchRow = mysqli_fetch_assoc($branchRes); ?>
                                 <option <?= @($voucher['customer_id1'] == $r['customer_id']) ? "selected" : "" ?>
-                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
+                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?> -
+                                  <?= !empty($branchRow['branch_name']) ? $branchRow['branch_name'] : 'Admin Branch' ?>
+
+                                </option>
 
                                 <?php if ($type != $type2): ?>
                                 </optgroup>
@@ -332,9 +347,12 @@ if (isset($_REQUEST['id'])) {
                               <?php if ($type != $type2): ?>
                                 <optgroup label="<?= $r['customer_type'] ?>">
                                 <?php endif ?>
-
+                                <?php $branchRes = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = $branchId");
+                                $branchRow = mysqli_fetch_assoc($branchRes); ?>
                                 <option <?= @($voucher['customer_id2'] == $r['customer_id']) ? "selected" : "" ?>
-                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
+                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?> -
+                                  <?= !empty($branchRow['branch_name']) ? $branchRow['branch_name'] : 'Admin Branch' ?>
+                                </option>
 
                                 <?php if ($type != $type2): ?>
                                 </optgroup>
@@ -419,7 +437,8 @@ if (isset($_REQUEST['id'])) {
                           <input type="date" class="form-control" name="new_sin_voucher_date" value="<?= date('Y-m-d') ?>">
 
                         <?php endif ?>
-                        <input type="hidden" class="form-control" name="voucher_id" value="<?= @$voucher['voucher_id'] ?>">
+                        <input type="hidden" class="form-control" name="voucher_id"
+                          value="<?= @$voucher['voucher_id'] ?>">
                         <input type="hidden" class="form-control" name="voucher_group" value="single_voucher">
 
                       </div>
@@ -439,13 +458,18 @@ if (isset($_REQUEST['id'])) {
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
+                              $branchId = $r['branch_id']
                               ?>
+                              <?php $branchRes = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = $branchId");
+                                $branchRow = mysqli_fetch_assoc($branchRes); ?>
                               <?php if ($type != $type2): ?>
                                 <optgroup label="<?= $r['customer_type'] ?>">
                                 <?php endif ?>
 
                                 <option <?= @($voucher['customer_id1'] == $r['customer_id']) ? "selected" : "" ?>
-                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>
+                                  value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?> -
+                                  <?= !empty($branchRow['branch_name']) ? $branchRow['branch_name'] : 'Admin Branch' ?>
+                                </option>
 
                                 <?php if ($type != $type2): ?>
                                 </optgroup>

@@ -1133,7 +1133,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 			'customer_account' => @$_REQUEST['customer_account'],
 			'paid' => $_REQUEST['paid_ammount'],
 			'payment_status' => 1,
-			'payment_type' => $_REQUEST['payment_type'],
+			'payment_type' => $_REQUEST['purchase_type'],
 			'branch_id' => $_REQUEST['branch_id'],
 			'user_id' => $_REQUEST['user_id'],
 		];
