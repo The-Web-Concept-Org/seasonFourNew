@@ -65,6 +65,7 @@ if (isset($_REQUEST['new_voucher_date'])) {
 				'voucher_amount' => @$_REQUEST['voucher_debit'],
 				'voucher_group' => @$_REQUEST['voucher_group'],
 				'addby_user_id' => @$_SESSION['userId'],
+				'branch_id' => @$_REQUEST['branch_id'],
 			];
 		}
 		if (insert_data($dbc, "vouchers", $data)) {

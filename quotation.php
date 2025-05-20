@@ -185,7 +185,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 <label>Final Price</label>
                 <input type="number" min="0" readonly class="form-control" id="get_final_rate">
               </div>
-              <div class="col-6 col-sm-2 col-md-2">
+              <div class="col-6 col-sm-2 col-md-1">
                 <label>Quantity</label>
                 <input type="text" class="form-control" id="get_product_quantity" value="1" min="1" name="quantity">
               </div>

@@ -108,6 +108,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                 </datalist>
                             </div>
+                            
                             <div class="col-sm-2 cash-sale-div2">
                                 <label>Customer Name</label>
                                 <input type="text" id="sale_order_client_name"
@@ -125,7 +126,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-sm-3 return_days-div">
                                 <label>Customer Account</label>
                                 <div class="input-group">
-
                                     <select class="form-control searchableSelect"
                                         onchange="getBalance(this.value,'customer_account_exp')"
                                         name="credit_order_client_name" id="credit_order_client_name"
@@ -142,6 +142,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                         <?php } ?>
                                     </select><br />
                                 </div>
+                               
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Balance : <span
                                             id="customer_account_exp">0</span> </span>
@@ -150,7 +151,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                     <span class="input-group-text" id="basic-addon1">R Limit : <span
                                             id="R_Limit">0</span> </span>
                                 </div>
-
+                                 
 
 
                                 <input type="hidden" name="customer_account" id="customer_account"
@@ -160,6 +161,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="hidden" name="R_Limit" id="R_LimitInput" />
 
                             </div>
+                          <div class="col-sm-1 return_days-div">
+                <br>
+                <a href="customers.php?type=customer" class="btn btn-admin2 btn-sm mt-2">Add</a>
+              </div>
                             <div class="col-sm-1">
                                 <label>Comment</label>
                                 <input type="text" autocomplete="off" name="order_narration" id="order_narration"
@@ -206,7 +211,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                         </div> <!-- end of form-group -->
                         <div class="form-group row mb-5">
-                            <div class="col-6 col-md-1">
+                            <div class="col-6 col-md-2">
                                 <label>Code</label>
                                 <input type="text" name="product_code" autocomplete="off" id="get_product_code"
                                     class="form-control">
@@ -236,7 +241,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <label>Product Details</label>
                                 <input type="text" class="form-control" id="get_product_detail">
                             </div> -->
-                            <div class="col-6 col-sm-2 col-md-2">
+                            <div class="col-6 col-sm-2 col-md-1">
                                 <label>Price</label>
                                 <input type="number" min="0" class="form-control" id="get_product_price">
                             </div>
@@ -244,7 +249,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <label>Final Price</label>
                                 <input type="number" min="0" readonly class="form-control" id="get_final_rate">
                             </div>
-                            <div class="col-6 col-sm-2 col-md-2">
+                            <div class="col-6 col-sm-2 col-md-1">
                                 <label>Quantity</label>
                                 <input type="text" class="form-control" id="get_product_quantity" value="1" min="1"
                                     name="quantity">
@@ -460,3 +465,4 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 
 ?>
+

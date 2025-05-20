@@ -208,7 +208,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                         </div> <!-- end of form-group -->
                         <div class="form-group row mb-5">
-                            <div class="col-6 col-md-1">
+                            <div class="col-6 col-md-2">
                                 <label>Code</label>
                                 <input type="text" name="product_code" autocomplete="off" id="get_product_code"
                                     class="form-control">
@@ -238,7 +238,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <label>Product Details</label>
                                 <input type="text" class="form-control" id="get_product_detail">
                             </div> -->
-                            <div class="col-6 col-sm-2 col-md-2">
+                            <div class="col-6 col-sm-2 col-md-1">
                                 <label>Price</label>
                                 <input type="number" min="0" class="form-control" id="get_product_price">
                             </div>
@@ -246,7 +246,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <label>Final Price</label>
                                 <input type="number" min="0" readonly class="form-control" id="get_final_rate">
                             </div>
-                            <div class="col-6 col-sm-2 col-md-2">
+                            <div class="col-6 col-sm-2 col-md-1">
                                 <label>Quantity</label>
                                 <input type="text" class="form-control" id="get_product_quantity" value="1" min="1"
                                     name="quantity">

@@ -174,8 +174,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label>Product Details</label>
                 <input type="text" class="form-control" id="get_product_detail">
               </div> -->
-              <div class="col-6 col-sm-1 col-md-2">
-                <label>Unit Price</label>
+              <div class="col-6 col-sm-1 col-md-1">
+                <label>Final Price</label>
                 <input type="number" <?= ($_SESSION['user_role'] == "admin") ? "" : "readonly" ?> class="form-control"
                   id="get_product_price">
               </div>

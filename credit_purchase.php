@@ -76,10 +76,11 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'purchase'");
                     $data = mysqli_fetch_assoc($result);
                     $next_increment = $data['Auto_increment'];
+                    $default_prefix = isset($_REQUEST['edit_purchase_id']) && @$fetchPurchase['payment_type'] == "cash" ? "SF25-CP-" : "SF-CRP-";
+                    $default_id = isset($_REQUEST['edit_purchase_id']) ? $fetchPurchase['purchase_id'] : $next_increment;
                     ?>
                     <input type="text" name="next_increment" id="next_increment"
-                      value="SF25-CP-<?= @empty($_REQUEST['edit_purchase_id']) ? $next_increment : $fetchPurchase['purchase_id'] ?>"
-                      readonly class="form-control">
+                      value="<?= $default_prefix . $default_id ?>" readonly class="form-control">
                   </div>
 
                   <div class="col-6">
@@ -92,15 +93,22 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               </div>
 
               <div class="col-md-2">
-                <label for="Sale Type">Purchase Type</label>
-                <select name="purchase_type" onchange="purchaseType(this.value)" class="form-control"
+                <label for="purchase_type">Purchase Type</label>
+                <select name="purchase_type" onchange="updatePurchaseId(this.value)" class="form-control"
                   id="purchase_type">
                   <option value="cash" <?= @$fetchPurchase['payment_type'] == "cash" ? "selected" : "" ?>>Cash</option>
-                  <option <?= isset($_REQUEST['edit_purchase_id']) ? "" : "selected" ?> value="credit"
-                    <?= @$fetchPurchase['payment_type'] == "credit" ? "selected" : "" ?>>Credit</option>
+                  <option value="credit" <?= @$fetchPurchase['payment_type'] == "credit" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
                 </select>
-
               </div>
+
+              <script>
+                function updatePurchaseId(purchaseType) {
+                  const idInput = document.getElementById('next_increment');
+                  const currentId = idInput.value.replace(/^(SF25-CP-|SF-CRP-)/, '');
+                  const newPrefix = purchaseType === 'cash' ? 'SF25-CP-' : 'SF-CRP-';
+                  idInput.value = newPrefix + currentId;
+                }
+              </script>
               <div class="col-sm-3">
                 <label>Select Supplier</label>
                 <div class="input-group">
@@ -189,8 +197,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label>Product Details</label>
                 <input type="text" class="form-control" id="get_product_detail">
               </div> -->
-              <div class="col-6 col-sm-1 col-md-2">
-                <label>Unit Price</label>
+              <div class="col-6 col-sm-1 col-md-1">
+                <label>Final Price</label>
                 <input type="number" <?= ($_SESSION['user_role'] == "admin") ? "" : "readonly" ?> class="form-control"
                   id="get_product_price">
               </div>
