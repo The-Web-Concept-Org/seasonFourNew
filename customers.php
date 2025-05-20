@@ -51,7 +51,7 @@ if (@$getCustomer) {
 				<div class="row">
 					<div class="col-sm-12">
 
-						
+
 						<div class="card card-info">
 							<div class="card-header text-center h4"><?= ucfirst($_REQUEST['type']) ?> Information</div>
 							<div class=" card-body">
@@ -81,7 +81,11 @@ if (@$getCustomer) {
 													<?php } ?>
 												</select>
 											</div>
+										<?php else: ?>
+											<!-- Non-admin: store branch_id in hidden input -->
+											<input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
 										<?php endif; ?>
+
 
 										<?php if ($_REQUEST['type'] != "bank" and $_REQUEST['type'] != "expense"): ?>
 											<div class="col-sm-6 mt-3">
@@ -257,7 +261,8 @@ if (@$getCustomer) {
 															<td><?= $r['customer_limit'] ?></td>
 														<?php endif; ?>
 														<td class="text-capitalize">
-															<?= $r['customer_status'] == 1 ? 'Active' : 'Inactive' ?></td>
+															<?= $r['customer_status'] == 1 ? 'Active' : 'Inactive' ?>
+														</td>
 													<?php } ?>
 
 												<?php } ?>
