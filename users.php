@@ -25,7 +25,7 @@
 										<div class="form-group row">
 											<label for="clientContact" class="col-sm-2 control-label">Full Name</label>
 											<div class="col-sm-4">
-												<input type="text" class="form-control" id="username" name="username" placeholder="Username" autocomplete="off" required value="<?= @$fetchusers['username'] ?>" />
+												<input type="text" class="form-control" id="fullname" name="fullname" placeholder="Fullname" autocomplete="off" required value="<?= @$fetchusers['fullname'] ?>" />
 											</div>
 											<label for="clientContact" class="col-sm-2 control-label">Username</label>
 											<div class="col-sm-4">
