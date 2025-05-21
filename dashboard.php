@@ -645,6 +645,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     echo "
         <tr>
             <td>{$serial_number}</td>
+            <td>{$bill_no}</td>
             <td>{$grand_total}</td>
             <td>{$profit}</td>
         </tr>

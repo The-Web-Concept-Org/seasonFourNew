@@ -105,7 +105,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 function updatePurchaseId(purchaseType) {
                   const idInput = document.getElementById('next_increment');
                   const currentId = idInput.value.replace(/^(SF25-CP-|SF-CRP-)/, '');
-                  const newPrefix = purchaseType === 'cash' ? 'SF25-CP-' : 'SF-CRP-';
+                  const newPrefix = purchaseType === 'cash_purchase' ? 'SF25-CP-' : 'SF-CRP-';
                   idInput.value = newPrefix + currentId;
                 }
               </script>

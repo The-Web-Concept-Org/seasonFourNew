@@ -310,15 +310,18 @@
             }
         } elseif ($_REQUEST['type'] == "quotation") {
             $nameSHow = 'Customer';
-            $id_name = "Quotation Id";
+
 
             $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
             if ($order['is_delivery_note'] == 1) {
                 $invoice_name = "Delivery Note";
+                $id_name = "Delivery Note Id";
+                $unique_id = 'SF25-DN-' . $order['quotation_id'];
             } else {
                 $invoice_name = "Quotation";
+                $id_name = "Quotation Id";
+                $unique_id = 'SF25-Q-' . $order['quotation_id'];
             }
-            $unique_id = 'SF25-Q-' . $order['quotation_id'];
             $getDate = $order['quotation_date'];
             $comment = $order['quotation_narration'];
             $order_item = mysqli_query($dbc, "SELECT quotation_item.*,product.* FROM quotation_item INNER JOIN product ON quotation_item.product_id=product.product_id WHERE quotation_item.quotation_id='" . $_REQUEST['id'] . "'");
@@ -651,19 +654,26 @@
                         <tfoot>
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
-                                <?php if (@$order['is_delivery_note'] != 1) { ?>
-                                    <td class="border">Discount:</td>
-                                    <td class="border"><?= formatAmountWithKD($order['discount']) ?> </td>
-                                <?php } ?>
+
                             </tr>
-                            <tr class="tablefooter" style="font-size: 14px; border: none !important;">
-                                <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?>
-                                    ONLY</td>
-                                <?php if (@$order['is_delivery_note'] != 1) { ?>
+                            <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
+                                    <tr>
+                                        <td class="border">Discount:</td>
+                                        <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
+                                    </tr>
+                                <?php endif; ?>
+
+                            <?php } ?>
+
+                            <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                <tr class="tablefooter" style="font-size: 14px; border: none !important;">
+                                    <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?>
+                                        ONLY</td>
                                     <td class="text-sm border">Net Amount:</td>
                                     <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
-                                <?php } ?>
-                            </tr>
+                                </tr>
+                            <?php } ?>
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
                                 <?php if ($order['grand_total'] !== "") { ?>
                                     <tr class="tablefooter" style="font-size: 14px;">
@@ -687,7 +697,8 @@
                     </tfoot>
                 </div>
             </div>
-            <?php if ($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) { ?>
+            <?php
+            if ($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) { ?>
                 <div class="pt-5 mt-3 mb-5">
                     <div class="row">
                         <div class="col-2">
