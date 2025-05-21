@@ -56,16 +56,20 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         <div class="row form-group">
                             <div class="col-md-4 d-flex ">
                                 <div class="w-100 pe-1">
-                                    <label>ID#</label>
-                                    <?php $result = mysqli_query($dbc, "
-    SHOW TABLE STATUS LIKE 'orders_return'
-");
-                                    $data = mysqli_fetch_assoc($result);
-                                    $next_increment = $data['Auto_increment']; ?>
-                                    <input type="text" name="next_increment" id="next_increment"
-                                        value="SF25-SR-"
-                                        class="form-control">
-                                </div>
+    <label>ID#</label>
+    <?php
+        $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'orders_return'");
+        $data = mysqli_fetch_assoc($result);
+        $next_increment = $data['Auto_increment'];
+        $full_id = "SF25-SR-" . $next_increment;
+    ?>
+    <!-- Visible Input (read-only or editable if needed) -->
+    <input type="text" id="display_id" value="<?= $full_id ?>" class="form-control" readonly>
+
+    <!-- Hidden input to store the ID to be submitted -->
+    <input type="hidden" name="next_increment" id="next_increment" value="<?= $full_id ?>">
+</div>
+
 
                                 <div class="w-100 pe-1 pl-1">
                                     <label> Date</label>
@@ -108,20 +112,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="text" autocomplete="off" name="order_narration" id="order_narration"
                                     value="<?= @$fetchOrder['order_narration'] ?>" class="form-control">
 
-                            </div>
-
-
-                            <div class="col-sm-2">
-                                <label>Attach File
-                                    <?php if (!empty($fetchOrder['order_file'])): ?>
-                                        <a href="img/uploads/<?= htmlspecialchars($fetchOrder['order_file']) ?>"
-                                            target="_blank">
-                                            <p type="button" class="d-inline p-0 m-0">View File</p>
-                                        </a>
-                                    <?php endif; ?>
-                                </label>
-                                <input type="file" autocomplete="off" value="<?= @$fetchOrder['order_file'] ?>"
-                                    class="form-control" name="order_file">
                             </div>
                         </div> <!-- end of form-group -->
                         <div class="form-group row mb-5">
