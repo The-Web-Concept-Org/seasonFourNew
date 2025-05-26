@@ -3228,9 +3228,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 	if (!empty($_POST['product_ids'])) {
 		foreach ($_POST['product_ids'] as $index => $product_id) {
 			$product_name = mysqli_real_escape_string($dbc, $_POST['product_names'][$index]);
-			$product_code = mysqli_real_escape_string($dbc, $_POST['product_codes'][$index]);
+
 			$quantity = floatval($_POST['product_quantites'][$index]);
-			$rate = floatval($_POST['product_rates'][$index]);
+			
 			$final_rate = floatval($_POST['product_final_rates'][$index]);
 			$amount = $final_rate * $quantity;
 			$action = $_POST['product_actions'][$index] ?? 'update';
@@ -3239,8 +3239,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 			$submitted_products[] = [
 				'product_id' => $product_id,
 				'product_name' => $product_name,
-				'product_code' => $product_code,
-				'rate' => $rate,
+			
+				
 				'quantity' => $quantity,
 				'final_rate' => $final_rate,
 				'total' => $amount,
@@ -3282,8 +3282,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 						$merged_products[] = [
 							'product_id' => $submitted_product['product_id'],
 							'product_name' => $submitted_product['product_name'],
-							'product_code' => $submitted_product['product_code'],
-							'rate' => $submitted_product['rate'],
+							
+						
 							'quantity' => $submitted_product['quantity'],
 							'final_rate' => $submitted_product['final_rate'],
 							'total' => $submitted_product['total'],
@@ -3306,8 +3306,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 				$merged_products[] = [
 					'product_id' => $submitted_product['product_id'],
 					'product_name' => $submitted_product['product_name'],
-					'product_code' => $submitted_product['product_code'],
-					'rate' => $submitted_product['rate'],
 					'quantity' => $submitted_product['quantity'],
 					'final_rate' => $submitted_product['final_rate'],
 					'total' => $submitted_product['total'],
@@ -3353,8 +3351,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 			$merged_products[] = [
 				'product_id' => $product['product_id'],
 				'product_name' => $product['product_name'],
-				'product_code' => $product['product_code'],
-				'rate' => $product['rate'],
+				
+				
 				'quantity' => $product['quantity'],
 				'final_rate' => $product['final_rate'],
 				'total' => $product['total'],
