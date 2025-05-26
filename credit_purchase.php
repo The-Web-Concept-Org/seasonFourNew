@@ -39,12 +39,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper ml-auto mb-3">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
-                  <option selected disabled>Select Branch</option>
+                  <option selected disabled value="">Select Branch</option>
                   <?php
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
                     ?>
-                    <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
+                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
                       value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>
@@ -96,8 +96,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label for="purchase_type">Purchase Type</label>
                 <select name="purchase_type" onchange="updatePurchaseId(this.value)" class="form-control"
                   id="purchase_type">
-                  <option value="cash_purchase" <?= @$fetchPurchase['payment_type'] == "cash" ? "selected" : "" ?>>Cash</option>
-                  <option value="credit_purchase" <?= @$fetchPurchase['payment_type'] == "credit" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
+                  <option value="cash_purchase" <?= @$fetchPurchase['payment_type'] == "cash_purchase" ? "selected" : "" ?>>Cash</option>
+                  <option value="credit_purchase" <?= @$fetchPurchase['payment_type'] == "credit_purchase" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
                 </select>
               </div>
 

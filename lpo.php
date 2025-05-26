@@ -39,12 +39,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper ml-auto mb-3">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
-                  <option selected disabled>Select Branch</option>
+                  <option selected disabled value="">Select Branch</option>
                   <?php
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
                     ?>
-                    <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
+                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
                       value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>
@@ -250,7 +250,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                       <td class="table-bordered"> Discount :</td>
                       <td class="table-bordered" id="getDiscount"><input onkeyup="getOrderTotal()" type="number"
                           id="ordered_discount" class="form-control form-control-sm"
-                          value="<?= @empty($_REQUEST['edit_order_id']) ? $fetchPurchase['discount'] : "0" ?>" min="0"
+                          value="<?= @empty($_REQUEST['edit_order_id']) ? @$fetchPurchase['discount'] : "0" ?>" min="0"
                           name="ordered_discount">
                       <td class="table-bordered"></td>
 

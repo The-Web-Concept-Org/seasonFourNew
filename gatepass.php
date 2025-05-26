@@ -5,7 +5,7 @@
 if (!empty($_REQUEST['edit_purchase_id'])) {
     # code...
     $fetchGatepass = fetchRecord($dbc, "gatepass", "gatepass_id", base64_decode($_REQUEST['edit_purchase_id']));
-    print_r($fetchGatepass);
+    // print_r($fetchGatepass);
 }
 ?>
 

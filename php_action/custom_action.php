@@ -308,7 +308,8 @@ if (isset($_REQUEST['new_sin_voucher_date'])) {
 					'transaction_remarks' => @$_REQUEST['voucher_hint'],
 					'transaction_date' => @$_REQUEST['new_sin_voucher_date'],
 				];
-				update_data($dbc, "transactions", $credit, "transaction_id", $transactions['transaction_id1']);;
+				update_data($dbc, "transactions", $credit, "transaction_id", $transactions['transaction_id1']);
+				;
 			}
 
 
@@ -324,8 +325,8 @@ if (!empty($_REQUEST['action']) and $_REQUEST['action'] == "product_module") {
 	$purchase_rate = $total = 0;
 	$category_price = fetchRecord($dbc, "categories", "categories_id", $_REQUEST['category_id']);
 
-	$total = (float)@$_REQUEST['product_mm'] * (float)@$_REQUEST['product_inch'] * (float)@$_REQUEST['product_meter'];
-	$purchase_rate = ($total * (float)@$category_price['category_purchase']) / 54;
+	$total = (float) @$_REQUEST['product_mm'] * (float) @$_REQUEST['product_inch'] * (float) @$_REQUEST['product_meter'];
+	$purchase_rate = ($total * (float) @$category_price['category_purchase']) / 54;
 	$purchase_rate = round($purchase_rate);
 
 	$brand_id = $_REQUEST['brand_id'];
@@ -535,7 +536,7 @@ if (!empty($_REQUEST['getPrice'])) {
 
 	$response = [
 		"price" => isset($price) ? $price : 0,
-		"qty" => @(float)$inventory['quantity_instock'],
+		"qty" => @(float) $inventory['quantity_instock'],
 		"description" => $record['product_description'],
 		"final_rate" => $record['final_rate'],
 		"sts" => "success",
@@ -585,7 +586,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						update_data($dbc, "orders", $data, "order_id", $last_id);
 					}
 				}
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$debit = [
 						'credit' => @$_REQUEST['paid_ammount'],
@@ -604,10 +605,10 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$total = (float)$product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$total = (float) $product_quantites * $product_rates;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'final_rate' => $_REQUEST['product_final_rates'][$x],
@@ -623,7 +624,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						@$qty = (float)$quantity_instock['quantity_instock'] - (float)$product_quantites;
+						@$qty = (float) $quantity_instock['quantity_instock'] - (float) $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -632,7 +633,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
@@ -641,9 +642,9 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 
 					$x++;
 				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
 
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				if ($due_amount > 0) {
 					$payment_status = 0; //pending
@@ -697,7 +698,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
+						$newqty = (float) $quantity_instock['quantity_instock'] + (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
 						$branch_id = $_SESSION['branch_id'];
@@ -705,7 +706,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						if (mysqli_num_rows($inventory) > 0) {
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_qty = (float) $inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -716,10 +717,10 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 					$x = 0;
 					foreach ($_REQUEST['product_ids'] as $key => $value) {
 						$total = $qty = 0;
-						$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-						$product_rates = (float)$_REQUEST['product_rates'][$x];
+						$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+						$product_rates = (float) $_REQUEST['product_rates'][$x];
 						$total = $product_quantites * $product_rates;
-						$total_ammount += (float)$total;
+						$total_ammount += (float) $total;
 
 						$order_items = [
 							'product_id' => $_REQUEST['product_ids'][$x],
@@ -727,7 +728,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 							'total' => $total,
 							'order_id' => $_REQUEST['product_order_id'],
 							'quantity' => $product_quantites,
-							'product_detail' => $_REQUEST['product_detail'][$x],
+							'product_detail' => @$_REQUEST['product_detail'][$x],
 							'order_item_status' => 1,
 							'branch_id' => $_REQUEST['branch_id'],
 							'user_id' => $_REQUEST['user_id'],
@@ -735,7 +736,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						if ($get_company['stock_manage'] == 1) {
 							$product_id = $_REQUEST['product_ids'][$x];
 							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-							$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
+							$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 							$branch_id = $_SESSION['branch_id'];
@@ -743,7 +744,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 							$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 							if (mysqli_num_rows($inventory) > 0) {
 								$inventory = mysqli_fetch_assoc($inventory);
-								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+								$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 							}
@@ -753,8 +754,8 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 
 						$x++;
 					} //end of foreach
-					$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-					$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+					$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+					$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 					if ($due_amount > 0) {
 						$payment_status = 0; //pending
 
@@ -770,7 +771,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						'payment_status' => $payment_status,
 						'due' => $due_amount,
 					];
-					$paidAmount = @(float)$_REQUEST['paid_ammount'];
+					$paidAmount = @(float) $_REQUEST['paid_ammount'];
 					if ($paidAmount > 0) {
 						$credit1 = [
 							'credit' => @$_REQUEST['paid_ammount'],
@@ -847,10 +848,10 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'final_rate' => $_REQUEST['product_final_rates'][$x],
@@ -867,7 +868,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -876,7 +877,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 						}
 					}
@@ -885,8 +886,8 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 					$x++;
 				} //end of foreach
 
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				$credit = [
 					'credit' => $due_amount,
@@ -905,7 +906,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 					$payment_status = 1; //completed
 					$transaction_id = 0;
 				}
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit1 = [
 						'credit' => @$_REQUEST['paid_ammount'],
@@ -966,15 +967,15 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
+						$newqty = (float) $quantity_instock['quantity_instock'] + (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
-						$branch_id =  $_REQUEST['branch_id'];
+						$branch_id = $_REQUEST['branch_id'];
 						$user_id = $_SESSION['user_id'];
 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 						if (mysqli_num_rows($inventory) > 0) {
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_qty = (float) $inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 						}
 					}
@@ -984,10 +985,10 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'rate' => $product_rates,
@@ -1002,7 +1003,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -1010,7 +1011,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 						if (mysqli_num_rows($inventory) > 0) {
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
 						}
@@ -1019,8 +1020,8 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 
 					$x++;
 				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
 				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_id']);
@@ -1043,7 +1044,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 					$payment_status = 1; //completed
 					$transaction_id = 0;
 				}
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit1 = [
 						'credit' => @$_REQUEST['paid_ammount'],
@@ -1160,11 +1161,11 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
-					$total = (float)$product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
+					$total = (float) $product_quantites * $product_rates;
+					$total_ammount += (float) $total;
 
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
@@ -1184,7 +1185,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -1193,7 +1194,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] + $product_quantites;
 							$update_inventory = mysqli_query($dbc, "UPDATE inventory SET quantity_instock='" . $inventory_qty . "' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						} else {
 							$insert_inventory = [
@@ -1216,10 +1217,10 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 
 					$x++;
 				} //end of foreach
-				$total_grand = (float)$total_ammount - (float)@$_REQUEST['ordered_discount'];
+				$total_grand = (float) $total_ammount - (float) @$_REQUEST['ordered_discount'];
 
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
-				if ($_REQUEST['payment_type'] == "credit_purchase") :
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
+				if ($_REQUEST['payment_type'] == "credit_purchase"):
 					if ($due_amount > 0) {
 						$debit = [
 							'debit' => $due_amount,
@@ -1234,7 +1235,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$transaction_id = mysqli_insert_id($dbc);
 					}
 				endif;
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit = [
 						'debit' => @$_REQUEST['paid_ammount'],
@@ -1294,7 +1295,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float)$quantity_instock['quantity_instock'] - (float)$proR['quantity'];
+						$newqty = (float) $quantity_instock['quantity_instock'] - (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
 						$branch_id = $_SESSION['branch_id'];
@@ -1303,7 +1304,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $proR['quantity'];
+							$inventory_qty = (float) $inventory['quantity_instock'] - $proR['quantity'];
 							$update_inventory = mysqli_query($dbc, "UPDATE inventory SET quantity_instock='" . $inventory_qty . "' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						} else {
 							$insert_inventory = [
@@ -1322,11 +1323,11 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 
 
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$purchase_item = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'rate' => $product_rates,
@@ -1346,7 +1347,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_SESSION['branch_id'];
@@ -1355,7 +1356,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] + $product_quantites;
 							$update_inventory = mysqli_query($dbc, "UPDATE inventory SET quantity_instock='" . $inventory_qty . "' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						} else {
 							$insert_inventory = [
@@ -1370,8 +1371,8 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 
 					$x++;
 				} //end of foreach
-				$total_grand = (float)$total_ammount - (float)@$_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = (float) $total_ammount - (float) @$_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 
 				$transactions = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['product_purchase_id']);
@@ -1379,7 +1380,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_paid_id']);
 
 
-				if ($_REQUEST['payment_type'] == "credit_purchase") :
+				if ($_REQUEST['payment_type'] == "credit_purchase"):
 					if ($due_amount > 0) {
 						$debit = [
 							'debit' => $due_amount,
@@ -1394,7 +1395,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$transaction_id = mysqli_insert_id($dbc);
 					}
 				endif;
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit = [
 						'debit' => @$_REQUEST['paid_ammount'],
@@ -1483,7 +1484,7 @@ if (isset($_REQUEST['getBalance'])) {
 
 if (isset($_REQUEST['pending_bills_detils'])) {
 	$pending_bills_detils = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM orders WHERE order_id='" . base64_decode($_REQUEST['pending_bills_detils']) . "'"));
-	echo  json_encode($pending_bills_detils);
+	echo json_encode($pending_bills_detils);
 }
 if (isset($_REQUEST['add_expense_name'])) {
 	$data_array = [
@@ -1559,7 +1560,7 @@ if (isset($_REQUEST['setCheckStatus'])) {
 	echo json_encode($response);
 }
 if (isset($_REQUEST['bill_customer_name'])) {
-	$paidAmount = (float)$_REQUEST['bill_paid_ammount'] + (float)$_REQUEST['bill_paid'];
+	$paidAmount = (float) $_REQUEST['bill_paid_ammount'] + (float) $_REQUEST['bill_paid'];
 
 
 	if ($paidAmount > 0) {
@@ -1588,7 +1589,7 @@ if (isset($_REQUEST['bill_customer_name'])) {
 			$transaction_paid_id = mysqli_insert_id($dbc);
 		}
 	}
-	$due_amount = (float)$_REQUEST['bill_grand_total'] - $paidAmount;
+	$due_amount = (float) $_REQUEST['bill_grand_total'] - $paidAmount;
 	if ($due_amount > 0) {
 		$payment_status = 0; //pending
 	} else {
@@ -1626,7 +1627,7 @@ if (isset($_REQUEST['LimitCustomer'])) {
 		'check_type' => $_REQUEST['check_type'],
 	];
 	$cust = $_REQUEST['LimitCustomer'];
-	$limitNow =  $_REQUEST['check_amount'];
+	$limitNow = $_REQUEST['check_amount'];
 
 	$check = mysqli_query($dbc, "SELECT * FROM checks WHERE customer_id = '$cust' AND voucher_id = 0 AND check_amount != 0");
 	//echo "SELECT * FROM checks WHERE customer_id = '$cust' AND voucher_id = 0 AND check_amount != 0";
@@ -1675,7 +1676,7 @@ if (isset($_REQUEST['LimitCustomerajax'])) {
 			'check_type' => $qq['check_type'],
 			'check_amount' => $qq['check_amount'],
 			'check_location' => $qq['check_location'],
-			'sts' 			=> 'success',
+			'sts' => 'success',
 
 		];
 	} else {
@@ -1696,6 +1697,7 @@ if (isset($_REQUEST['getCustomerLimit'])) {
 // Add LPO
 
 if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
+
 	if (!empty($_REQUEST['product_ids'])) {
 		# code...
 		$total_ammount = $total_grand = 0;
@@ -1740,11 +1742,11 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
-					$total = (float)$product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
+					$total = (float) $product_quantites * $product_rates;
+					$total_ammount += (float) $total;
 
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
@@ -1761,9 +1763,9 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 
 					$x++;
 				} //end of foreach
-				$total_grand = $total_ammount -  ((float)$_REQUEST['ordered_discount']);
+				$total_grand = $total_ammount - ((float) $_REQUEST['ordered_discount']);
 
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 
 				$newOrder = [
@@ -1812,11 +1814,11 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 
 
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$purchase_item = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'rate' => $product_rates,
@@ -1833,7 +1835,7 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 					}
 
@@ -1917,10 +1919,10 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'final_rate' => $_REQUEST['product_final_rates'][$x],
@@ -1928,7 +1930,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						'total' => $total,
 						'quotation_id' => $last_id,
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'user_id' => $_REQUEST['user_id'],
 						'quotation_item_status' => 1,
 					];
@@ -1936,7 +1938,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						if ($get_company['stock_manage'] == 1) {
 							$product_id = $_REQUEST['product_ids'][$x];
 							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-							$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+							$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 							$branch_id = $_REQUEST['branch_id'];
@@ -1945,7 +1947,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 							if (mysqli_num_rows($inventory) > 0) {
 
 								$inventory = mysqli_fetch_assoc($inventory);
-								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+								$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 							}
@@ -1958,8 +1960,8 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 
 
 
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				$newOrder = [
 					'payment_status' => @$payment_status,
@@ -2006,7 +2008,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						while ($proR = mysqli_fetch_assoc($proQ)) {
 							$newqty = 0;
 							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-							$newqty = (float)$quantity_instock['quantity_instock'] - (float)$proR['quantity'];
+							$newqty = (float) $quantity_instock['quantity_instock'] - (float) $proR['quantity'];
 							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
 							$branch_id = $_REQUEST['branch_id'];
@@ -2015,7 +2017,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 							if (mysqli_num_rows($inventory) > 0) {
 
 								$inventory = mysqli_fetch_assoc($inventory);
-								$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+								$inventory_qty = (float) $inventory['quantity_instock'] + $proR['quantity'];
 
 								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 							}
@@ -2027,10 +2029,10 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'final_rate' => $_REQUEST['product_final_rates'][$x],
@@ -2038,7 +2040,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						'total' => $total,
 						'quotation_id' => $_REQUEST['product_order_id'],
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'user_id' => $_REQUEST['user_id'],
 						'quotation_item_status' => 1,
 					];
@@ -2046,7 +2048,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 						if ($get_company['stock_manage'] == 1) {
 							$product_id = $_REQUEST['product_ids'][$x];
 							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-							$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+							$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 							$branch_id = $_REQUEST['branch_id'];
@@ -2055,7 +2057,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 							if (mysqli_num_rows($inventory) > 0) {
 
 								$inventory = mysqli_fetch_assoc($inventory);
-								$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+								$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 							}
@@ -2065,8 +2067,8 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 
 					$x++;
 				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 
 
@@ -2144,11 +2146,11 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
-					$total = (float)$product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
+					$total = (float) $product_quantites * $product_rates;
+					$total_ammount += (float) $total;
 
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
@@ -2168,7 +2170,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2177,7 +2179,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
@@ -2193,11 +2195,11 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 
 					$x++;
 				} //end of foreach
-				$total_grand = (float)$total_ammount - (float)@$_REQUEST['ordered_discount'];
+				$total_grand = (float) $total_ammount - (float) @$_REQUEST['ordered_discount'];
 
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
-				if ($_REQUEST['payment_type'] == "credit_purchase") :
+				if ($_REQUEST['payment_type'] == "credit_purchase"):
 					if ($due_amount > 0) {
 						$debit = [
 							'debit' => 0,
@@ -2212,7 +2214,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						$transaction_id = mysqli_insert_id($dbc);
 					}
 				endif;
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit = [
 						'debit' => 0,
@@ -2272,7 +2274,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float)$quantity_instock['quantity_instock'] - (float)$proR['quantity'];
+						$newqty = (float) $quantity_instock['quantity_instock'] - (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2281,7 +2283,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $proR['quantity'];
+							$inventory_qty = (float) $inventory['quantity_instock'] - $proR['quantity'];
 
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						}
@@ -2293,11 +2295,11 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 
 
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$purchase_item = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'rate' => $product_rates,
@@ -2317,7 +2319,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] - $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2326,7 +2328,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
@@ -2334,8 +2336,8 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 
 					$x++;
 				} //end of foreach
-				$total_grand = (float)$total_ammount - (float)@$_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = (float) $total_ammount - (float) @$_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 
 				$transactions = fetchRecord($dbc, "purchase_return", "purchase_id", $_REQUEST['product_purchase_id']);
@@ -2343,7 +2345,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_paid_id']);
 
 
-				if ($_REQUEST['payment_type'] == "credit_purchase") :
+				if ($_REQUEST['payment_type'] == "credit_purchase"):
 					if ($due_amount > 0) {
 						$debit = [
 							'debit' => 0,
@@ -2358,7 +2360,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						$transaction_id = mysqli_insert_id($dbc);
 					}
 				endif;
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit = [
 						'debit' => 0,
@@ -2451,10 +2453,10 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'final_rate' => $_REQUEST['product_final_rates'][$x],
@@ -2471,7 +2473,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] + $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2481,7 +2483,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] + $product_quantites;
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -2490,8 +2492,8 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 					$x++;
 				} //end of foreach
 
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				$credit = [
 					'credit' => 0,
@@ -2510,7 +2512,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 					$payment_status = 1; //completed
 					$transaction_id = 0;
 				}
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit1 = [
 						'credit' => 0,
@@ -2571,7 +2573,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
+						$newqty = (float) $quantity_instock['quantity_instock'] + (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2580,7 +2582,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_qty = (float) $inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -2590,10 +2592,10 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'rate' => $product_rates,
@@ -2608,7 +2610,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2617,7 +2619,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] - $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -2625,8 +2627,8 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 
 					$x++;
 				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				$transactions = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['product_order_id']);
 				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_id']);
@@ -2649,7 +2651,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 					$payment_status = 1; //completed
 					$transaction_id = 0;
 				}
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit1 = [
 						'credit' => 0,
@@ -2735,7 +2737,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						update_data($dbc, "orders_return", $data, "order_id", $last_id);
 					}
 				}
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$debit = [
 						'credit' => 0,
@@ -2754,10 +2756,10 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$total = (float)$product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$total = (float) $product_quantites * $product_rates;
+					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
 						'final_rate' => $_REQUEST['product_final_rates'][$x],
@@ -2773,7 +2775,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						@$qty = (float)$quantity_instock['quantity_instock'] + (float)$product_quantites;
+						@$qty = (float) $quantity_instock['quantity_instock'] + (float) $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2783,7 +2785,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] + $product_quantites;
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -2791,9 +2793,9 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 
 					$x++;
 				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
 
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
 				if ($due_amount > 0) {
 					$payment_status = 0; //pending
@@ -2846,7 +2848,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 					while ($proR = mysqli_fetch_assoc($proQ)) {
 						$newqty = 0;
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-						$newqty = (float)$quantity_instock['quantity_instock'] + (float)$proR['quantity'];
+						$newqty = (float) $quantity_instock['quantity_instock'] + (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2855,7 +2857,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] + $proR['quantity'];
+							$inventory_qty = (float) $inventory['quantity_instock'] + $proR['quantity'];
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -2865,10 +2867,10 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
 					$total = $qty = 0;
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
 					$total = $product_quantites * $product_rates;
-					$total_ammount += (float)$total;
+					$total_ammount += (float) $total;
 
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
@@ -2876,7 +2878,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						'total' => $total,
 						'order_id' => $_REQUEST['product_order_id'],
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],
@@ -2884,7 +2886,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 					if ($get_company['stock_manage'] == 1) {
 						$product_id = $_REQUEST['product_ids'][$x];
 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
-						$qty = (float)$quantity_instock['quantity_instock'] -  $product_quantites;
+						$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
 						$branch_id = $_REQUEST['branch_id'];
@@ -2893,7 +2895,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 						if (mysqli_num_rows($inventory) > 0) {
 
 							$inventory = mysqli_fetch_assoc($inventory);
-							$inventory_qty = (float)$inventory['quantity_instock'] -  $product_quantites;
+							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						}
 					}
@@ -2902,8 +2904,8 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 
 					$x++;
 				} //end of foreach
-				$total_grand =  $total_ammount - $_REQUEST['ordered_discount'];
-				$due_amount = (float)$total_grand - @(float)$_REQUEST['paid_ammount'];
+				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 				if ($due_amount > 0) {
 					$payment_status = 0; //pending
 
@@ -2919,7 +2921,7 @@ if (isset($_REQUEST['sale_order_client_name']) && isset($_REQUEST['order_return'
 					'payment_status' => $payment_status,
 					'due' => $due_amount,
 				];
-				$paidAmount = @(float)$_REQUEST['paid_ammount'];
+				$paidAmount = @(float) $_REQUEST['paid_ammount'];
 				if ($paidAmount > 0) {
 					$credit1 = [
 						'credit' => 0,
@@ -2985,9 +2987,9 @@ if (isset($_REQUEST['gatepass'])) {
 				}
 
 				foreach ($_REQUEST['product_ids'] as $x => $value) {
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
 					$total = $product_quantites * $product_rates;
 					$total_amount += $total;
 
@@ -3005,7 +3007,7 @@ if (isset($_REQUEST['gatepass'])) {
 						'user_id' => $_REQUEST['user_id'],
 					];
 					$product_id = $_REQUEST['product_ids'][$x];
-					$quantity =(float)$_REQUEST['product_quantites'][$x];
+					$quantity = (float) $_REQUEST['product_quantites'][$x];
 					$from_branch = $_REQUEST['from_branch'];
 					$to_branch = $_REQUEST['to_branch'];
 
@@ -3026,12 +3028,12 @@ if (isset($_REQUEST['gatepass'])) {
 
 					insert_data($dbc, 'gatepass_item', $order_items);
 				}
-				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;
+				$total_ammount = isset($total_ammount) ? (float) $total_ammount : 0;
 
-				$ordered_discount = isset($_REQUEST['ordered_discount']) ? (float)$_REQUEST['ordered_discount'] : 0;
-				$paid_amount = isset($_REQUEST['paid_ammount']) ? (float)$_REQUEST['paid_ammount'] : 0;
+				$ordered_discount = isset($_REQUEST['ordered_discount']) ? (float) $_REQUEST['ordered_discount'] : 0;
+				$paid_amount = isset($_REQUEST['paid_ammount']) ? (float) $_REQUEST['paid_ammount'] : 0;
 
-				$total_grand = $total_ammount - $ordered_discount;
+				$total_grand = $total_amount - $ordered_discount;
 				$due_amount = $total_grand - $paid_amount;
 
 
@@ -3098,9 +3100,9 @@ if (isset($_REQUEST['gatepass'])) {
 
 				// Add new items
 				foreach ($_REQUEST['product_ids'] as $x => $value) {
-					$product_quantites = (float)$_REQUEST['product_quantites'][$x];
-					$product_rates = (float)$_REQUEST['product_rates'][$x];
-					$product_salerates = (float)$_REQUEST['product_salerates'][$x];
+					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+					$product_rates = (float) $_REQUEST['product_rates'][$x];
+					$product_salerates = (float) $_REQUEST['product_salerates'][$x];
 					$total = $product_quantites * $product_rates;
 					$total_amount += $total;
 
@@ -3144,10 +3146,10 @@ if (isset($_REQUEST['gatepass'])) {
 						}
 					}
 				}
-				$total_ammount = isset($total_ammount) ? (float)$total_ammount : 0;
+				$total_ammount = isset($total_ammount) ? (float) $total_ammount : 0;
 
-				$ordered_discount = isset($_REQUEST['ordered_discount']) ? (float)$_REQUEST['ordered_discount'] : 0;
-				$paid_amount = isset($_REQUEST['paid_ammount']) ? (float)$_REQUEST['paid_ammount'] : 0;
+				$ordered_discount = isset($_REQUEST['ordered_discount']) ? (float) $_REQUEST['ordered_discount'] : 0;
+				$paid_amount = isset($_REQUEST['paid_ammount']) ? (float) $_REQUEST['paid_ammount'] : 0;
 
 				$total_grand = $total_ammount - $ordered_discount;
 				$due_amount = $total_grand - $paid_amount;
@@ -3197,10 +3199,232 @@ if (isset($_POST['get_branch_data'])) {
 
 	$response = [
 		'customers' => getCustomersByType($dbc, $branch_id, 'customer'),
-		'banks'     => getCustomersByType($dbc, $branch_id, 'bank'),
+		'banks' => getCustomersByType($dbc, $branch_id, 'bank'),
 		'suppliers' => getCustomersByType($dbc, $branch_id, 'supplier')
 	];
 
 	echo json_encode($response);
 	exit;
 }
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'manual-bill') {
+	header('Content-Type: application/json');
+
+	// Sanitize and prepare input data
+	$order_date = mysqli_real_escape_string($dbc, $_POST['order_date']);
+	$customer_name = mysqli_real_escape_string($dbc, $_POST['client_name']);
+	$customer_phone = mysqli_real_escape_string($dbc, $_POST['client_contact']);
+	$order_narration = mysqli_real_escape_string($dbc, $_POST['order_narration']);
+	$branch_id = intval($_POST['branch_id']);
+	$user_id = intval($_POST['user_id']);
+	$discount = floatval($_POST['ordered_discount']);
+	$total_amount = 0;
+	$grand_total = 0;
+
+	// Process submitted products
+	$submitted_products = [];
+	if (!empty($_POST['product_ids'])) {
+		foreach ($_POST['product_ids'] as $index => $product_id) {
+			$product_name = mysqli_real_escape_string($dbc, $_POST['product_names'][$index]);
+			$product_code = mysqli_real_escape_string($dbc, $_POST['product_codes'][$index]);
+			$quantity = floatval($_POST['product_quantites'][$index]);
+			$rate = floatval($_POST['product_rates'][$index]);
+			$final_rate = floatval($_POST['product_final_rates'][$index]);
+			$amount = $final_rate * $quantity;
+			$action = $_POST['product_actions'][$index] ?? 'update';
+			$product_uid = $_POST['product_uids'][$index] ?? uniqid('p_', true); // Unique ID for tracking
+
+			$submitted_products[] = [
+				'product_id' => $product_id,
+				'product_name' => $product_name,
+				'product_code' => $product_code,
+				'rate' => $rate,
+				'quantity' => $quantity,
+				'final_rate' => $final_rate,
+				'total' => $amount,
+				'product_uid' => $product_uid,
+				'action' => $action
+			];
+		}
+	}
+
+	// Determine if this is an update or insert based on product_order_id
+	$is_update = isset($_POST['product_order_id']) && !empty($_POST['product_order_id']) && is_numeric($_POST['product_order_id']);
+	$product_order_id = $is_update ? intval($_POST['product_order_id']) : null;
+
+	$merged_products = [];
+	if ($is_update) {
+		// Fetch existing product_details
+		$existing_query = "SELECT product_details FROM manual_bill WHERE order_id = ?";
+		$stmt = mysqli_prepare($dbc, $existing_query);
+		mysqli_stmt_bind_param($stmt, "i", $product_order_id);
+		mysqli_stmt_execute($stmt);
+		$result = mysqli_stmt_get_result($stmt);
+		$existing_data = mysqli_fetch_assoc($result);
+		mysqli_stmt_close($stmt);
+
+		$existing_products = $existing_data && !empty($existing_data['product_details'])
+			? json_decode($existing_data['product_details'], true)
+			: [];
+
+		// Merge products: preserve unchanged, update modified, add new, remove deleted
+		$existing_uids = array_column($existing_products, 'product_uid');
+
+		// Keep existing products unless explicitly updated or deleted
+		foreach ($existing_products as $existing_product) {
+			$found = false;
+			foreach ($submitted_products as $submitted_product) {
+				if ($submitted_product['product_uid'] === $existing_product['product_uid']) {
+					if ($submitted_product['action'] !== 'delete') {
+						// Update existing product with submitted data
+						$merged_products[] = [
+							'product_id' => $submitted_product['product_id'],
+							'product_name' => $submitted_product['product_name'],
+							'product_code' => $submitted_product['product_code'],
+							'rate' => $submitted_product['rate'],
+							'quantity' => $submitted_product['quantity'],
+							'final_rate' => $submitted_product['final_rate'],
+							'total' => $submitted_product['total'],
+							'product_uid' => $submitted_product['product_uid']
+						];
+					}
+					$found = true;
+					break;
+				}
+			}
+			// Preserve existing product if not modified or deleted
+			if (!$found) {
+				$merged_products[] = $existing_product;
+			}
+		}
+
+		// Add new products
+		foreach ($submitted_products as $submitted_product) {
+			if ($submitted_product['action'] === 'add' && !in_array($submitted_product['product_uid'], $existing_uids)) {
+				$merged_products[] = [
+					'product_id' => $submitted_product['product_id'],
+					'product_name' => $submitted_product['product_name'],
+					'product_code' => $submitted_product['product_code'],
+					'rate' => $submitted_product['rate'],
+					'quantity' => $submitted_product['quantity'],
+					'final_rate' => $submitted_product['final_rate'],
+					'total' => $submitted_product['total'],
+					'product_uid' => $submitted_product['product_uid']
+				];
+			}
+		}
+
+		// Calculate totals based on merged products
+		$total_amount = 0;
+		foreach ($merged_products as $product) {
+			$total_amount += $product['total'];
+		}
+		$grand_total = $total_amount - $discount;
+		$product_details_json = json_encode($merged_products);
+
+		// Update existing record
+		$query = "UPDATE manual_bill SET 
+            order_date = ?, customer_name = ?, customer_phone = ?, order_narration = ?, 
+            branch_id = ?, user_id = ?, total_amount = ?, discount = ?, grand_total = ?, product_details = ?
+            WHERE order_id = ?";
+
+		$stmt = mysqli_prepare($dbc, $query);
+		mysqli_stmt_bind_param(
+			$stmt,
+			"ssssiidddsi",
+			$order_date,
+			$customer_name,
+			$customer_phone,
+			$order_narration,
+			$branch_id,
+			$user_id,
+			$total_amount,
+			$discount,
+			$grand_total,
+			$product_details_json,
+			$product_order_id
+		);
+	} else {
+		// Insert new record
+		foreach ($submitted_products as $product) {
+			// Ensure product_uid is included for new products
+			$merged_products[] = [
+				'product_id' => $product['product_id'],
+				'product_name' => $product['product_name'],
+				'product_code' => $product['product_code'],
+				'rate' => $product['rate'],
+				'quantity' => $product['quantity'],
+				'final_rate' => $product['final_rate'],
+				'total' => $product['total'],
+				'product_uid' => $product['product_uid']
+			];
+			$total_amount += $product['total'];
+		}
+		$grand_total = $total_amount - $discount;
+		$product_details_json = json_encode($merged_products);
+
+		$query = "INSERT INTO manual_bill (
+            order_date, customer_name, customer_phone, order_narration, 
+            branch_id, user_id, total_amount, discount, grand_total, product_details
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+		$stmt = mysqli_prepare($dbc, $query);
+		mysqli_stmt_bind_param(
+			$stmt,
+			"ssssiiddds",
+			$order_date,
+			$customer_name,
+			$customer_phone,
+			$order_narration,
+			$branch_id,
+			$user_id,
+			$total_amount,
+			$discount,
+			$grand_total,
+			$product_details_json
+		);
+	}
+
+	if (mysqli_stmt_execute($stmt)) {
+		$order_id = $is_update ? $product_order_id : mysqli_insert_id($dbc);
+		echo json_encode([
+			'success' => true,
+			'message' => $is_update ? 'Manual bill updated successfully.' : 'Manual bill saved successfully.',
+			'order_id' => $order_id
+		]);
+	} else {
+		echo json_encode([
+			'success' => false,
+			'message' => 'Database error: ' . mysqli_error($dbc)
+		]);
+	}
+
+	mysqli_stmt_close($stmt);
+	exit;
+}
+
+
+
+if (isset($_POST['delete_manualbill']) && isset($_POST['edit_order_id'])) {
+    $order_id = $_POST['edit_order_id'];
+
+    if (!is_numeric($order_id)) {
+        echo "Invalid order ID.";
+        exit;
+    }
+
+    $stmt = $dbc->prepare("DELETE FROM manual_bill WHERE order_id = ?");
+    $stmt->bind_param("i", $order_id);
+
+    if ($stmt->execute()) {
+        echo "Deleted successfully.";
+    } else {
+        echo "Delete failed: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+
+?>

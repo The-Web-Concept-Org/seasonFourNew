@@ -38,7 +38,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper ml-auto mb-3">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
-                  <option selected disabled>Select Branch</option>
+                  <option selected disabled value="">Select Branch</option>
                   <?php
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
@@ -62,7 +62,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   <div class="col-6 pr-1">
                     <label>ID#</label>
                     <?php
-                    $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'orders'");
+                    $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'quotations'");
                     $data = mysqli_fetch_assoc($result);
                     $next_increment = $data['Auto_increment'];
                     ?>
@@ -373,4 +373,5 @@ if (!empty($_REQUEST['edit_order_id'])) {
       $('#allow_stock_yes').prop('checked', <?= @$fetchOrder['is_delivery_note'] ?> == '1');
     }, 500);
   }
+  
 </script>

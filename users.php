@@ -3,6 +3,7 @@
 	<?php include_once 'includes/head.php';
 	//include_once 'includes/code.php';
 	?>
+	
 
 	<body class="horizontal light  ">
 		<div class="wrapper">

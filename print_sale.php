@@ -395,10 +395,22 @@
                 $order_type = "cash sale";
                 $table_row = "350px";
             }
+        } elseif ($_REQUEST['type'] == "manualbill") {
+            $nameSHow = 'Customer_name';
+            $id_name = "ManualBill Id";
+            $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
+            $unique_id = 'MB-' . $order['order_id'];
+
+            $invoice_name = "Manual Invoice";
+
+            $getDate = $order['order_date'];
+            $comment = $order['order_narration'];
+            // $order_item = json_decode($order['product_details'], true);
+    
         }
 
 
-        $date = date(' d-M-Y h:i A', strtotime($order['timestamp'] . " +10 hours"));
+        $date = date(' d-M-Y h:i A', strtotime(@$order['timestamp'] . " +10 hours"));
         function numberToWords($number)
         {
             $words = [
@@ -570,7 +582,9 @@
                                 <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
                             <?php } else { ?>
 
-                                <p class="text-uppercase"><strong>Customer Name :</strong> <?= @$order['client_name'] ?></p>
+                                <p class="text-uppercase"><strong>Customer Name :</strong>
+                                    <?= @$order['client_name'] ?: @$order['customer_name'] ?>
+                                </p>
 
                             <?php } ?>
 
@@ -619,50 +633,76 @@
                                 <?php } ?>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php $c = 0;
-                            $totalAm = 0;
-                            while ($r = mysqli_fetch_assoc($order_item)) {
-                                $c++;
-                                $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
-                                $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-                                ?>
-                                <tr class=" border">
-                                    <td class="text-center border"><?= $c ?></td>
-                                    <td class="text-left border pl-3 " class="descri">
-                                        <?php if (!empty($cat['categories_name'])): ?>
-                                            <?= strtoupper($cat['categories_name']) ?> |
-                                        <?php endif; ?>
-                                        <?= strtoupper($r['product_name']) ?>
-                                        <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_country']) !== 'china'): ?>
-                                            | <?= strtoupper($brand['brand_name']) ?>
-                                        <?php endif; ?>
-
-                                    </td>
-                                    <td class="text-center border"><?= $r['quantity'] ?></td>
-                                    <?php if (@$order['is_delivery_note'] != 1) { ?>
-                                        <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
-                                        <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
-                                        <?php } ?>
-                                    </td>
-                                </tr>
+                        <?php if (!empty($order['product_details'])): ?>
+                            <!-- Show JSON-decoded product_details -->
+                            <tbody>
                                 <?php
-                                $totalQTY += $r['quantity'];
-                                $totalAm += $r['rate'] * $r['quantity'];
-                            } ?>
-                        </tbody>
+                                $json_items = json_decode($order['product_details'], true);
+                                $jc = 0;
+                                foreach ($json_items as $item) {
+                                    $jc++;
+                                    ?>
+                                    <tr class="border">
+                                        <td class="text-center border"><?= $jc ?></td>
+                                        <td class="text-left border pl-3"><?= strtoupper($item['product_name']) ?></td>
+                                        <td class="text-center border"><?= $item['quantity'] ?></td>
+                                        <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
+                                        <td class="text-center border">
+                                            <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+
+                        <?php elseif (!empty($order_item) && gettype($order_item) === 'object'): ?>
+                            <!-- Show MySQL Fetched Products -->
+                            <tbody>
+                                <?php
+                                $c = 0;
+                                $totalAm = 0;
+                                $totalQTY = 0;
+                                while ($r = mysqli_fetch_assoc($order_item)) {
+                                    $c++;
+                                    $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
+                                    $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
+                                    ?>
+                                    <tr class="border">
+                                        <td class="text-center border"><?= $c ?></td>
+                                        <td class="text-left border pl-3">
+                                            <?php if (!empty($cat['categories_name'])): ?>
+                                                <?= strtoupper($cat['categories_name']) ?> |
+                                            <?php endif; ?>
+                                            <?= strtoupper($r['product_name']) ?>
+                                            <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_name']) !== 'china'): ?>
+                                                | <?= strtoupper($brand['brand_name']) ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center border"><?= $r['quantity'] ?></td>
+                                        <?php if (@$order['is_delivery_note'] != 1): ?>
+                                            <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
+                                            <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
+                                            </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <?php
+                                    $totalQTY += $r['quantity'];
+                                    $totalAm += $r['rate'] * $r['quantity'];
+                                } ?>
+                            </tbody>
+                        <?php endif; ?>
+
                         <tfoot>
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
 
-                            </tr>
-                            <?php if (@$order['is_delivery_note'] != 1) { ?>
-                                <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
-                                    <tr>
+
+                                <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                    <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
+
                                         <td class="border">Discount:</td>
                                         <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
-                                    </tr>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </tr>
 
                             <?php } ?>
 
@@ -675,20 +715,34 @@
                                 </tr>
                             <?php } ?>
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
-                                <?php if ($order['grand_total'] !== "") { ?>
-                                    <tr class="tablefooter" style="font-size: 14px;">
+                                <tr class="tablefooter" style="font-size: 14px;">
+                                        <?php if ($order['grand_total'] !== "") { ?>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td class="text-sm border">Paid:</td>
-                                        <td class="border"><?= formatAmountWithoutKD($order['paid']) ?></td>
+                                        <?php if ($_REQUEST['type'] == "manualbill"){ ?>
+                                        <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
+                                        <?php }else {
+                                        
+                                         ?>
+                                        <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
+<?php } ?>
                                     </tr>
                                     <tr class="tablefooter" style="font-size: 14px;">
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td class="text-sm border">Remaining:</td>
-                                        <td class="border"><?= formatAmountWithoutKD($order['due']) ?></td>
+                                        <td class="border">
+                                            <?php if (!empty($order['product_details'])): ?>
+
+                                                <?= formatAmountWithoutKD(0) ?>
+                                            <?php else: ?>
+                                                <?= formatAmountWithoutKD($order['due']) ?>
+                                            <?php endif; ?>
+
+                                        </td>
                                     </tr>
                                 <?php }
                             } ?>

@@ -30,7 +30,7 @@ $branch_id_current = $_SESSION['branch_id'];
         </a>
         <div class="pl-3 text-capitalize">
           <p class="m-0 p-0 text-danger"><?= @$get_company_br['branch_name'] ?></p>
-          <p class="m-0 p-0"><?= $get_company_user['username'] ?></p>
+          <p class="m-0 p-0"><?= @$get_company_user['username'] ?></p>
         </div>
       </div>
       <button class="navbar-toggler mt-2 mr-auto toggle-sidebar text-muted">

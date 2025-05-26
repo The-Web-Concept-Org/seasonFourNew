@@ -39,12 +39,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper d-block mb-3 ml-auto">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize d-block" required>
-                  <option selected disabled>Select Branch</option>
+                  <option selected disabled value="">Select Branch</option>
                   <?php
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
                     ?>
-                    <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
+                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
                       value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>

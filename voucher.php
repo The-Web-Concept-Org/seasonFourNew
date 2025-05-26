@@ -75,7 +75,18 @@ if (isset($_REQUEST['id'])) {
                             <option value="">Select Account</option>
 
 
-                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 ORDER BY customer_type ASC ");
+                            <?php
+                            $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
+                            $branch_id = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+
+                            // Build query based on role
+                            if ($user_role === 'admin') {
+                              // Admin can see all branches
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 ORDER BY customer_type ASC");
+                            } else {
+                              // Non-admin users only see their branch data
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND branch_id = $branch_id ORDER BY customer_type ASC");
+                            }
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
@@ -126,7 +137,18 @@ if (isset($_REQUEST['id'])) {
                             <option value="">Select Account</option>
 
 
-                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 ORDER BY customer_type ASC ");
+                            <?php
+                            $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
+                            $branch_id = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+
+                            // Build query based on role
+                            if ($user_role === 'admin') {
+                              // Admin can see all branches
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 ORDER BY customer_type ASC");
+                            } else {
+                              // Non-admin users only see their branch data
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND branch_id = $branch_id ORDER BY customer_type ASC");
+                            }
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
@@ -290,7 +312,18 @@ if (isset($_REQUEST['id'])) {
                             <option value="">Select Account</option>
 
 
-                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 ORDER BY customer_type ASC ");
+                            <?php
+                            $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
+                            $branch_id = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+
+                            // Build query based on role
+                            if ($user_role === 'admin') {
+                              // Admin can see all branches
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 ORDER BY customer_type ASC");
+                            } else {
+                              // Non-admin users only see their branch data
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND branch_id = $branch_id ORDER BY customer_type ASC");
+                            }
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
@@ -339,7 +372,17 @@ if (isset($_REQUEST['id'])) {
                             <option value="">Select Account</option>
 
 
-                            <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type ='expense' ");
+                            <?php
+                            $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
+                            $branch_id = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+
+                            if ($user_role === 'admin') {
+                              // Admin: all branches, only 'expense' customers
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'expense' ORDER BY customer_type ASC");
+                            } else {
+                              // Non-admin: only their branch, only 'expense' customers
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'expense' AND branch_id = $branch_id ORDER BY customer_type ASC");
+                            }
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
@@ -454,14 +497,24 @@ if (isset($_REQUEST['id'])) {
                             <?php
                             $transactions = fetchRecord($dbc, "transactions", "transaction_id", $voucher['transaction_id1']);
 
-                            $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 ORDER BY customer_type ASC ");
+                             $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
+                            $branch_id = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+
+                            // Build query based on role
+                            if ($user_role === 'admin') {
+                              // Admin can see all branches
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 ORDER BY customer_type ASC");
+                            } else {
+                              // Non-admin users only see their branch data
+                              $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND branch_id = $branch_id ORDER BY customer_type ASC");
+                            }
                             $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
                               $branchId = $r['branch_id']
-                              ?>
+                                ?>
                               <?php $branchRes = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = $branchId");
-                                $branchRow = mysqli_fetch_assoc($branchRes); ?>
+                              $branchRow = mysqli_fetch_assoc($branchRes); ?>
                               <?php if ($type != $type2): ?>
                                 <optgroup label="<?= $r['customer_type'] ?>">
                                 <?php endif ?>

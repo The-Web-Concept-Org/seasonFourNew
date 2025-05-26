@@ -4,7 +4,7 @@
 
 if (!empty($_REQUEST['edit_order_id'])) {
     # code...
-    $fetchOrder = fetchRecord($dbc, "orders_return", "order_id", base64_decode($_REQUEST['edit_order_id']));
+    $fetchOrder = fetchRecord($dbc, "orders", "order_id", base64_decode($_REQUEST['edit_order_id']));
     // print_r($fetchOrder);
 }
 
@@ -42,12 +42,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         <?php if ($_SESSION['user_role'] == 'admin') { ?>
                             <div class="dropdown-wrapper ml-auto mb-3">
                                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
-                                    <option selected disabled>Select Branch</option>
+                                    <option selected disabled value="">Select Branch</option>
                                     <?php
                                     $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                                     while ($row = mysqli_fetch_array($branch)) {
                                         ?>
-                                        <option <?= (@$fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
+                                        <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
                                             class="text-capitalize" value="<?= $row['branch_id'] ?>">
                                             <?= $row['branch_name'] ?>
                                         </option>
@@ -63,7 +63,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <div class="w-100 pe-1">
                                     <label>ID#</label>
                                     <?php $result = mysqli_query($dbc, "
-    SHOW TABLE STATUS LIKE 'orders_return'
+    SHOW TABLE STATUS LIKE 'orders'
 ");
                                     $data = mysqli_fetch_assoc($result);
                                     $next_increment = $data['Auto_increment']; ?>

@@ -125,6 +125,8 @@ $(document).ready(function () {
         $("#sale_order_btn").prop("disabled", true);
       },
       success: function (response) {
+        // console.log(response);
+        
         if (response.sts == "success") {
           $("#sale_order_fm")[0].reset();
           $("#purchase_product_tb").html("");
@@ -139,14 +141,14 @@ $(document).ready(function () {
             denyButtonText: `Add New`,
           }).then((result) => {
             if (result.isConfirmed) {
-              location.reload();
               window.open(
                 "print_sale.php?id=" +
-                  response.order_id +
-                  "&type=" +
-                  response.type,
+                response.order_id +
+                "&type=" +
+                response.type,
                 "_blank"
               );
+              location.reload();
             } else if (result.isDenied) {
               location.reload();
             }
@@ -645,14 +647,13 @@ $("#addProductPurchase").on("click", function () {
         <tr id="product_idN_${id}">
             <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
                    id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-            <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
+            <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
            
             <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
             <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
-            <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
+            <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${total_price}">
             <td>${code}</td>
             <td>${name}</td>
-            
             <td>${price}</td>
             ${
               payment_type === "credit_sale" || payment_type === "cash_in_hand"
@@ -773,32 +774,54 @@ function getOrderTotal() {
   $("#purchase_type").change();
   $("#sale_type").change();
 }
-function editByid(id, code, pro_details, price, qty, final_rate) {
+// function editByid(id, code, pro_details, price, qty, final_rate) {
+//   // alert(pro_details);
+//   $("#get_product_name").val(id);
+
+//   $("#get_product_code").val(code);
+//   $("#get_product_quantity").val(qty);
+//   $("#get_final_rate").val(qty);
+//   let total = price * qty;
+//   setTimeout(function () {
+//     $("#get_product_detail").val(pro_details);
+//     $("#get_product_sale_price").val(total);
+//     $("#get_product_price").val(price);
+//   }, 2000);
+//   $("#add_pro_type").val("update");
+
+//   var effect = function () {
+//     return $(".searchableSelect").select2().trigger("change");
+//   };
+
+//   $.when(effect()).done(function () {
+//     setTimeout(function () {
+//       $("#get_product_price").val(price);
+//     }, 500);
+//   });
+// }
+
+function editByid(id, code, price, qty, final_rate , pro_details) {
   // alert(pro_details);
-  $("#get_product_name").val(id);
+    $("#get_product_name").val(id);
 
   $("#get_product_code").val(code);
   $("#get_product_quantity").val(qty);
-  $("#get_final_rate").val(qty);
+  $("#get_final_rate").val(final_rate);
   let total = price * qty;
-  setTimeout(function () {
-    $("#get_product_detail").val(pro_details);
-    $("#get_product_sale_price").val(total);
-    $("#get_product_price").val(price);
-  }, 2000);
+  $("#get_product_sale_price").val(total);
+  $("#get_product_price").val(price);
+  $("#get_product_detail").val(pro_details);
   $("#add_pro_type").val("update");
-
-  var effect = function () {
+var effect = function () {
     return $(".searchableSelect").select2().trigger("change");
   };
-
   $.when(effect()).done(function () {
     setTimeout(function () {
+      $("#get_product_sale_price").val(total);
       $("#get_product_price").val(price);
     }, 500);
   });
 }
-
 function getBalance(val, id) {
   setTimeout(function () {
     if (id == "customer_account_exp") {
