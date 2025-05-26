@@ -112,7 +112,7 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                         <div class="font-weight-bold text-dark date">Voucher Date/Time:
 
                                             <?php
-                                            echo $date = date('D d-M-Y h:i A', strtotime($vouchers['timestamp'] . " +9 hours"));
+                                            echo $date = date('D d-M-Y h:i A', strtotime($vouchers['timestamp'] . " +7 hours"));
                                             ?>
 
                                         </div>

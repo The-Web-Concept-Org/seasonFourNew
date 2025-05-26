@@ -410,7 +410,7 @@
         }
 
 
-        $date = date(' d-M-Y h:i A', strtotime(@$order['timestamp'] . " +10 hours"));
+        $date = date(' d-M-Y h:i A', strtotime(@$order['timestamp'] . " +7 hours"));
         function numberToWords($number)
         {
             $words = [

@@ -1925,7 +1925,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 					$total_ammount += (float) $total;
 					$order_items = [
 						'product_id' => $_REQUEST['product_ids'][$x],
-						'final_rate' => $_REQUEST['product_final_rates'][$x],
+						'final_rate' => @$_REQUEST['product_final_rates'][$x],
 						'rate' => $product_rates,
 						'total' => $total,
 						'quotation_id' => $last_id,
