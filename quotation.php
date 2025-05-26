@@ -54,9 +54,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
               <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
             <?php } ?>
             <div class="row form-group">
-              <input type="hidden" name="payment_type" id="payment_type" value="cash_in_hand">
+              <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
               <input type="hidden" name="quotation_form" id="quotation_form" value="quotation_form">
-              <input type="hidden" name="price_type" id="price_type" value="sale">
+              <input type="hidden" name="price_type" id="price_type" value="purchase">
               <div class="col-md-3">
                 <div class="row">
                   <div class="col-6 pr-1">
