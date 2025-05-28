@@ -76,7 +76,7 @@
 												<?php $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
 												while ($row = mysqli_fetch_array($branch)) { ?>
 													?>
-													<option <?= @($fetchusers['branch_id'] == $row['branch_id']) ? "seleted" : "" ?> value="<?= $row['branch_id'] ?>"><?= $row['branch_name'] ?>
+													<option <?= @($fetchusers['branch_id'] == $row['branch_id']) ? "selected" : "" ?> value="<?= $row['branch_id'] ?>"><?= $row['branch_name'] ?>
 													</option>
 												<?php } ?>
 											</select>

@@ -48,7 +48,7 @@ if (isset($_REQUEST['company_submit'])) {
 
 /*edit company profile*/
 if (isset($_POST['company_update'])) {
-	$company_id =  $_REQUEST['company_id'];
+	$company_id = $_REQUEST['company_id'];
 	if ($_FILES['logo']['tmp_name']) {
 		# code...
 		upload_pic($_FILES['logo'], 'img/logo/');
@@ -132,12 +132,14 @@ if (!empty($_POST['action']) and $_POST['action'] == "add_new_user") {
 		if (update_data($dbc, "users", $data_user, 'user_id', $_REQUEST['new_user_id'])) {
 			$msg = "Users Updated Successfully";
 			$sts = "success";
-			redirect("users.php", 500);
 		} else {
 			$msg = mysqli_error($dbc);
-
 			$sts = "error";
 		}
+
+		header('Content-Type: application/json');
+		echo json_encode(['msg' => $msg, 'sts' => $sts]);
+		exit;
 	}
 	if ($sts == "success") {
 		// redirect("users.php", 500)
@@ -240,7 +242,8 @@ function removedir($dir)
 			if ($object != "." && $object != "..") {
 				if (filetype($dir . "/" . $object) == "dir")
 					rrmdir($dir . "/" . $object);
-				else unlink($dir . "/" . $object);
+				else
+					unlink($dir . "/" . $object);
 			}
 		}
 		reset($objects);
