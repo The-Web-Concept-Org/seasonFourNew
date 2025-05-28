@@ -43,7 +43,7 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$newqty = 0;
 				$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-				$newqty = (int)$quantity_instock['quantity_instock'] + (int)$proR['quantity'];
+				$newqty = (int) $quantity_instock['quantity_instock'] + (int) $proR['quantity'];
 				$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 			}
 		}
@@ -66,7 +66,7 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$newqty = 0;
 				$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-				$newqty = (int)$quantity_instock['quantity_instock'] - (int)$proR['quantity'];
+				$newqty = (int) $quantity_instock['quantity_instock'] - (int) $proR['quantity'];
 				$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 			}
 		}
@@ -94,16 +94,16 @@ if (isset($_REQUEST['delete_bymanually'])) {
 
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$product_id = $proR['product_id'];
-				$quantity = (int)$proR['quantity'];
+				$quantity = (int) $proR['quantity'];
 
 				$fromStockRes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch'"));
 				$toStockRes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch'"));
 
-				$fromQty = isset($fromStockRes['quantity_instock']) ? (int)$fromStockRes['quantity_instock'] : 0;
-				$toQty   = isset($toStockRes['quantity_instock']) ? (int)$toStockRes['quantity_instock'] : 0;
+				$fromQty = isset($fromStockRes['quantity_instock']) ? (int) $fromStockRes['quantity_instock'] : 0;
+				$toQty = isset($toStockRes['quantity_instock']) ? (int) $toStockRes['quantity_instock'] : 0;
 
 				$new_fromQty = $fromQty + $quantity;
-				$new_toQty   = $toQty - $quantity;
+				$new_toQty = $toQty - $quantity;
 
 				mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_fromQty' WHERE product_id='$product_id' AND branch_id='$from_branch'");
 
@@ -135,6 +135,44 @@ if (isset($_REQUEST['delete_bymanually'])) {
 	} elseif ($table == "customers") {
 		if (mysqli_query($dbc, "UPDATE customers SET customer_status=0 WHERE $row='$id'")) {
 			$msg = "Data Has been deleted...";
+			$sts = "success";
+		} else {
+			$msg = mysqli_error($dbc);
+			$sts = "error";
+		}
+	} elseif ($table == "quotations") {
+		$quotation = fetchRecord($dbc, 'quotations', $row, $id);
+
+		$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
+
+		if ($get_company['stock_manage'] == 1 && $quotation['is_delivery_note'] == '1') {
+			$branch_id = $quotation['branch_id'];
+
+			// Fetch all related items
+			$itemsQ = mysqli_query($dbc, "SELECT * FROM quotation_item WHERE quotation_id = '$id'");
+			while ($item = mysqli_fetch_assoc($itemsQ)) {
+				$product_id = $item['product_id'];
+				$quantity = (int) $item['quantity'];
+
+				// Check if inventory record exists
+				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
+				if (mysqli_num_rows($invQ) > 0) {
+					$inventory = mysqli_fetch_assoc($invQ);
+					$newQty = (int) $inventory['quantity_instock'] + $quantity;
+					mysqli_query($dbc, "UPDATE inventory SET quantity_instock = '$newQty', inventory_timestamp = NOW() WHERE inventory_id = '{$inventory['inventory_id']}'");
+				} else {
+					mysqli_query($dbc, "
+					INSERT INTO inventory (branch_id, user_id, product_id, quantity_instock, inventory_timestamp)
+					VALUES ('$branch_id', '{$quotation['user_id']}', '$product_id', '$quantity', NOW())
+				");
+				}
+			}
+		}
+
+		// Delete quotation and its items
+		if (mysqli_query($dbc, "DELETE FROM quotations WHERE $row='$id'")) {
+			mysqli_query($dbc, "DELETE FROM quotation_item WHERE quotation_id='$id'");
+			$msg = "Quotation and related items deleted, inventory updated.";
 			$sts = "success";
 		} else {
 			$msg = mysqli_error($dbc);
@@ -172,6 +210,7 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$sts = "error";
 		}
 	}
+
 
 
 	echo json_encode(['msg' => $msg, "sts" => $sts]);

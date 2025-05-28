@@ -55,11 +55,11 @@ if($_POST) {
 <?php
       } else{
         
-        $msg = "Incorrect username/password combination";
+        $msg = "Incorrect email/password combination";
         $sts="danger";
       } // /else
     } else {    
-      $msg = "Username doesnot exists";   
+      $msg = "Email doesnot exists";   
       $sts="danger"; 
     } // /else
   } // /else not empty username // password

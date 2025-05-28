@@ -29,34 +29,57 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
         </div>
         <div class="card-body">
-          <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
+          <form action="php_action/custom_action.php" method="POST" id="sale_order_fm" data-get-final-rate="true">
             <input type="hidden" name="product_order_id"
               value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
             <input type="hidden" name="quotation_form" id="quotation_form" value="quotation">
             <input type="hidden" name="user_id" value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
-            <?php if ($_SESSION['user_role'] == 'admin') { ?>
-              <div class="dropdown-wrapper ml-auto mb-3">
-                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
-                  <option selected disabled value="">Select Branch</option>
-                  <?php
-                  $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                  while ($row = mysqli_fetch_array($branch)) {
-                    ?>
-                    <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
-                      value="<?= $row['branch_id'] ?>">
-                      <?= $row['branch_name'] ?>
-                    </option>
-                  <?php } ?>
-                </select>
+
+            <div class="d-flex mb-3 align-items-center justify-content-end gap-4 px-3">
+
+              <!-- Delivery Note Dropdown -->
+              <div class="d-flex align-items-center">
+                <label for="allow_stock" class="me-3 mb-0 text-capitalize fw-semibold">Delivery Note:</label>
+                <div class="dropdown-wrapper">
+                  <?php $allowStock = isset($fetchOrder['is_delivery_note']) ? $fetchOrder['is_delivery_note'] : '0'; ?>
+                  <select name="allow_stock" id="allow_stock" class="custom-dropdown text-capitalize" required>
+                    <option disabled value="" <?= $allowStock === '' ? 'selected' : '' ?>>Allow Stock</option>
+                    <option value="1" <?= $allowStock == '1' ? 'selected' : '' ?>>Yes</option>
+                    <option value="0" <?= $allowStock == '0' ? 'selected' : '' ?>>No</option>
+                  </select>
+                </div>
               </div>
-            <?php } else { ?>
-              <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
-            <?php } ?>
+
+              <!-- Branch Dropdown -->
+              <?php if ($_SESSION['user_role'] == 'admin') { ?>
+                <div class="dropdown-wrapper ml-2">
+                  <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize px-4" required>
+                    <option selected disabled value="">Select Branch</option>
+                    <?php
+                    $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                    while ($row = mysqli_fetch_array($branch)) {
+                      ?>
+                      <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
+                        value="<?= $row['branch_id'] ?>">
+                        <?= $row['branch_name'] ?>
+                      </option>
+                    <?php } ?>
+                  </select>
+                </div>
+              <?php } else { ?>
+                <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+              <?php } ?>
+
+            </div>
+
             <div class="row form-group">
-              <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
+              <input type="hidden" name="payment_type" id="payment_type"
+                value="<?= $allowStock == '0' ? 'credit_purchase' : 'cash_in_hand' ?>">
               <input type="hidden" name="quotation_form" id="quotation_form" value="quotation_form">
-              <input type="hidden" name="price_type" id="price_type" value="purchase">
+              <input type="hidden" name="price_type" id="price_type"
+                value="<?= $allowStock == '0' ? 'purchase' : 'sale' ?>">
+
               <div class="col-md-3">
                 <div class="row">
                   <div class="col-6 pr-1">
@@ -89,7 +112,17 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     describedby="basic-addon1">
                     <option value="">Customer Account</option>
                     <?php
-                    $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer' AND branch_id='" . $_SESSION['branch_id'] . "' ");
+                    // Base query for active customers
+                    $query = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type='customer'";
+
+                    // If in edit mode, include the customer from the quotation
+                    if (!empty($_REQUEST['edit_order_id']) && !empty($fetchOrder['customer_account'])) {
+                      $query .= " AND (branch_id = '" . $_SESSION['branch_id'] . "' OR customer_id = '" . $fetchOrder['customer_account'] . "')";
+                    } else {
+                      $query .= " AND branch_id = '" . $_SESSION['branch_id'] . "'";
+                    }
+
+                    $q = mysqli_query($dbc, $query);
                     while ($r = mysqli_fetch_assoc($q)) {
                       ?>
                       <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?>
@@ -136,18 +169,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 <input type="file" autocomplete="off" value="<?= @$fetchOrder['quotation_file'] ?>" class="form-control"
                   name="quotation_file">
               </div>
-              <!-- <div class="col-sm-2">
-                 <label>Vehicle NO </label>
-                 <input type="text" id="vehicle_no" value="<?= @$fetchOrder['vehicle_no'] ?>" class="form-control" autocomplete="off" name="vehicle_no" list="vehicle_no_list">
-                 <datalist id="vehicle_no_list">
-                   <?php
-                   $q = mysqli_query($dbc, "SELECT DISTINCT vehicle_no FROM orders");
-                   while ($r = mysqli_fetch_assoc($q)) {
-                     ?>
-                     <option value="<?= $r['vehicle_no'] ?>"><?= $r['vehicle_no'] ?></option>
-                   <?php } ?>
-                 </datalist>
-               </div> -->
             </div> <!-- end of form-group -->
             <div class="form-group row mb-5">
               <div class="col-6 col-md-2">
@@ -173,10 +194,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 </select>
                 <span class="text-center w-100" id="instockQty"></span>
               </div>
-              <!-- <div class="col-6 col-sm-2 col-md-2">
-                <label>Product Details</label>
-                <input type="text" class="form-control" id="get_product_detail">
-              </div> -->
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Unit Price</label>
                 <input type="number" min="0" class="form-control" id="get_product_price">
@@ -242,8 +259,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                           <td><?= $r['rate'] ?></td>
                           <td><?= $r['final_rate'] ?></td>
                           <td><?= $r['quantity'] ?></td>
-                          <td><?= (float) $r['rate'] * (float) $r['quantity'] ?></?>
-                          </td>
+                          <td><?= (float) $r['rate'] * (float) $r['quantity'] ?></td>
                           <td>
 
                             <button type="button" onclick="removeByid(`#product_idN_<?= $r['product_id'] ?>`)"
@@ -291,30 +307,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                         </div>
                       </td>
-                      <td class="table-bordered"> </td>
-                    </tr>
-                    <tr>
-                      <td colspan="5"></td>
-                      <td class="table-bordered"> Allow Stock : </td>
-                      <?php
-                      $allowStock = isset($fetchOrder['is_delivery_note']) ? $fetchOrder['is_delivery_note'] : '0';
-                      ?>
-
-                      <td class="table-bordered" id="product_allow_stock">
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_yes" value="1"
-                            <?= $allowStock == '1' ? 'checked' : '' ?>>
-                          <label class="form-check-label" for="allow_stock_yes">Yes</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="allow_stock" id="allow_stock_no" value="0"
-                            <?= $allowStock == '0' ? 'checked' : '' ?>>
-                          <label class="form-check-label" for="allow_stock_no">No</label>
-                        </div>
-                      </td>
-
-
-
                       <td class="table-bordered"> </td>
                     </tr>
                     <tr>
@@ -369,9 +361,26 @@ if (!empty($_REQUEST['edit_order_id'])) {
 <script>
   if (<?= @$fetchOrder['branch_id'] ?> != "") {
     setTimeout(function () {
-      $('#branch_id').val("<?= @$fetchOrder['branch_id'] ?>").change();
+      // $('#branch_id').val("<?= @$fetchOrder['branch_id'] ?>").change();
       $('#allow_stock_yes').prop('checked', <?= @$fetchOrder['is_delivery_note'] ?> == '1');
     }, 500);
   }
-  
+
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const allowStock = document.getElementById('allow_stock');
+    const paymentType = document.getElementById('payment_type');
+    const priceType = document.getElementById('price_type');
+
+    allowStock.addEventListener('change', function () {
+      if (this.value === '0') {
+        paymentType.value = 'credit_purchase';
+        priceType.value = 'purchase';
+      } else if (this.value === '1') {
+        paymentType.value = 'cash_in_hand';
+        priceType.value = 'sale';
+      }
+    });
+  });
 </script>

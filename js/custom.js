@@ -126,7 +126,7 @@ $(document).ready(function () {
       },
       success: function (response) {
         // console.log(response);
-        
+
         if (response.sts == "success") {
           $("#sale_order_fm")[0].reset();
           $("#purchase_product_tb").html("");
@@ -143,9 +143,9 @@ $(document).ready(function () {
             if (result.isConfirmed) {
               window.open(
                 "print_sale.php?id=" +
-                response.order_id +
-                "&type=" +
-                response.type,
+                  response.order_id +
+                  "&type=" +
+                  response.type,
                 "_blank"
               );
               location.reload();
@@ -384,6 +384,7 @@ $(document).ready(function () {
     var payment_type = $("#payment_type").val();
     //   var podid=  $('#get_product_name :selected').val();
     var branch_id = $("#branch_id").val();
+    var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
     $.ajax({
       type: "POST",
@@ -410,13 +411,16 @@ $(document).ready(function () {
         $("#get_product_price").val(response.price);
         $("#instockQty").html("instock :" + response.qty);
         console.log(response.qty);
-        if (payment_type == "cash_in_hand" || payment_type == "credit_sale") {
+        if (
+          !isSaleReturn &&
+          (payment_type === "cash_in_hand" || payment_type === "credit_sale")
+        ) {
           $("#get_product_quantity").attr("max", response.qty);
-          if (response.qty > 0) {
-            $("#addProductPurchase").prop("disabled", false);
-          } else {
-            $("#addProductPurchase").prop("disabled", true);
-          }
+          $("#addProductPurchase").prop("disabled", response.qty <= 0);
+        } else {
+          // For Sale Return, allow adding regardless of stock and set a high max
+          $("#get_product_quantity").attr("max", 99999999999);
+          $("#addProductPurchase").prop("disabled", false);
         }
       },
     }); //ajax call }
@@ -479,6 +483,7 @@ $("#get_product_name").on("change", function () {
   var credit_sale_type = $("#credit_sale_type").val();
   var price_type = $("#price_type").val();
   var branch_id = $("#branch_id").val();
+  var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
   $.ajax({
     type: "POST",
@@ -512,9 +517,16 @@ $("#get_product_name").on("change", function () {
         $("#instockQty").html("instock :" + response.qty);
         console.log(response.qty);
 
-        if (payment_type == "cash_in_hand" || payment_type == "credit_sale") {
+        if (
+          !isSaleReturn &&
+          (payment_type === "cash_in_hand" || payment_type === "credit_sale")
+        ) {
           $("#get_product_quantity").attr("max", response.qty);
           $("#addProductPurchase").prop("disabled", response.qty <= 0);
+        } else {
+          // For Sale Return, allow adding regardless of stock and set a high max
+          $("#get_product_quantity").attr("max", 99999999999);
+          $("#addProductPurchase").prop("disabled", false);
         }
       },
     });
@@ -576,12 +588,15 @@ function getRandomInt(max) {
 }
 
 $("#addProductPurchase").on("click", function () {
+  var currentForm = $(this).closest("form");
+  var get_final_rate = currentForm.data("get-final-rate")
+    ? currentForm.data("get-final-rate").toString() === "true"
+    : false;
+
   var total_price = 0;
   var payment_type = $("#payment_type").val();
   var form = $("#quotation_form").val();
   var name = $("#get_product_name :selected").text();
-  // var pro_details = $("#get_product_detail").val();
-
   var price = $("#get_product_price").val();
   var sale_price = $("#get_product_sale_price").val();
   var id = $("#get_product_name").val();
@@ -591,88 +606,79 @@ $("#addProductPurchase").on("click", function () {
   var pro_type = $("#add_pro_type").val();
   var final_rate = $("#get_final_rate").val();
   var max_qty = $("#get_product_quantity").attr("max");
+  var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
   max_qty = parseInt(max_qty);
-  if (payment_type == "cash_purchase" || payment_type == "credit_purchase") {
-    max_qty = getRandomInt(99999999999);
+  if (
+    payment_type === "cash_purchase" ||
+    payment_type === "credit_purchase" ||
+    isSaleReturn
+  ) {
+    max_qty = 99999999999; // Bypass stock limit for Sale Return or purchase types
   }
-  // console.log(final_rate);
 
-  // console.log(max_qty);
   var GrandTotalAva = $("#remaining_ammount").val();
   var ThisTotal = price * product_quantity + Number(GrandTotalAva);
-  //alert(ThisTotal);
   var RThisPersonLIMIT = $("#R_LimitInput").val();
-  // if (ThisTotal > RThisPersonLIMIT  ) {
-  //   if(1>0){
 
-  //      sweeetalert("Remainig Limit Exceed 😊 ","error",1500);
-  // }else{
-  // $("#get_product_detail").val("");
   $("#get_product_name").val(null).trigger("change");
-  if (
-    id != "" &&
-    product_quantity != "" &&
-    max_qty >= product_quantity &&
-    code != ""
-  ) {
+  if (id !== "" && product_quantity !== "" && code !== "") {
     $("#get_product_name").val(null).trigger("change");
     $("#add_pro_type").val("add");
     $("#get_product_code").val("");
     $("#get_product_price").val("");
     $("#get_product_sale_price").val("");
-    // $("#get_product_detail").val("");
     $("#get_final_rate").val("");
     $("#instockQty").text("instock :0");
-
-    // $('#get_product_code').trigger('keyup');
     $("#get_product_quantity").val("1");
     $("#get_product_code").focus();
+
     if ($("#product_idN_" + id).length) {
       var jsonObj = [];
       $(".product_ids").each(function (index) {
         var quantity = $(this).data("quantity");
         total_price = 0;
         var val = $(this).val();
-        if (val == id) {
-          if (pro_type == "add") {
+        if (val === id) {
+          if (pro_type === "add") {
             var Currentquantity =
               parseInt(quantity) + parseInt(product_quantity);
           } else {
             var Currentquantity = parseInt(product_quantity);
           }
           total_price = parseFloat(price) * parseFloat(Currentquantity);
-          if (Currentquantity <= max_qty) {
+          if (isSaleReturn || Currentquantity <= max_qty) {
+            // Bypass stock check for Sale Return
             $("#product_idN_" + id).replaceWith(`
-        <tr id="product_idN_${id}">
-            <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
-                   id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-            <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
-           
-            <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
-            <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
-            <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${total_price}">
-            <td>${code}</td>
-            <td>${name}</td>
-            <td>${price}</td>
-            ${
-              payment_type === "credit_sale" || payment_type === "cash_in_hand"
-                ? `
-              <input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
-              <td>${final_rate}</td>
-          `
-                : ""
-            }
-            <td>${Currentquantity}</td>
-            <td>${total_price}</td>
-            <td>
-                <button type="button" onclick="removeByid('#product_idN_${id}')" 
-                        class="fa fa-trash text-danger"></button>
-                <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}' , '${final_rate}')" 
-                        class="fa fa-edit text-success"></button>
-            </td>
-        </tr>
-    `);
+                            <tr id="product_idN_${id}">
+                                <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
+                                       id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
+                                <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
+                                <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
+                                <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
+                                <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${total_price}">
+                                <td>${code}</td>
+                                <td>${name}</td>
+                                <td>${price}</td>
+                              ${
+                                get_final_rate
+                                  ? `
+    <input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+    <td>${final_rate}</td>
+  `
+                                  : ""
+                              }
+
+                                <td>${Currentquantity}</td>
+                                <td>${total_price}</td>
+                                <td>
+                                    <button type="button" onclick="removeByid('#product_idN_${id}')" 
+                                            class="fa fa-trash text-danger"></button>
+                                    <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" 
+                                            class="fa fa-edit text-success"></button>
+                                </td>
+                            </tr>
+                        `);
           } else {
             sweeetalert("Cannot Add Quantity more than stock", "error", 1500);
           }
@@ -682,49 +688,48 @@ $("#addProductPurchase").on("click", function () {
     } else {
       total_price = parseFloat(price) * parseFloat(product_quantity);
       $("#purchase_product_tb").append(`
-    <tr id="product_idN_${id}">
-        <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
-               id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-        <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
-       
-        <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
-        <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
-        <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
-        <td>${code}</td>
-        <td>${name}</td>
-        
-        <td>${price}</td>
-        ${
-          payment_type === "credit_sale" || payment_type === "cash_in_hand"
-            ? `
-          <input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
-          <td>${final_rate}</td>
-      `
-            : ""
-        }
-        <td>${product_quantity}</td>
-        <td>${total_price}</td>
-        <td>
-            <button type="button" onclick="removeByid('#product_idN_${id}')" 
-                    class="fa fa-trash text-danger"></button>
-            <button type="button" onclick="editByid(${id}, '${code}',  '${price}','${product_quantity}')" 
-                    class="fa fa-edit text-success"></button>
-        </td>
-    </tr>
-`);
+                <tr id="product_idN_${id}">
+                    <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
+                           id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
+                    <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
+                    <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
+                    <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
+                    <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
+                    <td>${code}</td>
+                    <td>${name}</td>
+                    <td>${price}</td>
+                    ${
+                      get_final_rate
+                        ? `
+    <input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+    <td>${final_rate}</td>
+  `
+                        : ""
+                    }
+
+                    <td>${product_quantity}</td>
+                    <td>${total_price}</td>
+                    <td>
+                        <button type="button" onclick="removeByid('#product_idN_${id}')" 
+                                class="fa fa-trash text-danger"></button>
+                        <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}')" 
+                                class="fa fa-edit text-success"></button>
+                    </td>
+                </tr>
+            `);
 
       getOrderTotal();
       $("#purchase_type").change();
       $("#sale_type").change();
     }
   } else {
-    if (max_qty < product_quantity) {
-      sweeetalert("Cannot Add Quantity more then  stock", "error", 1500);
-    } else if (code == "") {
+    if (!isSaleReturn && max_qty < product_quantity) {
+      // Only show stock error for non-Sale Return forms
+      sweeetalert("Cannot Add Quantity more than stock", "error", 1500);
+    } else if (code === "") {
       sweeetalert("Select The Product first", "error", 1500);
     }
   }
-  //}
 });
 function removeByid(id) {
   $(id).remove();
@@ -774,35 +779,10 @@ function getOrderTotal() {
   $("#purchase_type").change();
   $("#sale_type").change();
 }
-// function editByid(id, code, pro_details, price, qty, final_rate) {
-//   // alert(pro_details);
-//   $("#get_product_name").val(id);
 
-//   $("#get_product_code").val(code);
-//   $("#get_product_quantity").val(qty);
-//   $("#get_final_rate").val(qty);
-//   let total = price * qty;
-//   setTimeout(function () {
-//     $("#get_product_detail").val(pro_details);
-//     $("#get_product_sale_price").val(total);
-//     $("#get_product_price").val(price);
-//   }, 2000);
-//   $("#add_pro_type").val("update");
-
-//   var effect = function () {
-//     return $(".searchableSelect").select2().trigger("change");
-//   };
-
-//   $.when(effect()).done(function () {
-//     setTimeout(function () {
-//       $("#get_product_price").val(price);
-//     }, 500);
-//   });
-// }
-
-function editByid(id, code, price, qty, final_rate , pro_details) {
+function editByid(id, code, price, qty, final_rate, pro_details) {
   // alert(pro_details);
-    $("#get_product_name").val(id);
+  $("#get_product_name").val(id);
 
   $("#get_product_code").val(code);
   $("#get_product_quantity").val(qty);
@@ -812,7 +792,7 @@ function editByid(id, code, price, qty, final_rate , pro_details) {
   $("#get_product_price").val(price);
   $("#get_product_detail").val(pro_details);
   $("#add_pro_type").val("update");
-var effect = function () {
+  var effect = function () {
     return $(".searchableSelect").select2().trigger("change");
   };
   $.when(effect()).done(function () {

@@ -29,7 +29,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                 </div>
                 <div class="card-body">
-                    <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
+                    <form action="php_action/custom_action.php" method="POST" id="sale_order_fm" data-get-final-rate="true">
                         <input type="hidden" name="product_order_id"
                             value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
                         <input type="hidden" name="payment_type" id="payment_type" value="credit_sale">
