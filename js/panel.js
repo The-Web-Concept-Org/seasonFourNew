@@ -166,7 +166,7 @@ function deleteAlert(id, table, row, reload_type) {
       }); //ajax
       console.log("Deleted");
     }
-  });
+  });``
 }
 function approveAlert(id) {
   Swal.fire({
