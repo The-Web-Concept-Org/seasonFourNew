@@ -30,12 +30,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
           <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
             <input type="hidden" name="product_purchase_id"
               value="<?= @empty($_REQUEST['edit_purchase_id']) ? "" : base64_decode($_REQUEST['edit_purchase_id']) ?>">
-            <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
+            <input type="hidden" name="payment_type" id="payment_type" value="credit_sale">
             <input type="hidden" name="lpo_form" id="lpo_form" value="">
             <input type="hidden" name="user_id" value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
             <input type="hidden" name="purchase_return" id="purchase_return" value="purchase_return">
-            <input type="hidden" name="price_type" id="price_type" value="purchase">
+            <input type="hidden" name="price_type" id="price_type" value="sale">
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper d-block mb-3 ml-auto">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize d-block" required>

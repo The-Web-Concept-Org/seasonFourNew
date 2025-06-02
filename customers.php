@@ -87,7 +87,7 @@ if (@$getCustomer) {
 										<?php endif; ?>
 
 
-										<?php if ($_REQUEST['type'] != "bank" and $_REQUEST['type'] != "expense"): ?>
+										<?php if ($_REQUEST['type'] != "account" and $_REQUEST['type'] != "expense"): ?>
 											<div class="col-sm-6 mt-3">
 
 												<label for="email">Email:</label>

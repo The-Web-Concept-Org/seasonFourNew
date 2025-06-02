@@ -20,7 +20,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
                     <div class="row">
                         <div class="col-12 mx-auto h4">
-                            <b class="text-center card-text">Gatepass</b>
+                            <b class="text-center card-text">Gatepass Out</b>
 
 
                             <!-- <a href="credit_purchase.php" class="btn btn-admin float-right btn-sm">Add New</a> -->
@@ -32,9 +32,9 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     <form action="php_action/custom_action.php" method="POST" id="sale_order_fm">
                         <input type="hidden" name="product_purchase_id"
                             value="<?= @empty($_REQUEST['edit_purchase_id']) ? "" : base64_decode($_REQUEST['edit_purchase_id']) ?>">
-                        <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
+                        <input type="hidden" name="payment_type" id="payment_type" value="credit_sale">
                         <input type="hidden" name="gatepass" id="gatepass" value="gatepass">
-                        <input type="hidden" name="price_type" id="price_type" value="purchase">
+                        <input type="hidden" name="price_type" id="price_type" value="sale">
                         <input type="hidden" name="user_id"
                             value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
@@ -72,7 +72,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                 <label for="from_branch" class="control-label">From Branch</label>
                                 <select class="form-control searchableSelect" name="from_branch" id="branch_id"
                                     required>
-                                    <option selected disabled>Select Branch</option>
+                                    <option selected disabled value="">Select Branch</option>
                                     <?php
                                     $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                                     while ($row = mysqli_fetch_array($branch)) {
@@ -87,7 +87,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             <div class="col-sm-2">
                                 <label for="to_branch" class="control-label">To Branch</label>
                                 <select class="form-control searchableSelect" name="to_branch" id="to_branch" required>
-                                    <option selected disabled>Select Branch</option>
+                                    <option selected disabled value="">Select Branch</option>
                                     <?php
                                     $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                                     while ($row = mysqli_fetch_array($branch)) {

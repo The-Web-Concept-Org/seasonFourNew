@@ -12,7 +12,7 @@
 
                             <div class="row">
                                 <div class="col-12 mx-auto h4">
-                                    <b class="text-center card-text">Gatepass List</b>
+                                    <b class="text-center card-text">Gatepass Out List</b>
 
 
                                 </div>

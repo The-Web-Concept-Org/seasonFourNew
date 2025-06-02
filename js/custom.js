@@ -586,151 +586,158 @@ $("#full_payment_check").on("click", function () {
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
-
 $("#addProductPurchase").on("click", function () {
   var currentForm = $(this).closest("form");
-  var get_final_rate = currentForm.data("get-final-rate")
-    ? currentForm.data("get-final-rate").toString() === "true"
-    : false;
+  var get_final_rate = currentForm.data("get-final-rate")?.toString() === "true";
 
-  var total_price = 0;
   var payment_type = $("#payment_type").val();
-  var form = $("#quotation_form").val();
+  var isSaleReturn = $("#order_return").val() === "order_return";
+
   var name = $("#get_product_name :selected").text();
-  var price = $("#get_product_price").val();
-  var sale_price = $("#get_product_sale_price").val();
+  var price = parseFloat($("#get_product_price").val());
+  var sale_price = parseFloat($("#get_product_sale_price").val());
+  var final_rate = $("#get_final_rate").val();
   var id = $("#get_product_name").val();
   var code = $("#get_product_code").val();
-  var product_quantity = $("#get_product_quantity").val();
-  product_quantity = parseInt(product_quantity);
+  var product_quantity = parseInt($("#get_product_quantity").val());
+  var max_qty = parseInt($("#get_product_quantity").attr("max")) || 0;
   var pro_type = $("#add_pro_type").val();
-  var final_rate = $("#get_final_rate").val();
-  var max_qty = $("#get_product_quantity").attr("max");
-  var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
-  max_qty = parseInt(max_qty);
   if (
     payment_type === "cash_purchase" ||
     payment_type === "credit_purchase" ||
     isSaleReturn
   ) {
-    max_qty = 99999999999; // Bypass stock limit for Sale Return or purchase types
+    max_qty = 99999999999; // Bypass stock limit for purchases or sale returns
   }
 
-  var GrandTotalAva = $("#remaining_ammount").val();
-  var ThisTotal = price * product_quantity + Number(GrandTotalAva);
-  var RThisPersonLIMIT = $("#R_LimitInput").val();
+  // Stock check before proceeding
+  if (!isSaleReturn && product_quantity > max_qty) {
+    Swal.fire({
+      icon: "error",
+      title: "Out of Stock",
+      text: "Cannot add quantity more than available stock.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    return;
+  }
 
+  var total_price = price * product_quantity;
+
+  // Reset input values
   $("#get_product_name").val(null).trigger("change");
-  if (id !== "" && product_quantity !== "" && code !== "") {
-    $("#get_product_name").val(null).trigger("change");
-    $("#add_pro_type").val("add");
-    $("#get_product_code").val("");
-    $("#get_product_price").val("");
-    $("#get_product_sale_price").val("");
-    $("#get_final_rate").val("");
-    $("#instockQty").text("instock :0");
-    $("#get_product_quantity").val("1");
-    $("#get_product_code").focus();
+  $("#add_pro_type").val("add");
+  $("#get_product_code").val("");
+  $("#get_product_price").val("");
+  $("#get_product_sale_price").val("");
+  $("#get_final_rate").val("");
+  $("#instockQty").text("instock :0");
+  $("#get_product_quantity").val("1");
 
-    if ($("#product_idN_" + id).length) {
-      var jsonObj = [];
-      $(".product_ids").each(function (index) {
-        var quantity = $(this).data("quantity");
-        total_price = 0;
-        var val = $(this).val();
-        if (val === id) {
-          if (pro_type === "add") {
-            var Currentquantity =
-              parseInt(quantity) + parseInt(product_quantity);
-          } else {
-            var Currentquantity = parseInt(product_quantity);
-          }
-          total_price = parseFloat(price) * parseFloat(Currentquantity);
-          if (isSaleReturn || Currentquantity <= max_qty) {
-            // Bypass stock check for Sale Return
-            $("#product_idN_" + id).replaceWith(`
-                            <tr id="product_idN_${id}">
-                                <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
-                                       id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-                                <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
-                                <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
-                                <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
-                                <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${total_price}">
-                                <td>${code}</td>
-                                <td>${name}</td>
-                                <td>${price}</td>
-                              ${
-                                get_final_rate
-                                  ? `
-    <input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
-    <td>${final_rate}</td>
-  `
-                                  : ""
-                              }
-
-                                <td>${Currentquantity}</td>
-                                <td>${total_price}</td>
-                                <td>
-                                    <button type="button" onclick="removeByid('#product_idN_${id}')" 
-                                            class="fa fa-trash text-danger"></button>
-                                    <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" 
-                                            class="fa fa-edit text-success"></button>
-                                </td>
-                            </tr>
-                        `);
-          } else {
-            sweeetalert("Cannot Add Quantity more than stock", "error", 1500);
-          }
-        }
-        getOrderTotal();
-      });
-    } else {
-      total_price = parseFloat(price) * parseFloat(product_quantity);
-      $("#purchase_product_tb").append(`
-                <tr id="product_idN_${id}">
-                    <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
-                           id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-                    <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
-                    <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
-                    <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
-                    <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
-                    <td>${code}</td>
-                    <td>${name}</td>
-                    <td>${price}</td>
-                    ${
-                      get_final_rate
-                        ? `
-    <input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
-    <td>${final_rate}</td>
-  `
-                        : ""
-                    }
-
-                    <td>${product_quantity}</td>
-                    <td>${total_price}</td>
-                    <td>
-                        <button type="button" onclick="removeByid('#product_idN_${id}')" 
-                                class="fa fa-trash text-danger"></button>
-                        <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}')" 
-                                class="fa fa-edit text-success"></button>
-                    </td>
-                </tr>
-            `);
-
-      getOrderTotal();
-      $("#purchase_type").change();
-      $("#sale_type").change();
-    }
-  } else {
-    if (!isSaleReturn && max_qty < product_quantity) {
-      // Only show stock error for non-Sale Return forms
-      sweeetalert("Cannot Add Quantity more than stock", "error", 1500);
-    } else if (code === "") {
-      sweeetalert("Select The Product first", "error", 1500);
-    }
+  if (!id || !product_quantity || !code) {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Information",
+      text: "Please make sure to select product and quantity.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    return;
   }
+
+  // If product already exists in table
+  if ($("#product_idN_" + id).length) {
+    $(".product_ids").each(function () {
+      var quantity = $(this).data("quantity");
+      var val = $(this).val();
+
+      if (val === id) {
+        var Currentquantity =
+          pro_type === "add"
+            ? parseInt(quantity) + parseInt(product_quantity)
+            : parseInt(product_quantity);
+
+        // Extra stock check again
+        if (!isSaleReturn && Currentquantity > max_qty) {
+          Swal.fire({
+            icon: "error",
+            title: "Stock Limit Exceeded",
+            text: "Cannot add quantity more than available stock.",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          return false;
+        }
+
+        var updated_total = price * Currentquantity;
+
+        $("#product_idN_" + id).replaceWith(`
+          <tr id="product_idN_${id}">
+            <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
+                   id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
+            <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
+            <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
+            <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${updated_total}">
+            <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${updated_total}">
+            <td>${code}</td>
+            <td>${name}</td>
+            <td>${price}</td>
+            ${
+              get_final_rate
+                ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+                   <td>${final_rate}</td>`
+                : ""
+            }
+            <td>${Currentquantity}</td>
+            <td>${updated_total}</td>
+            <td>
+              <button type="button" onclick="removeByid('#product_idN_${id}')" class="fa fa-trash text-danger"></button>
+              <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
+            </td>
+          </tr>
+        `);
+      }
+    });
+  } else {
+    $("#purchase_product_tb").append(`
+      <tr id="product_idN_${id}">
+        <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
+               id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
+        <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
+        <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
+        <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
+        <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
+        <td>${code}</td>
+        <td>${name}</td>
+        <td>${price}</td>
+        ${
+          get_final_rate
+            ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+               <td>${final_rate}</td>`
+            : ""
+        }
+        <td>${product_quantity}</td>
+        <td>${total_price}</td>
+        <td>
+          <button type="button" onclick="removeByid('#product_idN_${id}')" class="fa fa-trash text-danger"></button>
+          <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
+        </td>
+      </tr>
+    `);
+  }
+
+  getOrderTotal();
+  $("#purchase_type").change();
+  $("#sale_type").change();
 });
+
+
+
+
+
+
+
 function removeByid(id) {
   $(id).remove();
   getOrderTotal();
