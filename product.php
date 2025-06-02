@@ -354,7 +354,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   </tr>
                 </thead>
                 <tbody>
-                  <?php $q = mysqli_query($dbc, "SELECT * FROM product ");
+                  <?php $q = mysqli_query($dbc, "SELECT * FROM product where status=1");
                   $c = 0;
                   while ($r = mysqli_fetch_assoc($q)) {
                     @$brandFetched = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
@@ -1067,8 +1067,6 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
     }, 500);
   }
 
- 
-
   function getdata(id) {
     $.ajax({
         url: '', // same file
@@ -1078,9 +1076,9 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
           product_id: id
         },
         success: function (response) {
-          console.log('Response:', response); // Debug
+          // console.log('Response:', response); 
           $('#view_stock_modal .modal-body .form-group').html(response);
-          $('#view_stock_modal').modal('show'); // <<< Ensure modal is opened
+          $('#view_stock_modal').modal('show'); 
         },
         error: function (xhr, status, error) {
           console.error('AJAX Error:', status, error);
