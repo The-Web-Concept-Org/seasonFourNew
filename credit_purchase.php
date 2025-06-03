@@ -44,8 +44,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
                     ?>
-                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
-                      value="<?= $row['branch_id'] ?>">
+                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
+                      class="text-capitalize" value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>
                   <?php } ?>
@@ -199,12 +199,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               </div> -->
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Final Price</label>
-                <input type="number" <?= ($_SESSION['user_role'] == "admin") ? "" : "readonly" ?> class="form-control"
-                  id="get_product_price">
+                <input type="number" class="form-control" id="get_product_price">
               </div>
               <div class="col-6 col-sm-2 col-md-1">
                 <label>Quantity</label>
-                <input type="number" class="form-control" id="get_product_quantity" value="1" min="1" name="quantity">
+                <input type="number" class="form-control" id="get_product_quantity" value="" min="1" name="quantity"
+                  placeholder="Enter">
               </div>
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Amount</label>
@@ -286,9 +286,9 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     <tr>
                       <td colspan="4" class="table-bordered"></td>
                       <td class="table-bordered"> Discount :</td>
-                      <td class="table-bordered" id="getDiscount"><input onkeyup="getOrderTotal()" type="number"
+                      <td class="table-bordered" id="getDiscount"><input onkeyup="getOrderTotal()" type="text"
                           id="ordered_discount" class="form-control form-control-sm"
-                          value="<?= @empty($_REQUEST['edit_order_id']) ? $fetchPurchase['discount'] : "0" ?>" min="0"
+                          value="<?= @empty($_REQUEST['edit_order_id']) ? @$fetchPurchase['discount'] : "0" ?>" min="0"
                           name="ordered_discount">
                       </td>
                       <td class="table-bordered"></td>
@@ -337,7 +337,17 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             aria-describedby="basic-addon1">
                             <option value="">Select Account</option>
                             <?php
-                            $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank' AND branch_id = '" . $_SESSION['branch_id'] . "'");
+                            $branch_id = $_SESSION['branch_id'];
+                            $user_role = $_SESSION['user_role']; 
+                            
+                            if ($user_role === 'admin') {
+                              $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank'";
+                            } else {
+                              $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank' AND branch_id = '$branch_id'";
+                            }
+
+                            $q = mysqli_query($dbc, $sql);
+
                             while ($r = mysqli_fetch_assoc($q)):
                               ?>
                               <option <?= @($fetchPurchase['payment_account'] == $r['customer_id']) ? "selected" : "" ?>

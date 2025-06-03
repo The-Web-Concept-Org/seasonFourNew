@@ -29,7 +29,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                 </div>
                 <div class="card-body">
-                    <form action="php_action/custom_action.php" method="POST" id="sale_order_fm" data-get-final-rate="true">
+                    <form action="php_action/custom_action.php" method="POST" id="sale_order_fm"
+                        data-get-final-rate="true">
                         <input type="hidden" name="product_order_id"
                             value="<?= !isset($_REQUEST['edit_order_id']) ? "" : base64_decode($_REQUEST['edit_order_id']) ?>">
                         <input type="hidden" name="payment_type" id="payment_type" value="credit_sale">
@@ -108,7 +109,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                 </datalist>
                             </div>
-                            
+
                             <div class="col-sm-2 cash-sale-div2">
                                 <label>Customer Name</label>
                                 <input type="text" id="sale_order_client_name"
@@ -138,11 +139,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?> data-id="<?= $r['customer_id'] ?>"
                                                 data-contact="<?= $r['customer_phone'] ?>"
                                                 value="<?= $r['customer_name'] ?>"><?= $r['customer_name'] ?> |
-                                                <?= $r['customer_phone'] ?></option>
+                                                <?= $r['customer_phone'] ?>
+                                            </option>
                                         <?php } ?>
                                     </select><br />
                                 </div>
-                               
+
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Balance : <span
                                             id="customer_account_exp">0</span> </span>
@@ -151,7 +153,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                     <span class="input-group-text" id="basic-addon1">R Limit : <span
                                             id="R_Limit">0</span> </span>
                                 </div>
-                                 
+
 
 
                                 <input type="hidden" name="customer_account" id="customer_account"
@@ -161,10 +163,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="hidden" name="R_Limit" id="R_LimitInput" />
 
                             </div>
-                          <div class="col-sm-1 return_days-div">
-                <br>
-                <a href="customers.php?type=customer" class="btn btn-admin2 btn-sm mt-2">Add</a>
-              </div>
+                            <div class="col-sm-1 return_days-div">
+                                <br>
+                                <a href="customers.php?type=customer" class="btn btn-admin2 btn-sm mt-2">Add</a>
+                            </div>
                             <div class="col-sm-1">
                                 <label>Comment</label>
                                 <input type="text" autocomplete="off" name="order_narration" id="order_narration"
@@ -230,7 +232,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                         <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>"
                                             style="text-transform: capitalize;">
-                                           <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
+                                            <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> -
+                                            <?= @$getBrand["brand_name"] ?>
                                         </option>
 
                                     <?php } ?>
@@ -251,8 +254,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                             <div class="col-6 col-sm-2 col-md-1">
                                 <label>Quantity</label>
-                                <input type="text" class="form-control" id="get_product_quantity" value="1" min="1"
-                                    name="quantity">
+                                <input type="text" class="form-control" id="get_product_quantity" value="" min="1"
+                                    placeholder="Enter" name="quantity">
                             </div>
                             <div class="col-6 col-sm-1 col-md-1">
                                 <label>Amount</label>
@@ -331,7 +334,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                             <td class="table-bordered"> Sub Total :</td>
                                             <td class="table-bordered" id="product_total_amount">
-                                                <?= @$fetchOrder['total_amount'] ?></td>
+                                                <?= @$fetchOrder['total_amount'] ?>
+                                            </td>
                                             <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
@@ -359,7 +363,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                             <td class="table-bordered"> <strong>Net Total :</strong> </td>
                                             <td class="table-bordered" id="product_grand_total_amount">
-                                                <?= @$fetchOrder['grand_total'] ?></td>
+                                                <?= @$fetchOrder['grand_total'] ?>
+                                            </td>
                                             <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
@@ -396,10 +401,23 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                         name="payment_account" id="payment_account"
                                                         aria-label="Username" aria-describedby="basic-addon1">
 
-                                                        <?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='bank' AND branch_id='" . $_SESSION['branch_id'] . "'");
-                                                        while ($r = mysqli_fetch_assoc($q)): ?>
+                                                        <?php
+                                                        $branch_id = $_SESSION['branch_id'];
+                                                        $user_role = $_SESSION['user_role'];
+
+                                                        if ($user_role === 'admin') {
+                                                            $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank'";
+                                                        } else {
+                                                            $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank' AND branch_id = '$branch_id'";
+                                                        }
+
+                                                        $q = mysqli_query($dbc, $sql);
+
+                                                        while ($r = mysqli_fetch_assoc($q)):
+                                                            ?>
                                                             <option <?= @($fetchOrder['payment_account'] == $r['customer_id']) ? "selected" : "" ?> value="<?= $r['customer_id'] ?>">
-                                                                <?= $r['customer_name'] ?></option>
+                                                                <?= $r['customer_name'] ?>
+                                                            </option>
                                                         <?php endwhile; ?>
                                                     </select>
                                                     <div class="input-group-prepend">
@@ -465,4 +483,3 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 
 ?>
-

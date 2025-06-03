@@ -48,8 +48,8 @@
                   <thead>
                     <tr>
                       <th class="text-dark"> Date</th>
+                      <th class="text-dark">purchase Id</th>
                       <th class="text-dark">Supplier Name</th>
-                      <th class="text-dark">Phone</th>
                       <th class="text-dark">Comment</th>
                       <th class="text-dark">Amount</th>
                       <th class="text-dark">Purchase Type</th>
@@ -79,8 +79,11 @@
 
                       <tr>
                         <td><?= $r['purchase_date'] ?></td>
+                        <td>
+  <?= ($r['payment_type'] == "cash_purchase" ? "SF25-CP-" : "SF-CRP-") . $r['purchase_id'] ?>
+</td>
+
                         <td><?= ucfirst($r['client_name']) ?></td>
-                        <td><?= $r['client_contact'] ?></td>
                         <td class="text-capitalize"><?= $r['purchase_narration'] ?></td>
                         <td><?= $r['grand_total'] ?></td>
                         <td class="text-capitalize"><?= $r['payment_type'] ?></td>

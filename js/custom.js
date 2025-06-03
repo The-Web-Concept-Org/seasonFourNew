@@ -149,8 +149,8 @@ $(document).ready(function () {
                 "_blank"
               );
               location.reload();
-            } else if (result.isDenied) {
-              location.reload();
+            }else if (result.isDenied || result.dismiss === Swal.DismissReason.cancel) {
+        location.reload();
             }
           });
         }
@@ -633,7 +633,7 @@ $("#addProductPurchase").on("click", function () {
   $("#get_product_sale_price").val("");
   $("#get_final_rate").val("");
   $("#instockQty").text("instock :0");
-  $("#get_product_quantity").val("1");
+  $("#get_product_quantity").val("");
 
   if (!id || !product_quantity || !code) {
     Swal.fire({
