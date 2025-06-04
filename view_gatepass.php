@@ -25,10 +25,11 @@
                                 <thead>
                                     <tr>
                                         <th class="text-dark"> Date</th>
+                                        <th class="text-dark"> Gatepass Id</th>
                                         <th class="text-dark">From Branch</th>
                                         <th class="text-dark">To Branch</th>
                                         <th class="text-dark">Comment</th>
-                                        <th class="text-dark">Type</th>
+                                        <!-- <th class="text-dark">Type</th> -->
                                         <th class="text-dark">File</th>
                                         <th class="text-dark">Action</th>
                                     </tr>
@@ -58,10 +59,10 @@
 
                                         <tr class="text-capitalize">
                                             <td><?= $r['gatepass_date'] ?></td>
+                                            <td class="text-capitalize">SF25-G-<?= $r['gatepass_id'] ?></td>
                                             <td><?= $from_branch['branch_name'] ?></td>
                                             <td><?= $to_branch['branch_name'] ?></td>
                                             <td class="text-capitalize"><?= $r['gatepass_narration'] ?></td>
-                                            <td class="text-capitalize"><?= $r['payment_type'] ?></td>
                                             <td>
                                                 <img src="img/uploads/" alt="">
                                                 <?php if (!empty($r['gatepass_file'])): ?>
@@ -89,8 +90,8 @@
                                                 <?php endif; ?>
 
 
-                                                <!-- <a target="_blank" href="print_sale.php?id=<?= $r['gatepass_id'] ?>&type=gatepass" class="btn btn-admin2 btn-sm m-1">Print</a>
-                                                <?php if ($r['stock_status'] != '1'): ?>
+                                                <a target="_blank" href="print_sale.php?id=<?= $r['gatepass_id'] ?>&type=gatepass" class="btn btn-admin2 btn-sm m-1">Print</a>
+                                                <!-- <?php if ($r['stock_status'] != '1'): ?>
                                                     <a href="#" onclick="approveAlert('<?= $r['gatepass_id'] ?>')" class="btn btn-danger btn-sm m-1">Approve</a>
                                                 <?php endif; ?> -->
                                             </td>

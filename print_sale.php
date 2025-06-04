@@ -627,10 +627,10 @@
                                 <th style="width: 5%;">S.No</th>
                                 <th style="width: 25%;" class="text-left pl-3">Description</th>
                                 <th style="width: 5%;">Qty</th>
-                                <?php if (@$order['is_delivery_note'] != 1) { ?>
-                                    <th style="width: 5%;">Unit Price</th>
-                                    <th style="width: 5%;">Amount</th>
-                                <?php } ?>
+                                <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
+    <th style="width: 5%;">Unit Price</th>
+    <th style="width: 5%;">Amount</th>
+<?php } ?>
                             </tr>
                         </thead>
                         <?php if (!empty($order['product_details'])): ?>
@@ -666,7 +666,7 @@
                                     $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
                                     $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
                                     ?>
-                                    <tr class="border">
+                                    <tr class="w-100">
                                         <td class="text-center border"><?= $c ?></td>
                                         <td class="text-left border pl-3">
                                             <?php if (!empty($cat['categories_name'])): ?>
@@ -678,7 +678,7 @@
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center border"><?= $r['quantity'] ?></td>
-                                        <?php if (@$order['is_delivery_note'] != 1): ?>
+                                        <?php  if (@$_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)): ?>
                                             <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
                                             <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
                                             </td>
@@ -696,7 +696,7 @@
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
 
 
-                                <?php if (@$order['is_delivery_note'] != 1) { ?>
+                                <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
                                     <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
 
                                         <td class="border">Discount:</td>
@@ -706,7 +706,7 @@
 
                             <?php } ?>
 
-                            <?php if (@$order['is_delivery_note'] != 1) { ?>
+                            <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
                                 <tr class="tablefooter" style="font-size: 14px; border: none !important;">
                                     <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?>
                                         ONLY</td>
@@ -772,11 +772,11 @@
                         <div class="col-1">
                             <p>______________________ </p>
                         </div>
-                        <div class="col-9 w-100">
-                            <div class="row w-100 text-right ml-auto">
+                        <div class="col-9 w-100 ">
+                            <div class="row w-100 text-right ml-auto mr-3">
                                 <div class="col-12 text-right d-flex justify-content-end">
                                     <p><strong>Prepared By:</strong> </p>
-                                    <p class="text-capitalize pl-3 pr-2">
+                                    <p class="text-capitalize pr-">
                                         <?php
                                         $user = fetchRecord($dbc, "users", "user_id", $_SESSION['user_id']);
                                         if (isset($user['fullname'])) {
@@ -797,29 +797,20 @@
                 </div>
             <?php } else { ?>
 
-                <div class="row mt-5 pt-5 m-0 px-5 mr-4" style=" !important;">
-                    <div class="col-8"></div>
-                    <div class="col-3 text-right">
-                        <p><strong>Prepared By:</strong> </p>
-                    </div>
-                    <div class="col-1 pr-5">
-                        <!-- <p>______________________ </p> -->
-                        <?php
-                        $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-
-
-                        $user = fetchRecord($dbc, "users", "user_id", $userId);
-                        $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "UNKNOWN USER";
-
-                        ?>
-
-                        <span style="white-space: nowrap;">
-                            <?= $fullName ?>
-                        </span>
-
-
-                    </div>
-                </div>
+               <div class="row mt-5 pt-5 m-0 pl-5">
+    <div class="col-12 d-flex justify-content-end align-items-center">
+        <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
+        <div style="white-space: nowrap;">
+            <?php
+            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+            $user = fetchRecord($dbc, "users", "user_id", $userId);
+            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
+            ?>
+            <span><?= $fullName ?></span>
+        </div>
+    </div>
+</div>
+ 
             <?php } ?>
             <!-- <div>
                 <div class="return">

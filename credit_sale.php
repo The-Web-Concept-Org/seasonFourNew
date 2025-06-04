@@ -255,7 +255,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-6 col-sm-2 col-md-1">
                                 <label>Quantity</label>
                                 <input type="text" class="form-control" id="get_product_quantity" value="" min="1"
-                                    placeholder="Enter" name="quantity">
+                                    name="quantity">
                             </div>
                             <div class="col-6 col-sm-1 col-md-1">
                                 <label>Amount</label>

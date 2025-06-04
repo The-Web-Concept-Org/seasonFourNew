@@ -23,11 +23,12 @@
           $branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status= 1");
           $selected_branch_id = $_GET['branch_id'] ?? $_SESSION['branch_id'];
           if ($_SESSION['user_role'] == 'admin') {
-          ?>
+            ?>
 
             <form method="GET" class="form-inline my-3 ml-4">
               <label for="branch_id" class="mr-2">Filter by Branch:</label>
-              <select name="branch_id" id="branch_id" class="form-control text-capitalize mr-2" onchange="this.form.submit()">
+              <select name="branch_id" id="branch_id" class="form-control text-capitalize mr-2"
+                onchange="this.form.submit()">
                 <option value="">All Branches</option>
                 <?php
                 $branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
@@ -44,8 +45,8 @@
               <thead>
                 <tr>
                   <th class="text-dark"> Date</th>
+                  <th class="text-dark">Order Id</th>
                   <th class="text-dark">Customer Name</th>
-                  <th class="text-dark">Phone</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Comment</th>
                   <th class="text-dark">Sale Type</th>
@@ -61,7 +62,7 @@
                 if ($_SESSION['user_role'] != 'admin') {
                   $session_branch_id = $_SESSION['branch_id'];
                   $branch_filter = "WHERE branch_id = '$session_branch_id'";
-                } elseif ($_SESSION['user_role'] == 'admin' && !isset($_GET['branch_id'])) {  
+                } elseif ($_SESSION['user_role'] == 'admin' && !isset($_GET['branch_id'])) {
                   $branch_filter = "";
                 } elseif (!empty($selected_branch_id)) {
                   $branch_filter = "WHERE branch_id = '$selected_branch_id'";
@@ -74,14 +75,16 @@
                 $c = 0;
                 while ($r = mysqli_fetch_assoc($q)) {
                   $c++;
-                ?>
+                  ?>
 
 
 
                   <tr>
                     <td><?= $r['order_date'] ?></td>
+                    <td>
+                      <?= "SF24-SR-" . $r['order_id'] ?>
+                    </td>
                     <td><?= ucfirst($r['client_name']) ?></td>
-                    <td><?= $r['client_contact'] ?></td>
                     <td><?= $r['grand_total'] ?></td>
                     <td class="text-capitalize"><?= $r['order_narration'] ?></td>
                     <td class="text-capitalize"><?= $r['payment_type'] ?></td>
@@ -128,16 +131,18 @@
 
                       <?php endif; ?>
                       <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
-                        <a href="#" onclick="deleteAlert('<?= $r['order_id'] ?>','orders','order_id','view_orders_tb')" class="btn btn-danger btn-sm m-1">Delete</a>
+                        <a href="#" onclick="deleteAlert('<?= $r['order_id'] ?>','orders','order_id','view_orders_tb')"
+                          class="btn btn-danger btn-sm m-1">Delete</a>
 
 
                       <?php endif; ?>
 
 
-                      <a target="_blank" href="print_sale.php?type=order&id=<?= $r['order_id'] ?>" class="btn btn-admin2 btn-sm m-1">Print</a>
+                      <a target="_blank" href="print_sale.php?type=order&id=<?= $r['order_id'] ?>"
+                        class="btn btn-admin2 btn-sm m-1">Print</a>
                     </td>
                   </tr>
-                <?php  } ?>
+                <?php } ?>
               </tbody>
             </table>
           </div>
