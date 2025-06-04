@@ -167,7 +167,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               </div>
               <div class="col-6 col-sm-2 col-md-1">
                 <label>Quantity</label>
-                <input type="number" class="form-control" id="get_product_quantity" value="" min="1" name="quantity" placeholder="Enter">
+                <input type="number" class="form-control" id="get_product_quantity" value="" min="1" name="quantity" >
               </div>
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Amount</label>
