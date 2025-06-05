@@ -859,7 +859,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'total' => $total,
 						'order_id' => $last_id,
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+						
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],
@@ -2464,7 +2464,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'total' => $total,
 						'order_id' => $last_id,
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+					
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],

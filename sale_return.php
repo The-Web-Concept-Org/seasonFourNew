@@ -261,7 +261,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-sm-1">
                                 <br>
                                 <button type="button" class="btn btn-success btn-sm mt-2 float-right"
-                                    id="addProductPurchase"><i class="fa fa-plus"></i> <b>Add</b></button>
+                                    id="addProductPurchase">
+                                    <span class="btn-text"><i class="fa fa-plus"></i> <b>Add</b></span>
+                                    <span class="spinner-border spinner-border-sm text-light ms-2 d-none" role="status"
+                                        aria-hidden="true">
+                                    </span>
+                                </button>
                             </div>
 
                         </div>
@@ -446,7 +451,11 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <a href="credit_sale.php?credit_type=15days"
                                     class="btn btn-dark pt-2 float-right btn-sm">Cancel</a>
                                 <button class="btn btn-admin ml-2 " name="sale_order_btn" value="print" type="submit"
-                                    id="sale_order_btn">Save and Print</button>
+                                    id="sale_order_btn">
+                                    <span class="btn-text">Save and Print</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
 
                             </div>
                         </div>

@@ -168,7 +168,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             </div> -->
                             <div class="col-6 col-sm-2 col-md-1">
                                 <label>Quantity</label>
-                                <input type="number" class="form-control" id="get_product_quantity"  value="" min="1"
+                                <input type="number" class="form-control" id="get_product_quantity" value="" min="1"
                                     name="quantity">
                             </div>
                             <!-- <div class="col-6 col-sm-1 col-md-1">
@@ -180,7 +180,11 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             <div class="col-sm-1">
                                 <br>
                                 <button type="button" class="btn btn-success btn-sm mt-2 float-right"
-                                    id="addProductPurchase"><i class="fa fa-plus"></i> <b>Add</b></button>
+                                    id="addProductPurchase">
+                                    <span class="btn-text"><i class="fa fa-plus"></i> <b>Add</b></span>
+                                    <span class="spinner-border spinner-border-sm text-light ms-2 d-none" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
                             </div>
 
                         </div>
@@ -285,7 +289,11 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             <div class="col-sm-12 d-flex justify-content-end">
                                 <a href="credit_purchase.php" class="btn btn-dark  pb-2btn-sm">Cancel</a>
                                 <button class="btn btn-admin float-right ml-2 " name="sale_order_btn" value="print"
-                                    type="submit" id="sale_order_btn">Save and Print</button>
+                                    type="submit" id="sale_order_btn">
+                                    <span class="btn-text">Save and Print</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
                             </div>
                         </div>
                     </form>
