@@ -2205,9 +2205,9 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 							'debit' => 0,
 							'credit' => $due_amount,
 							'customer_id' => @$_REQUEST['customer_account'],
-							'transaction_from' => 'purchase',
+							'transaction_from' => 'purchased return',
 							'transaction_type' => $_REQUEST['payment_type'],
-							'transaction_remarks' => "purchased on  purchased id#" . $last_id,
+							'transaction_remarks' => "purchased return by  purchased id#" . $last_id,
 							'transaction_date' => $_REQUEST['purchase_date'],
 						];
 						insert_data($dbc, 'transactions', $debit);
@@ -2220,9 +2220,9 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						'debit' => 0,
 						'credit' => @$_REQUEST['paid_ammount'],
 						'customer_id' => @$_REQUEST['payment_account'],
-						'transaction_from' => 'purchase',
+						'transaction_from' => 'purchased return',
 						'transaction_type' => $_REQUEST['payment_type'],
-						'transaction_remarks' => "purchased by purchased id#" . $last_id,
+						'transaction_remarks' => "purchased return by purchased id#" . $last_id,
 						'transaction_date' => $_REQUEST['purchase_date'],
 					];
 					insert_data($dbc, 'transactions', $credit);
@@ -2351,9 +2351,9 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 							'debit' => 0,
 							'credit' => $due_amount,
 							'customer_id' => @$_REQUEST['customer_account'],
-							'transaction_from' => 'Purchase Return ',
+							'transaction_from' => 'Purchase Return',
 							'transaction_type' => $_REQUEST['payment_type'],
-							'transaction_remarks' => "purchased on  purchased id#" . $last_id,
+							'transaction_remarks' => "purchased return by  purchased id#" . $last_id,
 							'transaction_date' => $_REQUEST['purchase_date'],
 						];
 						insert_data($dbc, 'transactions', $debit);
@@ -2368,7 +2368,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && isset($_REQUEST['purchase_retu
 						'customer_id' => @$_REQUEST['payment_account'],
 						'transaction_from' => 'Purchase Return',
 						'transaction_type' => $_REQUEST['payment_type'],
-						'transaction_remarks' => "purchased by purchased id#" . $last_id,
+						'transaction_remarks' => "purchased return by purchased id#" . $last_id,
 						'transaction_date' => $_REQUEST['purchase_date'],
 					];
 					insert_data($dbc, 'transactions', $credit);
