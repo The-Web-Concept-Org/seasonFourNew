@@ -72,7 +72,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 </div>
                                 <div class="w-100 pe-1 pl-1">
                                     <label>Date</label>
-                                    <input type="date" name="order_date" id="order_date"
+                                    <input type="text" name="order_date" id="order_date"
                                         value="<?= empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['order_date'] ?>"
                                         class="form-control">
                                 </div>
@@ -150,7 +150,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-sm-1">
                                 <br>
                                 <button type="button" class="btn btn-success btn-sm mt-2 float-right" id="manualSale">
-                                    <i class="fa fa-plus"></i> <b>Add</b>
+                                    <span class="btn-text"><i class="fa fa-plus"></i> <b>Add</b></span>
+                                    <span class="spinner-border spinner-border-sm text-light ms-2 d-none" role="status"
+                                        aria-hidden="true"></span>
                                 </button>
                             </div>
                         </div>
@@ -255,7 +257,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <a href="credit_sale.php?credit_type=15days"
                                     class="btn btn-dark pt-2 float-right btn-sm">Cancel</a>
                                 <button class="btn btn-admin ml-2" name="sale_order_btn" value="print" type="submit"
-                                    id="sale_btn">Save and Print</button>
+                                    id="sale_btn">
+                                    <span class="btn-text">Save and Print</span>
+  <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -308,7 +313,17 @@ $(document).ready(function () {
         return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
     }
 
-    $('#manualSale').on('click', function () {
+$('#manualSale').on('click', function () {
+    let $btn = $(this);
+    let $spinner = $btn.find('.spinner-border');
+    let $text = $btn.find('.btn-text');
+
+    // Show loader and disable button
+    $spinner.removeClass('d-none');
+    $text.addClass('d-none');
+    $btn.prop('disabled', true);
+
+    setTimeout(() => {  // You can remove this timeout if you're calling a server or have async logic
         let productName = $('#get_product_name').val().trim();
         let finalRate = parseFloat($('#get_final_rate').val()) || 0;
         let quantity = parseInt($('#get_product_quantity').val()) || 1;
@@ -317,9 +332,23 @@ $(document).ready(function () {
         let editRowId = $('#edit_row_id').val();
         let productUid = $('#product_uid').val() || 'p_' + Date.now();
 
-        if (!productName) return alert('Please enter or select a product name.');
-        if (finalRate <= 0) return alert('Final rate must be greater than 0.');
-        if (quantity <= 0) return alert('Quantity must be greater than 0.');
+        if (!productName) {
+            alert('Please enter or select a product name.');
+            resetButton();
+            return;
+        }
+
+        if (finalRate <= 0) {
+            alert('Final rate must be greater than 0.');
+            resetButton();
+            return;
+        }
+
+        if (quantity <= 0) {
+            alert('Quantity must be greater than 0.');
+            resetButton();
+            return;
+        }
 
         const rowId = productUid;
 
@@ -348,7 +377,17 @@ $(document).ready(function () {
         $('#edit_row_id').val('');
         $('#product_uid').val('');
         updateTotals();
-    });
+
+        resetButton(); // Reset button at the end
+    }, 300); // Simulate short delay to show spinner
+
+    function resetButton() {
+        $spinner.addClass('d-none');
+        $text.removeClass('d-none');
+        $btn.prop('disabled', false);
+    }
+});
+
 
     function generateRowHTML(rowId, productName, finalRate, quantity, amount, action) {
         return `
@@ -414,59 +453,81 @@ $(document).ready(function () {
         updateTotals();
     };
 
-    $('#sale_btn').on('click', function (e) {
-        e.preventDefault();
+$('#sale_btn').on('click', function (e) {
+    e.preventDefault();
 
-        if ($('#purchase_product_tb tr').length === 0) {
-            alert('Please add at least one product to the order.');
-            return;
-        }
-        if ($('#branch_id').val() === null || $('#branch_id').val() === '') {
-            alert('Please select a branch.');
-            return;
-        }
+    const $btn = $(this);
+    const $spinner = $btn.find('.spinner-border');
+    const $text = $btn.find('.btn-text');
 
-        let formData = $('#sale_order_fm').serializeArray();
-        $.ajax({
-            url: $('#sale_order_fm').attr('action'),
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: response.message,
-                        showCancelButton: true,
-                        confirmButtonText: 'Print Order',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.open('print_sale.php?type=manualbill&id=' + response.order_id, '_blank');
-                            location.reload();
-                        } else {
-                            location.reload();
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message || 'An unknown error occurred.'
-                    });
-                }
-            },
-            error: function (xhr, status, error) {
-                console.log('Status:', status, 'Error:', error, 'Response:', xhr.responseText);
+    if ($('#purchase_product_tb tr').length === 0) {
+        alert('Please add at least one product to the order.');
+        return;
+    }
+
+    if ($('#branch_id').val() === null || $('#branch_id').val() === '') {
+        alert('Please select a branch.');
+        return;
+    }
+
+    // Show loader
+    $spinner.removeClass('d-none');
+    $text.addClass('d-none');
+    $btn.prop('disabled', true);
+
+    let formData = $('#sale_order_fm').serializeArray();
+
+    $.ajax({
+        url: $('#sale_order_fm').attr('action'),
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function (response) {
+            // Hide loader
+            resetButton();
+
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    showCancelButton: true,
+                    confirmButtonText: 'Print Order',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open('print_sale.php?type=manualbill&id=' + response.order_id, '_blank');
+                        location.reload();
+                    } else {
+                        location.reload();
+                    }
+                });
+            } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Request Failed',
-                    text: 'An error occurred while saving the order.'
+                    title: 'Error',
+                    text: response.message || 'An unknown error occurred.'
                 });
             }
-        });
+        },
+        error: function (xhr, status, error) {
+            resetButton();
+            console.log('Status:', status, 'Error:', error, 'Response:', xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Request Failed',
+                text: 'An error occurred while saving the order.'
+            });
+        }
     });
+
+    function resetButton() {
+        $spinner.addClass('d-none');
+        $text.removeClass('d-none');
+        $btn.prop('disabled', false);
+    }
+});
+
 });
     </script>
 </body>

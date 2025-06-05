@@ -44,8 +44,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
                   while ($row = mysqli_fetch_array($branch)) {
                     ?>
-                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?> class="text-capitalize"
-                      value="<?= $row['branch_id'] ?>">
+                    <option <?= (@$fetchPurchase['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
+                      class="text-capitalize" value="<?= $row['branch_id'] ?>">
                       <?= $row['branch_name'] ?>
                     </option>
                   <?php } ?>
@@ -162,12 +162,11 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               </div> -->
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Final Price</label>
-                <input type="number"  class="form-control"
-                  id="get_product_price">
+                <input type="number" class="form-control" id="get_product_price">
               </div>
               <div class="col-6 col-sm-2 col-md-1">
                 <label>Quantity</label>
-                <input type="number" class="form-control" id="get_product_quantity" value="" min="1" name="quantity" >
+                <input type="number" class="form-control" id="get_product_quantity" value="" min="1" name="quantity">
               </div>
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Amount</label>
@@ -177,8 +176,11 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
               <div class="col-sm-1">
                 <br>
-                <button type="button" class="btn btn-success btn-sm mt-2 float-right" id="addProductPurchase"><i
-                    class="fa fa-plus"></i> <b>Add</b></button>
+                <button type="button" class="btn btn-success btn-sm mt-2 float-right" id="addProductPurchase">
+                  <span class="btn-text"><i class="fa fa-plus"></i> <b>Add</b></span>
+                  <span class="spinner-border spinner-border-sm text-light ms-2 d-none" role="status"
+                    aria-hidden="true"></span>
+                </button>
               </div>
 
             </div>
@@ -310,7 +312,10 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               <div class="col-sm-12 d-flex justify-content-end">
                 <a href="lpo.php" class="btn btn-dark pt-2 float-right btn-sm">Cancel</a>
                 <button class="btn btn-admin ml-2 " name="sale_order_btn" value="print" type="submit"
-                  id="sale_order_btn">Save and Print</button>
+                  id="sale_order_btn">
+                  <span class="btn-text">Save and Print</span>
+                  <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
               </div>
             </div>
           </form>

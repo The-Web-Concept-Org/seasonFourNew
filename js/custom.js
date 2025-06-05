@@ -110,22 +110,30 @@ $(document).ready(function () {
   }); //main
   $("#sale_order_fm").on("submit", function (e) {
     e.preventDefault();
-    var form = $("#sale_order_fm")[0]; // Get raw DOM form element
+
+    var form = $("#sale_order_fm")[0];
     var formData = new FormData(form);
+
+    const $btn = $("#sale_order_btn");
+    const $spinner = $btn.find(".spinner-border");
+    const $text = $btn.find(".btn-text");
 
     $.ajax({
       type: "POST",
       url: $(form).attr("action"),
       data: formData,
       dataType: "json",
-      processData: false, // Don't process the data
-      contentType: false, // Let the browser set the content type
+      processData: false,
+      contentType: false,
       beforeSend: function () {
-        $("#sale_order_print").prop("disabled", true);
-        $("#sale_order_btn").prop("disabled", true);
+        // Show loader
+        $spinner.removeClass("d-none");
+        $text.addClass("d-none");
+        $btn.prop("disabled", true);
       },
       success: function (response) {
-        // console.log(response);
+        // Hide loader
+        resetButton();
 
         if (response.sts == "success") {
           $("#sale_order_fm")[0].reset();
@@ -149,21 +157,31 @@ $(document).ready(function () {
                 "_blank"
               );
               location.reload();
-            }else if (result.isDenied || result.dismiss === Swal.DismissReason.cancel) {
-        location.reload();
+            } else if (
+              result.isDenied ||
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
+              location.reload();
             }
           });
-        }
-        if (response.sts == "error") {
+        } else if (response.sts == "error") {
           sweeetalert(response.msg, response.sts, 1500);
         }
-        $("#sale_order_btn").prop("disabled", false);
       },
       error: function (xhr) {
         console.log("AJAX error:", xhr.responseText);
-        $("#sale_order_btn").prop("disabled", false);
+      },
+      complete: function () {
+        // Re-enable and reset button UI regardless of outcome
+        resetButton();
       },
     });
+
+    function resetButton() {
+      $spinner.addClass("d-none");
+      $text.removeClass("d-none");
+      $btn.prop("disabled", false);
+    }
   });
 
   $("#credit_order_client_name").on("change", function () {
@@ -587,99 +605,133 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 $("#addProductPurchase").on("click", function () {
-  var currentForm = $(this).closest("form");
-  var get_final_rate = currentForm.data("get-final-rate")?.toString() === "true";
+  const $btn = $(this);
+  const originalHtml = $btn.html();
 
-  var payment_type = $("#payment_type").val();
-  var isSaleReturn = $("#order_return").val() === "order_return";
+  // Add loader and disable button
+  $btn.html('<i class="fa fa-spinner fa-spin"></i>').prop("disabled", true);
 
-  var name = $("#get_product_name :selected").text();
-  var price = parseFloat($("#get_product_price").val());
-  var sale_price = parseFloat($("#get_product_sale_price").val());
-  var final_rate = $("#get_final_rate").val();
-  var id = $("#get_product_name").val();
-  var code = $("#get_product_code").val();
-  var product_quantity = parseInt($("#get_product_quantity").val());
-  var max_qty = parseInt($("#get_product_quantity").attr("max")) || 0;
-  var pro_type = $("#add_pro_type").val();
+  setTimeout(function () {
+    try {
+      var currentForm = $btn.closest("form"); // USE $btn INSTEAD OF this
+      var get_final_rate =
+        currentForm.data("get-final-rate")?.toString() === "true";
 
-  if (
-    payment_type === "cash_purchase" ||
-    payment_type === "credit_purchase" ||
-    isSaleReturn
-  ) {
-    max_qty = 99999999999; // Bypass stock limit for purchases or sale returns
-  }
+      var payment_type = $("#payment_type").val();
+      var isSaleReturn = $("#order_return").val() === "order_return";
 
-  // Stock check before proceeding
-  if (!isSaleReturn && product_quantity > max_qty) {
-    Swal.fire({
-      icon: "error",
-      title: "Out of Stock",
-      text: "Cannot add quantity more than available stock.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-    return;
-  }
+      var name = $("#get_product_name :selected").text();
+      var price = parseFloat($("#get_product_price").val());
+      var sale_price = parseFloat($("#get_product_sale_price").val());
+      var final_rate = $("#get_final_rate").val();
+      var id = $("#get_product_name").val();
+      var code = $("#get_product_code").val();
+      var product_quantity = parseInt($("#get_product_quantity").val());
+      var max_qty = parseInt($("#get_product_quantity").attr("max")) || 0;
+      var pro_type = $("#add_pro_type").val();
 
-  var total_price = price * product_quantity;
+      if (
+        payment_type === "cash_purchase" ||
+        payment_type === "credit_purchase" ||
+        isSaleReturn
+      ) {
+        max_qty = 99999999999;
+      }
 
-  // Reset input values
-  $("#get_product_name").val(null).trigger("change");
-  $("#add_pro_type").val("add");
-  $("#get_product_code").val("");
-  $("#get_product_price").val("");
-  $("#get_product_sale_price").val("");
-  $("#get_final_rate").val("");
-  $("#instockQty").text("instock :0");
-  $("#get_product_quantity").val("");
+      if (!isSaleReturn && product_quantity > max_qty) {
+        Swal.fire({
+          icon: "error",
+          title: "Out of Stock",
+          text: "Cannot add quantity more than available stock.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        return;
+      }
 
-  if (!id || !product_quantity || !code) {
-    Swal.fire({
-      icon: "error",
-      title: "Missing Information",
-      text: "Please make sure to select product and quantity.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-    return;
-  }
+      var total_price = price * product_quantity;
 
-  // If product already exists in table
-  if ($("#product_idN_" + id).length) {
-    $(".product_ids").each(function () {
-      var quantity = $(this).data("quantity");
-      var val = $(this).val();
+      if (!id || !product_quantity || !code) {
+        Swal.fire({
+          icon: "error",
+          title: "Missing Information",
+          text: "Please make sure to select product and quantity.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        return;
+      }
 
-      if (val === id) {
-        var Currentquantity =
-          pro_type === "add"
-            ? parseInt(quantity) + parseInt(product_quantity)
-            : parseInt(product_quantity);
+      // Reset inputs before append (optional timing choice)
+      $("#get_product_name").val(null).trigger("change");
+      $("#add_pro_type").val("add");
+      $("#get_product_code").val("");
+      $("#get_product_price").val("");
+      $("#get_product_sale_price").val("");
+      $("#get_final_rate").val("");
+      $("#instockQty").text("instock :0");
+      $("#get_product_quantity").val("");
 
-        // Extra stock check again
-        if (!isSaleReturn && Currentquantity > max_qty) {
-          Swal.fire({
-            icon: "error",
-            title: "Stock Limit Exceeded",
-            text: "Cannot add quantity more than available stock.",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-          return false;
-        }
+      if ($("#product_idN_" + id).length) {
+        $(".product_ids").each(function () {
+          var quantity = $(this).data("quantity");
+          var val = $(this).val();
 
-        var updated_total = price * Currentquantity;
+          if (val === id) {
+            var Currentquantity =
+              pro_type === "add"
+                ? parseInt(quantity) + parseInt(product_quantity)
+                : parseInt(product_quantity);
 
-        $("#product_idN_" + id).replaceWith(`
+            if (!isSaleReturn && Currentquantity > max_qty) {
+              Swal.fire({
+                icon: "error",
+                title: "Stock Limit Exceeded",
+                text: "Cannot add quantity more than available stock.",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+              return false;
+            }
+
+            var updated_total = price * Currentquantity;
+
+            $("#product_idN_" + id).replaceWith(`
+              <tr id="product_idN_${id}">
+                <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
+                       id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
+                <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
+                <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
+                <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${updated_total}">
+                <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${updated_total}">
+                <td>${code}</td>
+                <td>${name}</td>
+                <td>${price}</td>
+                ${
+                  get_final_rate
+                    ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+                       <td>${final_rate}</td>`
+                    : ""
+                }
+                <td>${Currentquantity}</td>
+                <td>${updated_total}</td>
+                <td>
+                  <button type="button" onclick="removeByid('#product_idN_${id}')" class="fa fa-trash text-danger"></button>
+                  <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
+                </td>
+              </tr>
+            `);
+          }
+        });
+      } else {
+        $("#purchase_product_tb").append(`
           <tr id="product_idN_${id}">
-            <input type="hidden" data-price="${price}" data-quantity="${Currentquantity}" 
+            <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
                    id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-            <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${Currentquantity}">
+            <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
             <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
-            <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${updated_total}">
-            <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${updated_total}">
+            <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
+            <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
             <td>${code}</td>
             <td>${name}</td>
             <td>${price}</td>
@@ -689,8 +741,8 @@ $("#addProductPurchase").on("click", function () {
                    <td>${final_rate}</td>`
                 : ""
             }
-            <td>${Currentquantity}</td>
-            <td>${updated_total}</td>
+            <td>${product_quantity}</td>
+            <td>${total_price}</td>
             <td>
               <button type="button" onclick="removeByid('#product_idN_${id}')" class="fa fa-trash text-danger"></button>
               <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
@@ -698,45 +750,16 @@ $("#addProductPurchase").on("click", function () {
           </tr>
         `);
       }
-    });
-  } else {
-    $("#purchase_product_tb").append(`
-      <tr id="product_idN_${id}">
-        <input type="hidden" data-price="${price}" data-quantity="${product_quantity}" 
-               id="product_ids_${id}" class="product_ids" name="product_ids[]" value="${id}">
-        <input type="hidden" id="product_quantites_${id}" name="product_quantites[]" value="${product_quantity}">
-        <input type="hidden" id="product_rate_${id}" name="product_rates[]" value="${price}">
-        <input type="hidden" id="product_totalrate_${id}" name="product_totalrates[]" value="${total_price}">
-        <input type="hidden" id="product_salerate_${id}" name="product_salerates[]" value="${sale_price}">
-        <td>${code}</td>
-        <td>${name}</td>
-        <td>${price}</td>
-        ${
-          get_final_rate
-            ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
-               <td>${final_rate}</td>`
-            : ""
-        }
-        <td>${product_quantity}</td>
-        <td>${total_price}</td>
-        <td>
-          <button type="button" onclick="removeByid('#product_idN_${id}')" class="fa fa-trash text-danger"></button>
-          <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
-        </td>
-      </tr>
-    `);
-  }
 
-  getOrderTotal();
-  $("#purchase_type").change();
-  $("#sale_type").change();
+      getOrderTotal();
+      $("#purchase_type").change();
+      $("#sale_type").change();
+    } finally {
+      // Re-enable button and remove loader
+      $btn.html(originalHtml).prop("disabled", false);
+    }
+  }, 100);
 });
-
-
-
-
-
-
 
 function removeByid(id) {
   $(id).remove();
