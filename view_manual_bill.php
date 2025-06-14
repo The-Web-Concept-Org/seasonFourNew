@@ -69,7 +69,7 @@
                 }
 
                 // Fetch purchases
-                $q = mysqli_query($dbc, "SELECT * FROM manual_bill $branch_filter ORDER BY order_date DESC");
+                $q = mysqli_query($dbc, "SELECT * FROM manual_bill $branch_filter ORDER BY timestamp DESC");
 
 
                 $c = 0;
@@ -80,7 +80,7 @@
 
 
                   <tr>
-                    <td><?= $r['order_date'] ?></td>
+                    <td><?= $r['timestamp'] ?></td>
                     <td><?= ucfirst($r['customer_name']) ?></td>
                     <td><?= $r['customer_phone'] ?></td>
                     <td><?= $r['grand_total'] ?></td>

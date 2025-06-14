@@ -114,6 +114,9 @@ $(document).ready(function () {
     var form = $("#sale_order_fm")[0];
     var formData = new FormData(form);
 
+    for (var pair of formData.entries()) {
+    console.log(pair[0] + ': ' + pair[1]);
+}
     const $btn = $("#sale_order_btn");
     const $spinner = $btn.find(".spinner-border");
     const $text = $btn.find(".btn-text");
@@ -1274,38 +1277,41 @@ let purchaseType = (value) => {
     $("#payment_type").val("credit_purchase");
   }
 };
-let saleType = (value) => {
-  if (value == "cash") {
-    let total_amount = $("#product_grand_total_amount").text();
-    $("#paid_ammount").val(total_amount);
-    $("#paid_ammount").attr("readonly", true);
-    $("#remaining_ammount").val(0);
-    $("#payment_type").val("cash_in_hand");
-    $("#form_type").val("cash_in_hand");
-    $(".return_days-div").hide();
-    $(".cash-sale-div1").show();
-    $(".cash-sale-div2").show();
-    $(".input-group-prepend").hide();
-    $("#credit_order_client_name").attr("name", "zksjf");
-    $("#sale_order_client_name").attr("name", "sale_order_client_name");
-    $("#client_contact").attr("name", "sdsa");
-  } else {
-    let total_amount = $("#product_grand_total_amount").text();
-    $("#paid_ammount").val(0);
-    $("#payment_type").val("credit_sale");
-    $("#form_type").val("credit_sale");
-    $("#credit_order_client_name").attr("name", "credit_order_client_name");
-    $("#sale_order_client_name").attr("name", "skd");
-    $("#client_contact").attr("name", "client_contact");
-    $("#remaining_ammount").val(total_amount);
-    $("#paid_ammount").attr("readonly", false);
-    $(".return_days-div").show();
-    $(".input-group-prepend").show();
-    $(".cash-sale-div1").hide();
-    $(".cash-sale-div2").hide();
-  }
-};
 
+let saleType = (value) => {
+    if (value == "cash") {
+        let total_amount = $("#product_grand_total_amount").text();
+        $("#paid_ammount").val(total_amount);
+        $("#paid_ammount").attr("readonly", false);
+        $("#remaining_ammount").val(0);
+        $("#payment_type").val("cash_in_hand");
+        $("#form_type").val("cash_in_hand");
+        $(".return_days-div").hide();
+        $(".cash-sale-div1").show();
+        $(".cash-sale-div2").show();
+        $(".input-group-prepend").hide();
+        $("#credit_order_client_name").attr("name", "zksjf");
+        $("#sale_order_client_name").attr("name", "sale_order_client_name");
+        $("#client_contact").attr("name", "sdsa");
+        $("#split_payment_container").show(); // Show split payment checkbox
+    } else {
+        let total_amount = $("#product_grand_total_amount").text();
+        $("#paid_ammount").val(0);
+        $("#payment_type").val("credit_sale");
+        $("#form_type").val("credit_sale");
+        $("#credit_order_client_name").attr("name", "credit_order_client_name");
+        $("#sale_order_client_name").attr("name", "skd");
+        $("#client_contact").attr("name", "client_contact");
+        $("#remaining_ammount").val(total_amount);
+        $("#paid_ammount").attr("readonly", false);
+        $(".return_days-div").show();
+        $(".input-group-prepend").show();
+        $(".cash-sale-div1").hide();
+        $(".cash-sale-div2").hide();
+        $("#split_payment_container").hide(); // Hide split payment checkbox
+        toggleSplitPayment(false); // Reset split payment state
+    }
+};
 $(document).ready(function () {
   $("#sale_type").change();
   function calculateQuantity() {
