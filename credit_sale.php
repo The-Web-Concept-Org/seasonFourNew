@@ -341,7 +341,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td class="table-bordered" id="product_total_amount">
                                                 <?= @$fetchOrder['total_amount'] ?>
                                             </td>
-                                            <td class="table-bordered"> </td>
+
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -361,7 +361,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                                 </div>
                                             </td>
-                                            <td class="table-bordered"> </td>
+
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -370,42 +370,45 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td class="table-bordered" id="product_grand_total_amount">
                                                 <?= @$fetchOrder['grand_total'] ?>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
+
+
                                         <tr>
                                             <td colspan="5"></td>
-
-                                            <td class="table-bordered">Paid :</td>
+                                            <td class="table-bordered">
+                                                Paid:
+                                                <div id="split_payment_container">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" value="1"
+                                                            id="split_payment" name="split_payment"
+                                                            onchange="toggleSplitPayment()"
+                                                            <?= !empty($fetchOrder['cash_paid']) || !empty($fetchOrder['bank_paid']) ? 'checked' : '' ?>>
+                                                        <label class="custom-control-label" for="split_payment">Split
+                                                            Payment</label>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td class="table-bordered">
                                                 <div class="form-group row">
                                                     <div class="col-sm-12">
                                                         <input type="text" min="0" class="form-control form-control-sm"
                                                             id="paid_ammount" required onkeyup="getRemaingAmount()"
-                                                            name="paid_ammount"
-                                                            value=" <?= @isset($fetchOrder['paid']) ? $fetchOrder['paid'] : "0" ?>">
+                                                            oninput="handlePaidAmountChange()" name="paid_ammount"
+                                                            value="<?= @empty($_REQUEST['edit_order_id']) ? "0" : $fetchOrder['paid'] ?>">
                                                     </div>
-                                                    <!-- <div class="col-sm-6">
-                             <div class="custom-control custom-switch">
-                               <input type="checkbox" class="custom-control-input" id="full_payment_check">
-                               <label class="custom-control-label" for="full_payment_check">Full Payment</label>
-                             </div>
-                           </div> -->
                                                 </div>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
-                                        <tr>
+                                        <!-- Default Account Row -->
+                                        <tr id="account_row">
                                             <td colspan="5"></td>
-
-                                            <td class="table-bordered">Account :</td>
+                                            <td class="table-bordered">Account:</td>
                                             <td class="table-bordered">
-
                                                 <div class="input-group">
                                                     <select class="form-control"
                                                         onchange="getBalance(this.value,'payment_account_bl')"
-                                                        name="payment_account" id="payment_account"
-                                                        aria-label="Username" aria-describedby="basic-addon1">
-
+                                                        name="payment_account" id="payment_account">
+                                                        <option value="" selected>Select Account</option>
                                                         <?php
                                                         $branch_id = $_SESSION['branch_id'];
                                                         $user_role = $_SESSION['user_role'];
@@ -417,7 +420,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                         }
 
                                                         $q = mysqli_query($dbc, $sql);
-
                                                         while ($r = mysqli_fetch_assoc($q)):
                                                             ?>
                                                             <option <?= @($fetchOrder['payment_account'] == $r['customer_id']) ? "selected" : "" ?> value="<?= $r['customer_id'] ?>">
@@ -426,25 +428,91 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                         <?php endwhile; ?>
                                                     </select>
                                                     <div class="input-group-prepend">
-                                                        <span class="input-group-text" id="basic-addon1">Balance : <span
-                                                                id="payment_account_bl">0</span> </span>
+                                                        <span class="input-group-text">Balance: <span
+                                                                id="payment_account_bl">0</span></span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
-                                        <tr>
+
+                                        <!-- Remaining Amount Row -->
+                                        <tr id="remaining_row">
                                             <td colspan="5"></td>
-
-                                            <td class="table-bordered">Remaing Amount :</td>
-                                            <td class="table-bordered"><input type="number"
-                                                    class="form-control form-control-sm" id="remaining_ammount" required
-                                                    readonly name="remaining_ammount"
+                                            <td class="table-bordered">Remaining Amount:</td>
+                                            <td class="table-bordered">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    id="remaining_ammount" readonly name="remaining_ammount"
                                                     value="<?= @$fetchOrder['due'] ?>">
-                                            <td class="table-bordered"> </td>
+                                            </td>
                                         </tr>
 
+                                                <tr id="split_payment_row" style="display: none;">
+                                                    <td colspan="5"></td>
 
+                                                    <!-- Cash Details Column -->
+                                                    <td class="table-bordered">
+                                                        <strong>Cash Amount:</strong>
+                                                        <div class="input-group mb-1">
+                                                            <input type="number" name="cash_amount" id="cash_amount"
+                                                                class="form-control form-control-sm" min="0"
+                                                                placeholder="Cash Amount"
+                                                                value="<?= @isset($fetchOrder['cash_paid']) ? $fetchOrder['cash_paid'] : "0" ?>">
+                                                        </div>
+                                                        <div class="input-group">
+                                                            <select class="form-control form-control-sm" name="cash_account" id="cash_account">
+                                                                <option selected value="">Select Cash Account</option>
+                                                                <?php
+                                                                $branch_id = $_SESSION['branch_id'];
+                                                                $user_role = $_SESSION['user_role'];
+
+                                                                $sql = ($user_role === 'admin')
+                                                                    ? "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank'"
+                                                                    : "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank' AND branch_id = '$branch_id'";
+
+                                                                $q = mysqli_query($dbc, $sql);
+                                                                while ($r = mysqli_fetch_assoc($q)): ?>
+                                                                    <option <?= @($fetchOrder['cash_payment_account'] == $r['customer_id']) ? "selected" : "" ?>
+                                                                        value="<?= $r['customer_id'] ?>">
+                                                                        <?= $r['customer_name'] ?>
+                                                                    </option>
+                                                                <?php endwhile; ?>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Bank Details Column -->
+                                                    <td class="table-bordered">
+                                                        <strong>Bank Amount:</strong>
+                                                        <div class="input-group mb-1">
+                                                            <input type="number" name="bank_amount" id="bank_amount"
+                                                                class="form-control form-control-sm" min="0"
+                                                                placeholder="Bank Amount"
+                                                                value="<?= @isset($fetchOrder['bank_paid']) ? $fetchOrder['bank_paid'] : "0" ?>">
+                                                        </div>
+                                                        <div class="input-group">
+                                                            <select class="form-control form-control-sm" name="bank_account" id="bank_account">
+                                                                <option selected value="">Select Bank Account</option>
+                                                                <?php
+                                                                mysqli_data_seek($q, 0); // reset query pointer for reuse
+                                                                while ($r = mysqli_fetch_assoc($q)): ?>
+                                                                    <option <?= @($fetchOrder['bank_payment_account'] == $r['customer_id']) ? "selected" : "" ?>
+                                                                        value="<?= $r['customer_id'] ?>">
+                                                                        <?= $r['customer_name'] ?>
+                                                                    </option>
+                                                                <?php endwhile; ?>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+
+                                        <!-- Error Message Row -->
+                                        <tr id="split_error_row" style="display: none;">
+                                            <td colspan="5"></td>
+                                            <td colspan="2" class="text-danger font-weight-bold">
+                                                Cash + Bank must equal Paid Amount
+                                            </td>
+                                        </tr>
                                     </tfoot>
                                 </table>
                             </div>
@@ -471,6 +539,139 @@ if (!empty($_REQUEST['edit_order_id'])) {
     </div> <!-- .wrapper -->
 
 </body>
+
+<script>
+    let bankAutoFill = true;
+
+function toggleSplitPayment() {
+    const isSplit = document.getElementById('split_payment').checked;
+
+    document.getElementById('account_row').style.display = isSplit ? 'none' : '';
+    document.getElementById('remaining_row').style.display = isSplit ? 'none' : '';
+    document.getElementById('split_payment_row').style.display = isSplit ? '' : 'none';
+
+    document.getElementById('split_error_row').style.display = 'none';
+
+    const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
+    document.getElementById('cash_amount').setAttribute('max', paid);
+
+    const paymentAccountEl = document.getElementById('payment_account');
+    const cashAmountEl = document.getElementById('cash_amount');
+    const bankAmountEl = document.getElementById('bank_amount');
+    const cashAccountEl = document.getElementById('cash_account');
+    const bankAccountEl = document.getElementById('bank_account');
+
+    if (isSplit) {
+        //  Clear payment account (single field)
+        if (paymentAccountEl) {
+            paymentAccountEl.value = '';
+            paymentAccountEl.removeAttribute('required');
+        }
+
+        // Add required to split fields
+        if (cashAmountEl) cashAmountEl.setAttribute('required', true);
+        if (bankAmountEl) bankAmountEl.setAttribute('required', true);
+        if (cashAccountEl) cashAccountEl.setAttribute('required', true);
+        if (bankAccountEl) bankAccountEl.setAttribute('required', true);
+
+        const cashVal = parseFloat(cashAmountEl.value) || 0;
+        const bankVal = parseFloat(bankAmountEl.value) || 0;
+
+        if (cashVal === 0 && bankVal === 0) {
+            cashAmountEl.value = "";
+            bankAmountEl.value = paid;
+            bankAutoFill = true;
+        }
+
+    } else {
+        //  Clear split values
+        if (cashAmountEl) {
+            cashAmountEl.value = 0;
+            cashAmountEl.removeAttribute('required');
+        }
+
+        if (bankAmountEl) {
+            bankAmountEl.value = 0;
+            bankAmountEl.removeAttribute('required');
+        }
+
+        if (cashAccountEl) cashAccountEl.removeAttribute('required');
+        if (bankAccountEl) bankAccountEl.removeAttribute('required');
+
+        //  Add required to single payment account
+        if (paymentAccountEl) paymentAccountEl.setAttribute('required', true);
+    }
+}
+
+
+
+function handlePaidAmountChange() {
+    const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
+    const total = parseFloat(document.getElementById('total_amount')?.value) || 0;
+    const remaining = total - paid;
+    document.getElementById('remaining_ammount').value = remaining > 0 ? remaining : 0;
+
+    document.getElementById('cash_amount').setAttribute('max', paid);
+
+    const isSplit = document.getElementById('split_payment').checked;
+
+    if (isSplit && bankAutoFill) {
+        const cash = parseFloat(document.getElementById('cash_amount').value) || 0;
+        const bank = paid - cash;
+        document.getElementById('bank_amount').value = bank > 0 ? bank : 0;
+    }
+
+    validateSplit();
+}
+
+
+document.getElementById('cash_amount').addEventListener('input', function () {
+        const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
+        const cash = parseFloat(this.value) || 0;
+        if (cash <= paid) {
+            document.getElementById('bank_amount').value = paid - cash;
+            bankAutoFill = true;
+        }
+        validateSplit();
+    });
+
+    document.getElementById('bank_amount').addEventListener('input', function () {
+        bankAutoFill = false;
+        validateSplit();
+    });
+function validateSplit() {
+    const isSplit = document.getElementById('split_payment').checked;
+    const errorRow = document.getElementById('split_error_row');
+    const savebtn = document.getElementById('sale_order_btn');
+
+    if (!isSplit) {
+        errorRow.style.display = 'none';
+        return;
+    }
+
+    const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
+    const cash = parseFloat(document.getElementById('cash_amount').value) || 0;
+    const bank = parseFloat(document.getElementById('bank_amount').value) || 0;
+    const total = cash + bank;
+
+    if (Math.abs(total - paid) > 0.01) {
+    errorRow.style.display = '';
+    if (savebtn) savebtn.disabled = true;
+} else {
+    errorRow.style.display = 'none';
+    if (savebtn) savebtn.disabled = false;
+}
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    toggleSplitPayment();
+    handlePaidAmountChange();
+    validateSplit();
+
+    
+});
+
+</script>
 
 </html>
 

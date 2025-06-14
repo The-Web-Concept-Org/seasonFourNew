@@ -73,7 +73,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <div class="w-100 pe-1 pl-1">
                                     <label>Date</label>
                                     <input type="text" name="order_date" id="order_date"
-                                        value="<?= empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['order_date'] ?>"
+                                        value="<?= empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['timestamp'] ?>"
                                         class="form-control">
                                 </div>
                             </div>

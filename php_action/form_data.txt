@@ -1,0 +1,195 @@
+[2025-06-13 17:11:21] Form Data: Array
+(
+    [product_order_id] => 
+    [payment_type] => cash_in_hand
+    [form_type] => cash_in_hand
+    [price_type] => sale
+    [quotation_form] => 
+    [user_id] => 1
+    [branch_id] => 4
+    [next_increment] => SF25-SR-81
+    [order_date] => 2025-06-13
+    [credit_sale_type] => 15days
+    [sale_type] => cash
+    [client_contact] => 
+    [sale_order_client_name] => Cash
+    [zksjf] => 
+    [customer_account] => 
+    [sdsa] => 
+    [R_Limit] => 1350
+    [order_narration] => 
+    [return_days] => 
+    [product_code] => 
+    [product_id] => 
+    [quantity] => 
+    [product_ids] => Array
+        (
+            [0] => 3
+        )
+
+    [product_quantites] => Array
+        (
+            [0] => 2
+        )
+
+    [product_rates] => Array
+        (
+            [0] => 100
+        )
+
+    [product_totalrates] => Array
+        (
+            [0] => 200
+        )
+
+    [product_salerates] => Array
+        (
+            [0] => 200
+        )
+
+    [product_final_rates] => Array
+        (
+            [0] => 0
+        )
+
+    [ordered_discount] => 0
+    [freight] => 0
+    [paid_ammount] => 200
+    [payment_account] => 44
+    [remaining_ammount] => 0
+    [cash_amount] => 
+    [cash_account] => 
+    [bank_amount] => 
+    [bank_account] => 
+)
+
+[2025-06-13 17:13:35] Form Data: Array
+(
+    [product_order_id] => 
+    [payment_type] => cash_in_hand
+    [form_type] => cash_in_hand
+    [price_type] => sale
+    [quotation_form] => 
+    [user_id] => 1
+    [branch_id] => 4
+    [next_increment] => SF25-SR-81
+    [order_date] => 2025-06-13
+    [credit_sale_type] => 15days
+    [sale_type] => cash
+    [client_contact] => 
+    [sale_order_client_name] => Cash
+    [zksjf] => 
+    [customer_account] => 
+    [sdsa] => 
+    [R_Limit] => 
+    [order_narration] => 
+    [return_days] => 
+    [product_code] => 
+    [product_id] => 
+    [quantity] => 
+    [product_ids] => Array
+        (
+            [0] => 1
+        )
+
+    [product_quantites] => Array
+        (
+            [0] => 2
+        )
+
+    [product_rates] => Array
+        (
+            [0] => 100
+        )
+
+    [product_totalrates] => Array
+        (
+            [0] => 200
+        )
+
+    [product_salerates] => Array
+        (
+            [0] => 200
+        )
+
+    [product_final_rates] => Array
+        (
+            [0] => 0
+        )
+
+    [ordered_discount] => 0
+    [freight] => 0
+    [paid_ammount] => 200
+    [payment_account] => 
+    [remaining_ammount] => 0
+    [cash_amount] => 
+    [cash_account] => 
+    [bank_amount] => 
+    [bank_account] => 
+)
+
+[2025-06-13 17:14:37] Form Data: Array
+(
+    [product_order_id] => 
+    [payment_type] => cash_in_hand
+    [form_type] => cash_in_hand
+    [price_type] => sale
+    [quotation_form] => 
+    [user_id] => 1
+    [branch_id] => 4
+    [next_increment] => SF25-SR-81
+    [order_date] => 2025-06-13
+    [credit_sale_type] => 15days
+    [sale_type] => cash
+    [client_contact] => 
+    [sale_order_client_name] => Cash
+    [zksjf] => 
+    [customer_account] => 
+    [sdsa] => 
+    [R_Limit] => 
+    [order_narration] => 
+    [return_days] => 
+    [product_code] => 
+    [product_id] => 
+    [quantity] => 
+    [product_ids] => Array
+        (
+            [0] => 1
+        )
+
+    [product_quantites] => Array
+        (
+            [0] => 2
+        )
+
+    [product_rates] => Array
+        (
+            [0] => 100
+        )
+
+    [product_totalrates] => Array
+        (
+            [0] => 200
+        )
+
+    [product_salerates] => Array
+        (
+            [0] => 200
+        )
+
+    [product_final_rates] => Array
+        (
+            [0] => 0
+        )
+
+    [ordered_discount] => 0
+    [freight] => 0
+    [paid_ammount] => 200
+    [payment_account] => 
+    [remaining_ammount] => 0
+    [cash_amount] => 
+    [cash_account] => 
+    [bank_amount] => 
+    [bank_account] => 
+)
+

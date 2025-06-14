@@ -548,6 +548,263 @@ if (!empty($_REQUEST['getPrice'])) {
 }
 
 /*---------------------- cash sale-order   -------------------------------------------------------------------*/
+// if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'])) {
+// 	$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
+// 	if (!empty($_REQUEST['product_ids'])) {
+// 		# code...
+// 		//print_r(json_encode($_REQUEST));
+// 		$total_ammount = $total_grand = 0;
+
+// 		$data = [
+// 			'order_date' => $_REQUEST['order_date'],
+// 			'client_name' => $_REQUEST['sale_order_client_name'],
+// 			'client_contact' => $_REQUEST['client_contact'],
+// 			'paid' => @$_REQUEST['paid_ammount'],
+// 			'payment_account' => @$_REQUEST['payment_account'],
+// 			'payment_type' => 'cash',
+// 			'vehicle_no' => @$_REQUEST['vehicle_no'],
+// 			'order_narration' => @$_REQUEST['order_narration'],
+// 			'freight' => @$_REQUEST['freight'],
+// 			'branch_id' => $_REQUEST['branch_id'],
+// 			'user_id' => $_REQUEST['user_id'],
+// 		];
+
+// 		if ($_REQUEST['product_order_id'] == "") {
+
+// 			if (insert_data($dbc, 'orders', $data)) {
+// 				$last_id = mysqli_insert_id($dbc);
+// 				if (!empty($_FILES['order_file']['tmp_name'])) {
+// 					$uploadDir = '../img/uploads/';
+// 					$fileName = time() . '_' . basename($_FILES['order_file']['name']);
+// 					$uploadPath = $uploadDir . $fileName;
+
+// 					if (move_uploaded_file($_FILES['order_file']['tmp_name'], $uploadPath)) {
+// 						$data = [
+// 							'order_file' => $fileName,
+// 						];
+
+// 						update_data($dbc, "orders", $data, "order_id", $last_id);
+// 					}
+// 				}
+// 				$paidAmount = @(float) $_REQUEST['paid_ammount'];
+// 				if ($paidAmount > 0) {
+// 					$debit = [
+// 						'credit' => @$_REQUEST['paid_ammount'],
+// 						'debit' => 0,
+// 						'customer_id' => @$_REQUEST['payment_account'],
+// 						'transaction_from' => 'Sale',
+// 						'transaction_type' => "cash_in_hand",
+// 						'transaction_remarks' => "cash_sale by order id#" . $last_id,
+// 						'transaction_date' => $_REQUEST['order_date'],
+// 					];
+// 					insert_data($dbc, 'transactions', $debit);
+// 					$transaction_paid_id = mysqli_insert_id($dbc);
+// 				}
+
+// 				$x = 0;
+// 				foreach ($_REQUEST['product_ids'] as $key => $value) {
+
+// 					$total = $qty = 0;
+// 					$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+// 					$product_rates = (float) $_REQUEST['product_rates'][$x];
+// 					$total = (float) $product_quantites * $product_rates;
+// 					$total_ammount += (float) $total;
+// 					$order_items = [
+// 						'product_id' => $_REQUEST['product_ids'][$x],
+// 						'final_rate' => $_REQUEST['product_final_rates'][$x],
+// 						'rate' => $product_rates,
+// 						'total' => $total,
+// 						'order_id' => $last_id,
+// 						'quantity' => $product_quantites,
+// 						'product_detail' => @$_REQUEST['product_detail'][$x],
+// 						'order_item_status' => 1,
+// 						'branch_id' => $_REQUEST['branch_id'],
+// 						'user_id' => $_REQUEST['user_id'],
+// 					];
+// 					if ($get_company['stock_manage'] == 1) {
+// 						$product_id = $_REQUEST['product_ids'][$x];
+// 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
+// 						@$qty = (float) $quantity_instock['quantity_instock'] - (float) $product_quantites;
+// 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+// 						$branch_id = $_REQUEST['branch_id'];
+// 						$user_id = $_SESSION['user_id'];
+// 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
+// 						if (mysqli_num_rows($inventory) > 0) {
+
+// 							$inventory = mysqli_fetch_assoc($inventory);
+// 							$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
+
+// 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
+// 						}
+// 					}
+// 					insert_data($dbc, 'order_item', $order_items);
+
+// 					$x++;
+// 				} //end of foreach
+// 				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+
+// 				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
+
+// 				if ($due_amount > 0) {
+// 					$payment_status = 0; //pending
+
+// 				} else {
+// 					$payment_status = 1; //completed
+
+// 				}
+// 				$newOrder = [
+// 					'total_amount' => $total_ammount,
+// 					'discount' => $_REQUEST['ordered_discount'],
+// 					'grand_total' => $total_grand,
+// 					'payment_status' => $payment_status,
+// 					'due' => $due_amount,
+// 					'order_status' => 1,
+// 					'transaction_paid_id' => @$transaction_paid_id,
+// 				];
+// 				if (update_data($dbc, 'orders', $newOrder, 'order_id', $last_id)) {
+// 					# code...
+// 					//echo "<script>alert('company Updated....!')</script>";
+// 					$msg = "Order Has been Added";
+// 					$sts = 'success';
+// 				} else {
+// 					$msg = mysqli_error($dbc);
+// 					$sts = "danger";
+// 				}
+// 			} else {
+// 				$msg = mysqli_error($dbc);
+// 				$sts = "danger";
+// 			}
+// 		} else {
+// 			if (update_data($dbc, 'orders', $data, 'order_id', $_REQUEST['product_order_id'])) {
+// 				$last_id = $_REQUEST['product_order_id'];
+// 				if (!empty($_FILES['order_file']['tmp_name'])) {
+// 					$uploadDir = '../img/uploads/';
+// 					$fileName = time() . '_' . basename($_FILES['order_file']['name']);
+// 					$uploadPath = $uploadDir . $fileName;
+
+// 					if (move_uploaded_file($_FILES['order_file']['tmp_name'], $uploadPath)) {
+// 						$data = [
+// 							'order_file' => $fileName,
+// 						];
+
+// 						update_data($dbc, "orders", $data, "order_id", $last_id);
+// 					}
+// 				}
+
+// 				if ($get_company['stock_manage'] == 1) {
+// 					$proQ = get($dbc, "order_item WHERE order_id='" . $last_id . "' ");
+
+// 					while ($proR = mysqli_fetch_assoc($proQ)) {
+// 						$newqty = 0;
+// 						$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
+// 						$newqty = (float) $quantity_instock['quantity_instock'] + (float) $proR['quantity'];
+// 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+
+// 						$branch_id = $_SESSION['branch_id'];
+// 						$user_id = $_SESSION['user_id'];
+// 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
+// 						if (mysqli_num_rows($inventory) > 0) {
+// 							$inventory = mysqli_fetch_assoc($inventory);
+// 							$inventory_qty = (float) $inventory['quantity_instock'] + $proR['quantity'];
+// 							$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
+// 						}
+// 					}
+
+
+// 					deleteFromTable($dbc, "order_item", 'order_id', $_REQUEST['product_order_id']);
+
+// 					$x = 0;
+// 					foreach ($_REQUEST['product_ids'] as $key => $value) {
+// 						$total = $qty = 0;
+// 						$product_quantites = (float) $_REQUEST['product_quantites'][$x];
+// 						$product_rates = (float) $_REQUEST['product_rates'][$x];
+// 						$total = $product_quantites * $product_rates;
+// 						$total_ammount += (float) $total;
+
+// 						$order_items = [
+// 							'product_id' => $_REQUEST['product_ids'][$x],
+// 							'rate' => $product_rates,
+// 							'total' => $total,
+// 							'order_id' => $_REQUEST['product_order_id'],
+// 							'quantity' => $product_quantites,
+// 							'product_detail' => @$_REQUEST['product_detail'][$x],
+// 							'order_item_status' => 1,
+// 							'branch_id' => $_REQUEST['branch_id'],
+// 							'user_id' => $_REQUEST['user_id'],
+// 						];
+// 						if ($get_company['stock_manage'] == 1) {
+// 							$product_id = $_REQUEST['product_ids'][$x];
+// 							$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $product_id . "' "));
+// 							$qty = (float) $quantity_instock['quantity_instock'] - $product_quantites;
+// 							$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
+
+// 							$branch_id = $_SESSION['branch_id'];
+// 							$user_id = $_SESSION['user_id'];
+// 							$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+// 							if (mysqli_num_rows($inventory) > 0) {
+// 								$inventory = mysqli_fetch_assoc($inventory);
+// 								$inventory_qty = (float) $inventory['quantity_instock'] - $product_quantites;
+
+// 								$inventory_update = mysqli_query($dbc, "UPDATE inventory SET  quantity_instock='$inventory_qty' WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' AND user_id='" . $user_id . "' ");
+// 							}
+// 						}
+// 						//update_data($dbc,'order_item', $order_items , 'order_id',$_REQUEST['product_order_id']);
+// 						insert_data($dbc, 'order_item', $order_items);
+
+// 						$x++;
+// 					} //end of foreach
+// 					$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+// 					$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
+// 					if ($due_amount > 0) {
+// 						$payment_status = 0; //pending
+
+// 					} else {
+// 						$payment_status = 1; //completed
+
+// 					}
+// 					$newOrder = [
+
+// 						'total_amount' => $total_ammount,
+// 						'discount' => $_REQUEST['ordered_discount'],
+// 						'grand_total' => $total_grand,
+// 						'payment_status' => $payment_status,
+// 						'due' => $due_amount,
+// 					];
+// 					$paidAmount = @(float) $_REQUEST['paid_ammount'];
+// 					if ($paidAmount > 0) {
+// 						$credit1 = [
+// 							'credit' => @$_REQUEST['paid_ammount'],
+// 							'debit' => 0,
+// 							'customer_id' => @$_REQUEST['payment_account'],
+
+// 						];
+// 						$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
+// 						update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
+// 					}
+// 					if (update_data($dbc, 'orders', $newOrder, 'order_id', $_REQUEST['product_order_id'])) {
+// 						# code...
+// 						//echo "<script>alert('company Updated....!')</script>";
+// 						$msg = "Data Has been Updated";
+// 						$sts = 'success';
+// 					} else {
+// 						$msg = mysqli_error($dbc);
+// 						$sts = "danger";
+// 					}
+// 				} else {
+// 					$msg = mysqli_error($dbc);
+// 					$sts = "danger";
+// 				}
+// 			}
+// 		}
+// 	} else {
+// 		$msg = "Please Add Any Product";
+// 		$sts = 'error';
+// 	}
+// 	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "order", 'subtype' => $_REQUEST['payment_type']]);
+// }
+
+
 if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'])) {
 	$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
 	if (!empty($_REQUEST['product_ids'])) {
@@ -567,6 +824,11 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 			'freight' => @$_REQUEST['freight'],
 			'branch_id' => $_REQUEST['branch_id'],
 			'user_id' => $_REQUEST['user_id'],
+			'split_payment' => @$_REQUEST['split_payment'],
+			'cash_paid' => $_REQUEST['cash_amount'],
+			'cash_payment_account' => $_REQUEST['cash_account'],
+			'bank_paid' => $_REQUEST['bank_amount'],
+			'bank_payment_account' => $_REQUEST['bank_account'],
 		];
 
 		if ($_REQUEST['product_order_id'] == "") {
@@ -586,20 +848,76 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						update_data($dbc, "orders", $data, "order_id", $last_id);
 					}
 				}
-				$paidAmount = @(float) $_REQUEST['paid_ammount'];
+				// $paidAmount = @(float) $_REQUEST['paid_ammount'];
+				// if ($paidAmount > 0) {
+				// 	$debit = [
+				// 		'credit' => @$_REQUEST['paid_ammount'],
+				// 		'debit' => 0,
+				// 		'customer_id' => @$_REQUEST['payment_account'],
+				// 		'transaction_from' => 'Sale',
+				// 		'transaction_type' => "cash_in_hand",
+				// 		'transaction_remarks' => "cash_sale by order id#" . $last_id,
+				// 		'transaction_date' => $_REQUEST['order_date'],
+				// 	];
+				// 	insert_data($dbc, 'transactions', $debit);
+				// 	$transaction_paid_id = mysqli_insert_id($dbc);
+				// }
+				$paidAmount = (float) @$_REQUEST['paid_ammount'];
+				$split_payment = @$_REQUEST['split_payment'];
+				$transaction_paid_id = null;
+				$transaction_paid_id_cash = null;
+				$transaction_paid_id_bank = null;
+
 				if ($paidAmount > 0) {
-					$debit = [
-						'credit' => @$_REQUEST['paid_ammount'],
-						'debit' => 0,
-						'customer_id' => @$_REQUEST['payment_account'],
-						'transaction_from' => 'Sale',
-						'transaction_type' => "cash_in_hand",
-						'transaction_remarks' => "cash_sale by order id#" . $last_id,
-						'transaction_date' => $_REQUEST['order_date'],
-					];
-					insert_data($dbc, 'transactions', $debit);
-					$transaction_paid_id = mysqli_insert_id($dbc);
+					if ($split_payment == 1) {
+						// Split payment: insert cash transaction
+						$cashAmount = (float) @$_REQUEST['cash_amount'];
+						if ($cashAmount > 0) {
+							$cashTransaction = [
+								'credit' => $cashAmount,
+								'debit' => 0,
+								'customer_id' => @$_REQUEST['cash_account'],
+								'transaction_from' => 'Sale',
+								'transaction_type' => "cash_in_hand",
+								'transaction_remarks' => "cash part of split sale by order id#". $last_id,
+								'transaction_date' => $_REQUEST['order_date'],
+							];
+							insert_data($dbc, 'transactions', $cashTransaction);
+							$transaction_paid_id_cash = mysqli_insert_id($dbc);
+						}
+
+						// Split payment: insert bank transaction
+						$bankAmount = (float) @$_REQUEST['bank_amount'];
+						if ($bankAmount > 0) {
+							$bankTransaction = [
+								'credit' => $bankAmount,
+								'debit' => 0,
+								'customer_id' => @$_REQUEST['bank_account'],
+								'transaction_from' => 'Sale',
+								'transaction_type' => "bank",
+								'transaction_remarks' => "bank part of split sale by order id#". $last_id,
+								'transaction_date' => $_REQUEST['order_date'],
+							];
+							insert_data($dbc, 'transactions', $bankTransaction);
+							$transaction_paid_id_bank = mysqli_insert_id($dbc);
+						}
+
+					} else {
+						// Non-split: single cash transaction
+						$debit = [
+							'credit' => $paidAmount,
+							'debit' => 0,
+							'customer_id' => @$_REQUEST['payment_account'],
+							'transaction_from' => 'Sale',
+							'transaction_type' => "cash_in_hand",
+							'transaction_remarks' => "cash_sale by order id#" . $last_id,
+							'transaction_date' => $_REQUEST['order_date'],
+						];
+						insert_data($dbc, 'transactions', $debit);
+						$transaction_paid_id = mysqli_insert_id($dbc);
+					}
 				}
+
 
 				$x = 0;
 				foreach ($_REQUEST['product_ids'] as $key => $value) {
@@ -653,6 +971,15 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 					$payment_status = 1; //completed
 
 				}
+				// $newOrder = [
+				// 	'total_amount' => $total_ammount,
+				// 	'discount' => $_REQUEST['ordered_discount'],
+				// 	'grand_total' => $total_grand,
+				// 	'payment_status' => $payment_status,
+				// 	'due' => $due_amount,
+				// 	'order_status' => 1,
+				// 	'transaction_paid_id' => @$transaction_paid_id,
+				// ];
 				$newOrder = [
 					'total_amount' => $total_ammount,
 					'discount' => $_REQUEST['ordered_discount'],
@@ -661,7 +988,10 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 					'due' => $due_amount,
 					'order_status' => 1,
 					'transaction_paid_id' => @$transaction_paid_id,
+					'transaction_paid_id_cash' => @$transaction_paid_id_cash,
+					'transaction_paid_id_bank' => @$transaction_paid_id_bank,
 				];
+
 				if (update_data($dbc, 'orders', $newOrder, 'order_id', $last_id)) {
 					# code...
 					//echo "<script>alert('company Updated....!')</script>";
@@ -771,17 +1101,58 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						'payment_status' => $payment_status,
 						'due' => $due_amount,
 					];
-					$paidAmount = @(float) $_REQUEST['paid_ammount'];
-					if ($paidAmount > 0) {
-						$credit1 = [
-							'credit' => @$_REQUEST['paid_ammount'],
-							'debit' => 0,
-							'customer_id' => @$_REQUEST['payment_account'],
+					// $paidAmount = @(float) $_REQUEST['paid_ammount'];
+					// if ($paidAmount > 0) {
+					// 	$credit1 = [
+					// 		'credit' => @$_REQUEST['paid_ammount'],
+					// 		'debit' => 0,
+					// 		'customer_id' => @$_REQUEST['payment_account'],
 
-						];
-						$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
-						update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
-					}
+					// 	];
+					// 	$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
+					// 	update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
+					// }
+
+					$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
+$split_payment = @$_REQUEST['split_payment'];
+$paidAmount = (float) @$_REQUEST['paid_ammount'];
+
+if ($paidAmount > 0) {
+	if ($split_payment == 1) {
+		// Split Payment - update cash
+		$cashAmount = (float) @$_REQUEST['cash_amount'];
+		if ($cashAmount > 0 && !empty($transactions['transaction_paid_id_cash'])) {
+			$cashTransaction = [
+				'credit' => $cashAmount,
+				'debit' => 0,
+				'customer_id' => @$_REQUEST['cash_account'],
+			];
+			update_data($dbc, "transactions", $cashTransaction, "transaction_id", $transactions['transaction_paid_id_cash']);
+		}
+
+		// Split Payment - update bank
+		$bankAmount = (float) @$_REQUEST['bank_amount'];
+		if ($bankAmount > 0 && !empty($transactions['transaction_paid_id_bank'])) {
+			$bankTransaction = [
+				'credit' => $bankAmount,
+				'debit' => 0,
+				'customer_id' => @$_REQUEST['bank_account'],
+			];
+			update_data($dbc, "transactions", $bankTransaction, "transaction_id", $transactions['transaction_paid_id_bank']);
+		}
+	} else {
+		// Non-split Payment - update single cash
+		if (!empty($transactions['transaction_paid_id'])) {
+			$credit1 = [
+				'credit' => $paidAmount,
+				'debit' => 0,
+				'customer_id' => @$_REQUEST['payment_account'],
+			];
+			update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
+		}
+	}
+}
+
 					if (update_data($dbc, 'orders', $newOrder, 'order_id', $_REQUEST['product_order_id'])) {
 						# code...
 						//echo "<script>alert('company Updated....!')</script>";
@@ -859,7 +1230,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'total' => $total,
 						'order_id' => $last_id,
 						'quantity' => $product_quantites,
-						
+
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],
@@ -995,7 +1366,7 @@ if (isset($_REQUEST['credit_order_client_name']) && empty($_REQUEST['quotation_f
 						'total' => $total,
 						'order_id' => $_REQUEST['product_order_id'],
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],
@@ -2464,7 +2835,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'total' => $total,
 						'order_id' => $last_id,
 						'quantity' => $product_quantites,
-					
+
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],
@@ -3213,7 +3584,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 	header('Content-Type: application/json');
 
 	// Sanitize and prepare input data
-	$order_date = mysqli_real_escape_string($dbc, $_POST['order_date']);
+	$timestamp = mysqli_real_escape_string($dbc, $_POST['order_date']);
 	$customer_name = mysqli_real_escape_string($dbc, $_POST['client_name']);
 	$customer_phone = mysqli_real_escape_string($dbc, $_POST['client_contact']);
 	$order_narration = mysqli_real_escape_string($dbc, $_POST['order_narration']);
@@ -3230,7 +3601,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 			$product_name = mysqli_real_escape_string($dbc, $_POST['product_names'][$index]);
 
 			$quantity = floatval($_POST['product_quantites'][$index]);
-			
+
 			$final_rate = floatval($_POST['product_final_rates'][$index]);
 			$amount = $final_rate * $quantity;
 			$action = $_POST['product_actions'][$index] ?? 'update';
@@ -3239,8 +3610,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 			$submitted_products[] = [
 				'product_id' => $product_id,
 				'product_name' => $product_name,
-			
-				
 				'quantity' => $quantity,
 				'final_rate' => $final_rate,
 				'total' => $amount,
@@ -3282,8 +3651,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 						$merged_products[] = [
 							'product_id' => $submitted_product['product_id'],
 							'product_name' => $submitted_product['product_name'],
-							
-						
 							'quantity' => $submitted_product['quantity'],
 							'final_rate' => $submitted_product['final_rate'],
 							'total' => $submitted_product['total'],
@@ -3324,7 +3691,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 
 		// Update existing record
 		$query = "UPDATE manual_bill SET 
-            order_date = ?, customer_name = ?, customer_phone = ?, order_narration = ?, 
+            timestamp = ?, customer_name = ?, customer_phone = ?, order_narration = ?, 
             branch_id = ?, user_id = ?, total_amount = ?, discount = ?, grand_total = ?, product_details = ?
             WHERE order_id = ?";
 
@@ -3332,7 +3699,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 		mysqli_stmt_bind_param(
 			$stmt,
 			"ssssiidddsi",
-			$order_date,
+			$timestamp,
 			$customer_name,
 			$customer_phone,
 			$order_narration,
@@ -3351,8 +3718,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 			$merged_products[] = [
 				'product_id' => $product['product_id'],
 				'product_name' => $product['product_name'],
-				
-				
+
+
 				'quantity' => $product['quantity'],
 				'final_rate' => $product['final_rate'],
 				'total' => $product['total'],
@@ -3364,7 +3731,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 		$product_details_json = json_encode($merged_products);
 
 		$query = "INSERT INTO manual_bill (
-            order_date, customer_name, customer_phone, order_narration, 
+            timestamp, customer_name, customer_phone, order_narration, 
             branch_id, user_id, total_amount, discount, grand_total, product_details
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -3372,7 +3739,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 		mysqli_stmt_bind_param(
 			$stmt,
 			"ssssiiddds",
-			$order_date,
+			$timestamp,
 			$customer_name,
 			$customer_phone,
 			$order_narration,
@@ -3406,22 +3773,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 
 
 if (isset($_POST['delete_manualbill']) && isset($_POST['edit_order_id'])) {
-    $order_id = $_POST['edit_order_id'];
+	$order_id = $_POST['edit_order_id'];
 
-    if (!is_numeric($order_id)) {
-        echo "Invalid order ID.";
-        exit;
-    }
+	if (!is_numeric($order_id)) {
+		echo "Invalid order ID.";
+		exit;
+	}
 
-    $stmt = $dbc->prepare("DELETE FROM manual_bill WHERE order_id = ?");
-    $stmt->bind_param("i", $order_id);
+	$stmt = $dbc->prepare("DELETE FROM manual_bill WHERE order_id = ?");
+	$stmt->bind_param("i", $order_id);
 
-    if ($stmt->execute()) {
-        echo "Deleted successfully.";
-    } else {
-        echo "Delete failed: " . $stmt->error;
-    }
-    $stmt->close();
+	if ($stmt->execute()) {
+		echo "Deleted successfully.";
+	} else {
+		echo "Delete failed: " . $stmt->error;
+	}
+	$stmt->close();
 }
 
 

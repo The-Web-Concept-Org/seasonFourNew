@@ -403,7 +403,7 @@
 
             $invoice_name = "Sale Invoice";
 
-            $getDate = $order['order_date'];
+            $getDate = $order['timestamp'];
             $comment = $order['order_narration'];
             // $order_item = json_decode($order['product_details'], true);
     
@@ -628,9 +628,9 @@
                                 <th style="width: 25%;" class="text-left pl-3">Description</th>
                                 <th style="width: 5%;">Qty</th>
                                 <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
-    <th style="width: 5%;">Unit Price</th>
-    <th style="width: 5%;">Amount</th>
-<?php } ?>
+                                    <th style="width: 5%;">Unit Price</th>
+                                    <th style="width: 5%;">Amount</th>
+                                <?php } ?>
                             </tr>
                         </thead>
                         <?php if (!empty($order['product_details'])): ?>
@@ -678,7 +678,7 @@
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center border"><?= $r['quantity'] ?></td>
-                                        <?php  if (@$_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)): ?>
+                                        <?php if (@$_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)): ?>
                                             <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
                                             <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
                                             </td>
@@ -695,40 +695,45 @@
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
 
-
                                 <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
-                                    <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
 
+                                    <?php if (!empty($order['total_amount'])): ?>
+                                        <td class="border">Total Amount:</td>
+                                        <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
+                                    <tr class="tablefooter" style="font-size: 14px;">
+                                        <td colspan="3"></td>
                                         <td class="border">Discount:</td>
                                         <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
-                                    <?php endif; ?>
-                                </tr>
-
+                                    </tr>
+                                <?php endif; ?>
                             <?php } ?>
 
                             <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
                                 <tr class="tablefooter" style="font-size: 14px; border: none !important;">
-                                    <td colspan="3" class="text-left  border-none"><?= amountToWordsKD($order['grand_total']) ?>
+                                    <td colspan="3" class="text-left border-none"><?= amountToWordsKD($order['grand_total']) ?>
                                         ONLY</td>
                                     <td class="text-sm border">Net Amount:</td>
                                     <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
                                 </tr>
                             <?php } ?>
+
                             <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
                                 <tr class="tablefooter" style="font-size: 14px;">
-                                        <?php if ($order['grand_total'] !== "") { ?>
+                                    <?php if ($order['grand_total'] !== "") { ?>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td class="text-sm border">Paid:</td>
-                                        <?php if ($_REQUEST['type'] == "manualbill"){ ?>
-                                        <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
-                                        <?php }else {
-                                        
-                                         ?>
-                                        <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
-<?php } ?>
+                                        <?php if ($_REQUEST['type'] == "manualbill") { ?>
+                                            <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
+                                        <?php } else { ?>
+                                            <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
+                                        <?php } ?>
                                     </tr>
+
                                     <tr class="tablefooter" style="font-size: 14px;">
                                         <td></td>
                                         <td></td>
@@ -736,19 +741,17 @@
                                         <td class="text-sm border">Remaining:</td>
                                         <td class="border">
                                             <?php if (!empty($order['product_details'])): ?>
-
                                                 <?= formatAmountWithoutKD(0) ?>
                                             <?php else: ?>
                                                 <?= formatAmountWithoutKD($order['due']) ?>
                                             <?php endif; ?>
-
                                         </td>
                                     </tr>
                                 <?php }
                             } ?>
+                        </tfoot>
 
                     </table>
-                    </tfoot>
                 </div>
             </div>
             <?php
@@ -797,20 +800,20 @@
                 </div>
             <?php } else { ?>
 
-               <div class="row mt-5 pt-5 m-0 pl-5">
-    <div class="col-12 d-flex justify-content-end align-items-center">
-        <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
-        <div style="white-space: nowrap;">
-            <?php
-            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-            $user = fetchRecord($dbc, "users", "user_id", $userId);
-            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
-            ?>
-            <span><?= $fullName ?></span>
-        </div>
-    </div>
-</div>
- 
+                <div class="row mt-5 pt-5 m-0 pl-5">
+                    <div class="col-12 d-flex justify-content-end align-items-center">
+                        <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
+                        <div style="white-space: nowrap;">
+                            <?php
+                            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+                            $user = fetchRecord($dbc, "users", "user_id", $userId);
+                            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
+                            ?>
+                            <span><?= $fullName ?></span>
+                        </div>
+                    </div>
+                </div>
+
             <?php } ?>
             <!-- <div>
                 <div class="return">
