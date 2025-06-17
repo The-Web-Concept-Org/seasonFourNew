@@ -879,7 +879,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 								'customer_id' => @$_REQUEST['cash_account'],
 								'transaction_from' => 'Sale',
 								'transaction_type' => "cash_in_hand",
-								'transaction_remarks' => "cash part of split sale by order id#". $last_id,
+								'transaction_remarks' => "cash part of split sale by order id#" . $last_id,
 								'transaction_date' => $_REQUEST['order_date'],
 							];
 							insert_data($dbc, 'transactions', $cashTransaction);
@@ -895,7 +895,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 								'customer_id' => @$_REQUEST['bank_account'],
 								'transaction_from' => 'Sale',
 								'transaction_type' => "bank",
-								'transaction_remarks' => "bank part of split sale by order id#". $last_id,
+								'transaction_remarks' => "bank part of split sale by order id#" . $last_id,
 								'transaction_date' => $_REQUEST['order_date'],
 							];
 							insert_data($dbc, 'transactions', $bankTransaction);
@@ -1114,44 +1114,44 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 					// }
 
 					$transactions = fetchRecord($dbc, "orders", "order_id", $_REQUEST['product_order_id']);
-$split_payment = @$_REQUEST['split_payment'];
-$paidAmount = (float) @$_REQUEST['paid_ammount'];
+					$split_payment = @$_REQUEST['split_payment'];
+					$paidAmount = (float) @$_REQUEST['paid_ammount'];
 
-if ($paidAmount > 0) {
-	if ($split_payment == 1) {
-		// Split Payment - update cash
-		$cashAmount = (float) @$_REQUEST['cash_amount'];
-		if ($cashAmount > 0 && !empty($transactions['transaction_paid_id_cash'])) {
-			$cashTransaction = [
-				'credit' => $cashAmount,
-				'debit' => 0,
-				'customer_id' => @$_REQUEST['cash_account'],
-			];
-			update_data($dbc, "transactions", $cashTransaction, "transaction_id", $transactions['transaction_paid_id_cash']);
-		}
+					if ($paidAmount > 0) {
+						if ($split_payment == 1) {
+							// Split Payment - update cash
+							$cashAmount = (float) @$_REQUEST['cash_amount'];
+							if ($cashAmount > 0 && !empty($transactions['transaction_paid_id_cash'])) {
+								$cashTransaction = [
+									'credit' => $cashAmount,
+									'debit' => 0,
+									'customer_id' => @$_REQUEST['cash_account'],
+								];
+								update_data($dbc, "transactions", $cashTransaction, "transaction_id", $transactions['transaction_paid_id_cash']);
+							}
 
-		// Split Payment - update bank
-		$bankAmount = (float) @$_REQUEST['bank_amount'];
-		if ($bankAmount > 0 && !empty($transactions['transaction_paid_id_bank'])) {
-			$bankTransaction = [
-				'credit' => $bankAmount,
-				'debit' => 0,
-				'customer_id' => @$_REQUEST['bank_account'],
-			];
-			update_data($dbc, "transactions", $bankTransaction, "transaction_id", $transactions['transaction_paid_id_bank']);
-		}
-	} else {
-		// Non-split Payment - update single cash
-		if (!empty($transactions['transaction_paid_id'])) {
-			$credit1 = [
-				'credit' => $paidAmount,
-				'debit' => 0,
-				'customer_id' => @$_REQUEST['payment_account'],
-			];
-			update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
-		}
-	}
-}
+							// Split Payment - update bank
+							$bankAmount = (float) @$_REQUEST['bank_amount'];
+							if ($bankAmount > 0 && !empty($transactions['transaction_paid_id_bank'])) {
+								$bankTransaction = [
+									'credit' => $bankAmount,
+									'debit' => 0,
+									'customer_id' => @$_REQUEST['bank_account'],
+								];
+								update_data($dbc, "transactions", $bankTransaction, "transaction_id", $transactions['transaction_paid_id_bank']);
+							}
+						} else {
+							// Non-split Payment - update single cash
+							if (!empty($transactions['transaction_paid_id'])) {
+								$credit1 = [
+									'credit' => $paidAmount,
+									'debit' => 0,
+									'customer_id' => @$_REQUEST['payment_account'],
+								];
+								update_data($dbc, "transactions", $credit1, "transaction_id", $transactions['transaction_paid_id']);
+							}
+						}
+					}
 
 					if (update_data($dbc, 'orders', $newOrder, 'order_id', $_REQUEST['product_order_id'])) {
 						# code...
@@ -3579,7 +3579,6 @@ if (isset($_POST['get_branch_data'])) {
 }
 
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'manual-bill') {
 	header('Content-Type: application/json');
 
@@ -3599,9 +3598,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 	if (!empty($_POST['product_ids'])) {
 		foreach ($_POST['product_ids'] as $index => $product_id) {
 			$product_name = mysqli_real_escape_string($dbc, $_POST['product_names'][$index]);
-
 			$quantity = floatval($_POST['product_quantites'][$index]);
-
 			$final_rate = floatval($_POST['product_final_rates'][$index]);
 			$amount = $final_rate * $quantity;
 			$action = $_POST['product_actions'][$index] ?? 'update';
@@ -3623,73 +3620,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 	$is_update = isset($_POST['product_order_id']) && !empty($_POST['product_order_id']) && is_numeric($_POST['product_order_id']);
 	$product_order_id = $is_update ? intval($_POST['product_order_id']) : null;
 
+	// Process products (same logic for insert and update)
 	$merged_products = [];
+	foreach ($submitted_products as $product) {
+		// Include only submitted products, ignoring their 'action' for simplicity
+		$merged_products[] = [
+			'product_id' => $product['product_id'],
+			'product_name' => $product['product_name'],
+			'quantity' => $product['quantity'],
+			'final_rate' => $product['final_rate'],
+			'total' => $product['total'],
+			'product_uid' => $product['product_uid']
+		];
+		$total_amount += $product['total'];
+	}
+	$grand_total = $total_amount - $discount;
+	$product_details_json = json_encode($merged_products);
+
 	if ($is_update) {
-		// Fetch existing product_details
-		$existing_query = "SELECT product_details FROM manual_bill WHERE order_id = ?";
-		$stmt = mysqli_prepare($dbc, $existing_query);
-		mysqli_stmt_bind_param($stmt, "i", $product_order_id);
-		mysqli_stmt_execute($stmt);
-		$result = mysqli_stmt_get_result($stmt);
-		$existing_data = mysqli_fetch_assoc($result);
-		mysqli_stmt_close($stmt);
-
-		$existing_products = $existing_data && !empty($existing_data['product_details'])
-			? json_decode($existing_data['product_details'], true)
-			: [];
-
-		// Merge products: preserve unchanged, update modified, add new, remove deleted
-		$existing_uids = array_column($existing_products, 'product_uid');
-
-		// Keep existing products unless explicitly updated or deleted
-		foreach ($existing_products as $existing_product) {
-			$found = false;
-			foreach ($submitted_products as $submitted_product) {
-				if ($submitted_product['product_uid'] === $existing_product['product_uid']) {
-					if ($submitted_product['action'] !== 'delete') {
-						// Update existing product with submitted data
-						$merged_products[] = [
-							'product_id' => $submitted_product['product_id'],
-							'product_name' => $submitted_product['product_name'],
-							'quantity' => $submitted_product['quantity'],
-							'final_rate' => $submitted_product['final_rate'],
-							'total' => $submitted_product['total'],
-							'product_uid' => $submitted_product['product_uid']
-						];
-					}
-					$found = true;
-					break;
-				}
-			}
-			// Preserve existing product if not modified or deleted
-			if (!$found) {
-				$merged_products[] = $existing_product;
-			}
-		}
-
-		// Add new products
-		foreach ($submitted_products as $submitted_product) {
-			if ($submitted_product['action'] === 'add' && !in_array($submitted_product['product_uid'], $existing_uids)) {
-				$merged_products[] = [
-					'product_id' => $submitted_product['product_id'],
-					'product_name' => $submitted_product['product_name'],
-					'quantity' => $submitted_product['quantity'],
-					'final_rate' => $submitted_product['final_rate'],
-					'total' => $submitted_product['total'],
-					'product_uid' => $submitted_product['product_uid']
-				];
-			}
-		}
-
-		// Calculate totals based on merged products
-		$total_amount = 0;
-		foreach ($merged_products as $product) {
-			$total_amount += $product['total'];
-		}
-		$grand_total = $total_amount - $discount;
-		$product_details_json = json_encode($merged_products);
-
-		// Update existing record
+		// Update existing record with new product details
 		$query = "UPDATE manual_bill SET 
             timestamp = ?, customer_name = ?, customer_phone = ?, order_narration = ?, 
             branch_id = ?, user_id = ?, total_amount = ?, discount = ?, grand_total = ?, product_details = ?
@@ -3713,23 +3662,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 		);
 	} else {
 		// Insert new record
-		foreach ($submitted_products as $product) {
-			// Ensure product_uid is included for new products
-			$merged_products[] = [
-				'product_id' => $product['product_id'],
-				'product_name' => $product['product_name'],
-
-
-				'quantity' => $product['quantity'],
-				'final_rate' => $product['final_rate'],
-				'total' => $product['total'],
-				'product_uid' => $product['product_uid']
-			];
-			$total_amount += $product['total'];
-		}
-		$grand_total = $total_amount - $discount;
-		$product_details_json = json_encode($merged_products);
-
 		$query = "INSERT INTO manual_bill (
             timestamp, customer_name, customer_phone, order_narration, 
             branch_id, user_id, total_amount, discount, grand_total, product_details
@@ -3769,8 +3701,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 	mysqli_stmt_close($stmt);
 	exit;
 }
-
-
 
 if (isset($_POST['delete_manualbill']) && isset($_POST['edit_order_id'])) {
 	$order_id = $_POST['edit_order_id'];
