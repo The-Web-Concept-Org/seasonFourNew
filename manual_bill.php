@@ -434,7 +434,7 @@ $('#manualSale').on('click', function () {
     window.removeByid = function (selector) {
         let row = $(selector);
         row.find('input[name="product_actions[]"]').val('delete');
-        row.hide();
+        row.remove();
         updateTotals();
     };
 
