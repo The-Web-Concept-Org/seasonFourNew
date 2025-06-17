@@ -45,8 +45,8 @@
               <thead>
                 <tr>
                   <th class="text-dark"> Date</th>
+                  <th class="text-dark">LPO Id</th>
                   <th class="text-dark">Supplier Name</th>
-                  <th class="text-dark">Phone</th>
                   <th class="text-dark">Comment</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">File</th>
@@ -68,7 +68,7 @@
                 }
 
                 // Fetch purchases
-                $q = mysqli_query($dbc, "SELECT * FROM lpo $branch_filter ORDER BY lpo_date DESC");
+                $q = mysqli_query($dbc, "SELECT * FROM lpo $branch_filter ORDER BY lpo_id DESC");
 
 
                 $c = 0;
@@ -77,8 +77,8 @@
                   ?>
                   <tr class="text-capitalize">
                     <td><?= $r['lpo_date'] ?></td>
+                    <td>SF25-LPO-<?= $r['lpo_id'] ?></td>
                     <td><?= ucfirst($r['client_name']) ?></td>
-                    <td><?= $r['client_contact'] ?></td>
 
                     <td class="text-capitalize"><?= $r['lpo_narration'] ?></td>
                     <td><?= $r['grand_total'] ?></td>

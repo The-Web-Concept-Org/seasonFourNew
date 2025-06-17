@@ -27,8 +27,6 @@
                         <div class="row d-print-none">
                             <div class="col-12 mx-auto h4">
                                 <b class="text-center card-text">Category/brand Report</b>
-
-
                             </div>
                         </div>
 
@@ -47,7 +45,7 @@
                                             while ($row = mysqli_fetch_array($branch)) { ?>
                                                 ?>
                                                 <option class="text-capitalize"
-                                                    <?= @($fetchusers['branch_id'] == $row['branch_id']) ? "seleted" : "" ?>
+                                                   
                                                     value="<?= $row['branch_id'] ?>"><?= $row['branch_name'] ?></option>
                                             <?php } ?>
                                         </select>
@@ -61,15 +59,15 @@
                                             <option selected disabled>Select Category</option>
                                             <?php $category = mysqli_query($dbc, "SELECT * FROM categories WHERE categories_status = 1");
                                             while ($row = mysqli_fetch_array($category)) { ?>
-                                                ?>
+                                        
                                                 <option class="text-capitalize"
-                                                    <?= @($fetchusers['categories_id'] == $row['categories_id']) ? "seleted" : "" ?> value="<?= $row['categories_id'] ?>">
+                                                    
+                                                     value="<?= $row['categories_id'] ?>">
                                                     <?= $row['categories_name'] ?>
                                                 </option>
                                             <?php } ?>
                                         </select>
                                     </div>
-
                                 </div>
                                 <div class="col-sm-2">
                                     <div class="form-group">
@@ -79,9 +77,9 @@
                                             <option selected disabled>Select Brand</option>
                                             <?php $brand = mysqli_query($dbc, "SELECT * FROM brands WHERE brand_status = 1");
                                             while ($row = mysqli_fetch_array($brand)) { ?>
-                                                ?>
+                                            
                                                 <option class="text-capitalize"
-                                                    <?= @($fetchusers['brand_id'] == $row['brand_id']) ? "seleted" : "" ?>
+                                                    
                                                     value="<?= $row['brand_id'] ?>"><?= $row['brand_name'] ?></option>
                                             <?php } ?>
                                         </select>
@@ -89,6 +87,23 @@
 
                                 </div>
 
+                                <div class="col-sm-2">
+                                    <div class="form-group">
+                                        <label for="">Product</label>
+                                        <select class="form-control searchableSelect text-capitalize" name="product_id"
+                                            id="product_id">
+                                            <option selected disabled>Select product</option>
+                                            <?php $product = mysqli_query($dbc, "SELECT * FROM product WHERE status = 1");
+                                            while ($row = mysqli_fetch_array($product)) { ?>
+                                                ?>
+                                                <option class="text-capitalize"
+                                                    
+                                                    value="<?= $row['product_id'] ?>"><?= $row['product_name'] ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                </div>
                                 <div class="col-sm-1">
                                     <label style="visibility: hidden;">a</label><br>
                                     <button class="btn btn-admin2" name="search_sale" type="submit">Search</button>
@@ -132,6 +147,7 @@
                                     $branchId = $_GET['branch_id'] ?? '';
                                     $categoryId = $_GET['category_id'] ?? '';
                                     $brandId = $_GET['brand_id'] ?? '';
+                                    $productId = $_GET['product_id'] ?? '';
 
                                     $where = "WHERE inventory.quantity_instock > 0";
 
@@ -144,6 +160,10 @@
                                     if (!empty($brandId)) {
                                         $where .= " AND product.brand_id = '$brandId'";
                                     }
+                                    if (!empty($productId)) {
+                                        $where .= " AND product.product_id = '$productId'";
+                                    }
+
 
                                     $query = mysqli_query($dbc, "
                                                 SELECT 

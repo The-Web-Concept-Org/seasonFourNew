@@ -47,8 +47,8 @@
               <thead>
                 <tr>
                   <th class="text-dark"> Date</th>
+                  <th class="text-dark">Return Id</th>
                   <th class="text-dark">Supplier Name</th>
-                  <th class="text-dark">Phone</th>
                   <th class="text-dark">Comment</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Purchase Type</th>
@@ -69,7 +69,7 @@
                 }
 
                 // Fetch purchases
-                $q = mysqli_query($dbc, "SELECT * FROM purchase_return $branch_filter ORDER BY purchase_date DESC");
+                $q = mysqli_query($dbc, "SELECT * FROM purchase_return $branch_filter ORDER BY purchase_id DESC");
 
                 $c = 0;
                 while ($r = mysqli_fetch_assoc($q)) {
@@ -78,8 +78,8 @@
 
                   <tr>
                     <td><?= $r['purchase_date'] ?></td>
+                    <td>SF25-PR-<?= $r['purchase_id'] ?></td>
                     <td><?= ucfirst($r['client_name']) ?></td>
-                    <td><?= $r['client_contact'] ?></td>
                     <td class="text-capitalize"><?= $r['purchase_narration'] ?></td>
                     <td><?= $r['grand_total'] ?></td>
                     <td class="text-capitalize"><?= $r['payment_type'] ?></td>

@@ -69,7 +69,7 @@
                 }
 
                 // Fetch purchases
-                $q = mysqli_query($dbc, "SELECT * FROM orders $branch_filter ORDER BY order_date DESC");
+                $q = mysqli_query($dbc, "SELECT * FROM orders $branch_filter ORDER BY order_id DESC");
 
 
                 $c = 0;
