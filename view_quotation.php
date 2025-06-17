@@ -45,8 +45,8 @@
               <thead>
                 <tr>
                   <th class="text-dark">Date</th>
+                  <th class="text-dark">Quotation Id</th>
                   <th class="text-dark">Customer Name</th>
-                  <th class="text-dark">Phone</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Comment</th>
                   <th class="text-dark">Type</th>
@@ -69,7 +69,7 @@
                 }
 
                 // Fetch purchases
-                $q = mysqli_query($dbc, "SELECT * FROM quotations $branch_filter ORDER BY quotation_date DESC");
+                $q = mysqli_query($dbc, "SELECT * FROM quotations $branch_filter ORDER BY quotation_id DESC");
 
 
                 $c = 0;
@@ -78,8 +78,8 @@
                 ?>
                   <tr class="text-capitalize">
                     <td><?= $r['quotation_date'] ?></td>
+                    <td>SF25-Q-<?= $r['quotation_id'] ?></td>
                     <td><?= ucfirst($r['client_name']) ?></td>
-                    <td><?= $r['client_contact'] ?></td>
                     <td><?= $r['total_amount'] ?></td>
                     <td class="text-capitalize"><?= $r['quotation_narration'] ?></td>
                     <td class="text-capitalize">

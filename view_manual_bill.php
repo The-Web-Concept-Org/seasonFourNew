@@ -45,8 +45,8 @@
               <thead>
                 <tr>
                   <th class="text-dark"> Date</th>
+                  <th class="text-dark">Bill Id</th>
                   <th class="text-dark">Customer Name</th>
-                  <th class="text-dark">Phone</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Comment</th>
                   <!-- <th class="text-dark">Sale Type</th>
@@ -69,7 +69,7 @@
                 }
 
                 // Fetch purchases
-                $q = mysqli_query($dbc, "SELECT * FROM manual_bill $branch_filter ORDER BY timestamp DESC");
+                $q = mysqli_query($dbc, "SELECT * FROM manual_bill $branch_filter ORDER BY order_id DESC");
 
 
                 $c = 0;
@@ -81,8 +81,8 @@
 
                   <tr>
                     <td><?= $r['timestamp'] ?></td>
+                    <td>SF25-CI-<?= $r['order_id'] ?></td>
                     <td><?= ucfirst($r['customer_name']) ?></td>
-                    <td><?= $r['customer_phone'] ?></td>
                     <td><?= $r['grand_total'] ?></td>
                     <td class="text-capitalize"><?= $r['order_narration'] ?></td>
                     <!-- <td class="text-capitalize"><?= $r['payment_type'] ?></td> -->

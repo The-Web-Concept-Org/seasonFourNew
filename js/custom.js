@@ -1283,6 +1283,8 @@ let saleType = (value) => {
         let total_amount = $("#product_grand_total_amount").text();
         $("#paid_ammount").val(total_amount);
         $("#paid_ammount").attr("readonly", false);
+        $("#payment_account").attr("required", true);
+        $("#credit_order_client_name").attr("required", false);
         $("#remaining_ammount").val(0);
         $("#payment_type").val("cash_in_hand");
         $("#form_type").val("cash_in_hand");
@@ -1298,6 +1300,8 @@ let saleType = (value) => {
         let total_amount = $("#product_grand_total_amount").text();
         $("#paid_ammount").val(0);
         $("#payment_type").val("credit_sale");
+         $("#payment_account").attr("required", false);
+         $("#credit_order_client_name").attr("required", true);
         $("#form_type").val("credit_sale");
         $("#credit_order_client_name").attr("name", "credit_order_client_name");
         $("#sale_order_client_name").attr("name", "skd");

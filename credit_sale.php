@@ -599,7 +599,7 @@ function toggleSplitPayment() {
         if (bankAccountEl) bankAccountEl.removeAttribute('required');
 
         //  Add required to single payment account
-        if (paymentAccountEl) paymentAccountEl.setAttribute('required', true);
+        // if (paymentAccountEl) paymentAccountEl.setAttribute('required', true);
     }
 }
 
