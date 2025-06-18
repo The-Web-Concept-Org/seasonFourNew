@@ -399,9 +399,9 @@
             $nameSHow = 'Customer_name';
             $id_name = "Cash Invoice Id";
             $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
-            $unique_id = 'SF25-CI-' . $order['order_id'];
+            $unique_id = 'SF25-Id-' . $order['order_id'];
 
-            $invoice_name = "Sale Invoice";
+            $invoice_name = $order['type'];
 
             $getDate = $order['timestamp'];
             $comment = $order['order_narration'];
@@ -695,45 +695,52 @@
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
 
-                                <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
-
-                                    <?php if (!empty($order['total_amount'])): ?>
+                                <?php if (
+                                    $_REQUEST['type'] != 'gatepass' &&
+                                    (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)
+                                ): ?>
+                                    <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
                                         <td class="border">Total Amount:</td>
                                         <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
+                                    </tr>
                                     <tr class="tablefooter" style="font-size: 14px;">
                                         <td colspan="3"></td>
                                         <td class="border">Discount:</td>
                                         <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
                                     </tr>
                                 <?php endif; ?>
-                            <?php } ?>
+                            <?php endif; ?>
 
-                            <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
+                            <?php if (
+                                $_REQUEST['type'] != 'gatepass' &&
+                                (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)
+                            ): ?>
                                 <tr class="tablefooter" style="font-size: 14px; border: none !important;">
                                     <td colspan="3" class="text-left border-none"><?= amountToWordsKD($order['grand_total']) ?>
                                         ONLY</td>
                                     <td class="text-sm border">Net Amount:</td>
                                     <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
                                 </tr>
-                            <?php } ?>
+                            <?php endif; ?>
 
-                            <?php if ($_REQUEST['type'] !== 'lpo' && $_REQUEST['type'] !== 'quotation' && $_REQUEST['type'] !== 'gatepass') { ?>
-                                <tr class="tablefooter" style="font-size: 14px;">
-                                    <?php if ($order['grand_total'] !== "") { ?>
+                            <?php if (
+                                $_REQUEST['type'] !== 'lpo' &&
+                                $_REQUEST['type'] !== 'quotation' &&
+                                $_REQUEST['type'] !== 'gatepass' &&
+                                ($_REQUEST['type'] !== 'manualbill' || $order['type'] === 'Sale_Invoice')
+                            ): ?>
+                                <?php if ($order['grand_total'] !== ""): ?>
+                                    <tr class="tablefooter" style="font-size: 14px;">
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td class="text-sm border">Paid:</td>
-                                        <?php if ($_REQUEST['type'] == "manualbill") { ?>
+                                        <?php if ($_REQUEST['type'] == "manualbill"): ?>
                                             <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
-                                        <?php } else { ?>
+                                        <?php else: ?>
                                             <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
-                                        <?php } ?>
+                                        <?php endif; ?>
                                     </tr>
-
                                     <tr class="tablefooter" style="font-size: 14px;">
                                         <td></td>
                                         <td></td>
@@ -747,15 +754,16 @@
                                             <?php endif; ?>
                                         </td>
                                     </tr>
-                                <?php }
-                            } ?>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </tfoot>
+
 
                     </table>
                 </div>
             </div>
             <?php
-            if ($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) { ?>
+            if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')) { ?>
                 <div class="pt-5 mt-3 mb-5">
                     <div class="row">
                         <div class="col-2">

@@ -82,6 +82,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                         id="credit_sale_type">
                                 </div>
 
+
                                 <div class="w-100 pl-1">
                                     <label for="Sale Type">Sale Type</label>
                                     <select name="sale_type" onchange="saleType(this.value)" class="form-control"

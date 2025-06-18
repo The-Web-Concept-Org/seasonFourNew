@@ -49,8 +49,8 @@
                   <th class="text-dark">Customer Name</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Comment</th>
-                  <!-- <th class="text-dark">Sale Type</th>
-                  <th class="text-dark">File</th> -->
+                  <th class="text-dark">Type</th>
+                  <!-- <th class="text-dark">File</th> -->
                   <th class="text-dark">Action</th>
                 </tr>
               </thead>
@@ -85,25 +85,20 @@
                     <td><?= ucfirst($r['customer_name']) ?></td>
                     <td><?= $r['grand_total'] ?></td>
                     <td class="text-capitalize"><?= $r['order_narration'] ?></td>
-                    <!-- <td class="text-capitalize"><?= $r['payment_type'] ?></td> -->
+                    <td class="text-capitalize"><?= $r['type'] ?></td>
 
-                   
+
 
                     <td class="d-flex">
-                     
+
                       <form action="manual_bill.php" method="POST">
                         <input type="hidden" name="edit_order_id" value="<?= base64_encode($r['order_id']) ?>">
                         <button type="submit" class="btn btn-admin btn-sm m-1">Edit</button>
                       </form>
 
                       <form class="delete-form" data-id="<?= $r['order_id'] ?>">
-  <button type="button" class="btn btn-admin btn-sm m-1 delete-btn">Delete</button>
-</form>
-
-
-
-
-
+                        <button type="button" class="btn btn-admin btn-sm m-1 delete-btn">Delete</button>
+                      </form>
 
                       <a target="_blank" href="print_sale.php?type=manualbill&id=<?= $r['order_id'] ?>"
                         class="btn btn-admin2 btn-sm m-1">Print</a>
@@ -126,7 +121,7 @@
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 <script>
   $(document).ready(function () {
-    $('.delete-btn').on('click', function () {
+    $(document).on('click', '.delete-btn', function () {
       const button = $(this);
       const form = button.closest('.delete-form');
       const orderId = form.data('id');
