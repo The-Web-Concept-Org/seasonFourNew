@@ -109,6 +109,18 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="text" autocomplete="off" name="order_narration" id="order_narration"
                                     value="<?= @$fetchOrder['order_narration'] ?>" class="form-control">
                             </div>
+                            <div class="col-sm-2">
+                                <label>Type</label>
+                                <select name="type" class="form-control"
+                                        id="type">
+                                        <option <?= isset($_REQUEST['edit_order_id']) ? "" : "selected" ?>
+                                            value="Sale_Invoice" <?= @$fetchOrder['type'] == "Manual Bill" ? "selected" : "" ?>>
+                                            Manual Bill</option>
+                                        <option value="lpo" <?= @$fetchOrder['type'] == "lpo" ? "selected" : "" ?>>LPO</option>
+                                        <option value="quotation" <?= @$fetchOrder['type'] == "quotation" ? "selected" : "" ?>>Quotation</option>
+                                    </select>
+                            </div>
+                            
                         </div>
 
                         <div class="form-group row mb-5">
@@ -271,10 +283,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
     <?php include_once 'includes/foot.php'; ?>
     <script>
 $(document).ready(function () {
-    // Initialize datepicker
+    
     $('#order_date').datepicker({ dateFormat: 'yy-mm-dd' });
-
-    // Handle product selection
+    
     let debounceTimeout;
     $('#get_product_name').on('input change', function () {
         clearTimeout(debounceTimeout);
@@ -476,6 +487,7 @@ $('#sale_btn').on('click', function (e) {
     $btn.prop('disabled', true);
 
     let formData = $('#sale_order_fm').serializeArray();
+console.log(formData);
 
     $.ajax({
         url: $('#sale_order_fm').attr('action'),
