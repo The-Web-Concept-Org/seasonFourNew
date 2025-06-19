@@ -80,7 +80,7 @@
 
 
                   <tr>
-                    <td>SF25-CI-<?= $r['order_id'] ?></td>
+                    <td><?= $r['order_id'] ?></td>
                     <td><?= $r['timestamp'] ?></td>
                     <td><?= ucfirst($r['customer_name']) ?></td>
                     <td><?= $r['grand_total'] ?></td>

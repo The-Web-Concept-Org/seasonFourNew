@@ -45,7 +45,6 @@
                                             while ($row = mysqli_fetch_array($branch)) { ?>
                                                 ?>
                                                 <option class="text-capitalize"
-                                                   
                                                     value="<?= $row['branch_id'] ?>"><?= $row['branch_name'] ?></option>
                                             <?php } ?>
                                         </select>
@@ -165,19 +164,18 @@
                                     }
 
 
-                                    $query = mysqli_query($dbc, "
-                                                SELECT 
-                                                    product.product_name,
-                                                    inventory.quantity_instock,
-                                                    brands.brand_name,
-                                                    categories.categories_name
-                                                FROM inventory
-                                                JOIN product ON inventory.product_id = product.product_id
-                                                JOIN brands ON product.brand_id = brands.brand_id
-                                                JOIN categories ON product.category_id = categories.categories_id
-                                                $where
-                                                ORDER BY inventory.quantity_instock DESC
-                                            ");
+                                    $query = mysqli_query($dbc, "SELECT 
+                                                            product.product_name,
+                                                            inventory.quantity_instock,
+                                                            brands.brand_name,
+                                                            categories.categories_name
+                                                        FROM inventory
+                                                        JOIN product ON inventory.product_id = product.product_id
+                                                        JOIN brands ON product.brand_id = brands.brand_id
+                                                        JOIN categories ON product.category_id = categories.categories_id
+                                                        $where
+                                                        ORDER BY product.product_name ASC
+                                                        ");
 
 
                                     $sr = 1;

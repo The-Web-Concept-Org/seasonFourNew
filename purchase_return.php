@@ -37,8 +37,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <input type="hidden" name="purchase_return" id="purchase_return" value="purchase_return">
             <input type="hidden" name="price_type" id="price_type" value="sale">
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
-              <div class="dropdown-wrapper d-block mb-3 ml-auto">
-                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize d-block" required>
+              <div class="dropdown-wrapper mb-3 ml-auto">
+                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
                   <option selected disabled value="">Select Branch</option>
                   <?php
                   $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
@@ -139,7 +139,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                   class="form-control" name="purchase_file">
               </div>
             </div> <!-- end of form-group -->
-            <div class="form-group row mb-5">
+            <div class="form-group row mb-3">
               <div class="col-4 col-md-2">
                 <label>Product Code</label>
                 <input type="text" autocomplete="off" name="product_code" id="get_product_code" class="form-control">
@@ -209,8 +209,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                       <!-- <th class="text-dark">Product Details</th> -->
                       <th class="text-dark">Unit Price</th>
                       <th class="text-dark">Quantity</th>
-                      <th class="text-dark" style="width: 25%;">Amount</th>
-                      <th class="text-dark">Action</th>
+                      <th class="text-dark" style="width: 18%;">Amount</th>
+                      <th class="text-dark" style="width: 30%;">Action</th>
                     </tr>
                   </thead>
                   <tbody class="table table-bordered" id="purchase_product_tb">
@@ -261,7 +261,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                       <td class="table-bordered"> Sub Total :</td>
                       <td class="table-bordered" id="product_total_amount"><?= @$fetchPurchase['total_amount'] ?></td>
                       </td>
-                      <td class="table-bordered"></td>
                     </tr>
                     <tr>
                       <td colspan="4" class="table-bordered"></td>
@@ -271,8 +270,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           value="<?= @empty($_REQUEST['edit_order_id']) ? $fetchPurchase['discount'] : "0" ?>" min="0"
                           name="ordered_discount">
                       </td>
-                      <td class="table-bordered"></td>
-
                     </tr>
                     <tr>
                       <td colspan="4" class="table-bordered"></td>
@@ -280,8 +277,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                       <td class="table-bordered" id="product_grand_total_amount"><?= @$fetchPurchase['grand_total'] ?>
                       </td>
                       </td>
-                      <td class="table-bordered"></td>
-
                     </tr>
                     <tr>
                       <td colspan="4" class="table-bordered"></td>
@@ -302,8 +297,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             </div>
 
                       </td>
-                      <td class="table-bordered"></td>
-
                     </tr>
 
                     <tr>
@@ -315,7 +308,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           <select class="form-control" onchange="getBalance(this.value,'payment_account_bl')"
                             name="payment_account" id="payment_account" aria-label="Username"
                             aria-describedby="basic-addon1">
-                            <option >Select Account</option>
+                            <option>Select Account</option>
                             <?php
                             $branch_id = $_SESSION['branch_id'];
                             $user_role = $_SESSION['user_role'];
@@ -340,8 +333,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           </div>
                         </div>
                       </td>
-                      <td class="table-bordered"></td>
-
                     </tr>
                     <tr>
                       <td colspan="4" class="table-bordered"></td>
@@ -350,7 +341,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           id="remaining_ammount" required readonly name="remaining_ammount"
                           value="<?= @$fetchPurchase['due'] ?>">
                       </td>
-                      <td class="table-bordered"></td>
                     </tr>
                   </tfoot>
                 </table>

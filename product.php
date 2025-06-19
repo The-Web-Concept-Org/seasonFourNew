@@ -1,8 +1,7 @@
 <?php
 
-
 if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_stock_detail') {
-include_once 'includes/head.php';
+  include_once 'includes/head.php';
 
   $product_id = $_POST['product_id'];
   $current_branch_id = $_SESSION['branch_id'] ?? 0;
@@ -59,7 +58,7 @@ include_once 'includes/head.php';
 <!DOCTYPE html>
 <html lang="en">
 <?php
- include_once 'includes/head.php';
+include_once 'includes/head.php';
 if (isset($_REQUEST['edit_product_id'])) {
   $fetchproduct = fetchRecord($dbc, "product", "product_id", base64_decode($_REQUEST['edit_product_id']));
 }
@@ -167,15 +166,8 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   <div class="col-sm-2 mt-3">
                     <label for="">Product Brand</label>
                     <div id="brandDropdownContainer">
-                      <select class="form-control searchableSelect tableData" name="brand_id" id="tableData" size="1">
+                      <select class="form-control searchableSelect tableData" name="brand_id" id="brandSelect" size="1">
                         <option value="">Select Brand</option>
-                        <?php
-                        $result = mysqli_query($dbc, "select * from brands");
-                        while ($row = mysqli_fetch_array($result)) {
-                          ?>
-                          <option <?= @($fetchproduct['brand_id'] != $row["brand_id"]) ? "" : "selected" ?>
-                            value="<?= $row["brand_id"] ?>"><?= $row["brand_name"] ?></option>
-                        <?php } ?>
                       </select>
                     </div>
                   </div>
@@ -327,121 +319,129 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                 </div>
               </div>
 
-              <table class="table dataTable col-12" style="width: 100%" id="product_tb">
+              <div id="loader" class="text-center my-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+                <p>Loading products...</p>
+              </div>
 
-                <thead>
-                  <tr>
-                    <!-- <th class="text-dark">#</th> -->
-                    <th class="text-dark">Code</th>
-                    <th class="text-dark">Name</th>
-                    <th class="text-dark" style="width: 20%;">Description</th>
-                    <th class="text-dark " style="min-width: 5%;">Category</th>
-                    <th class="text-dark" style="width: 15%;">Brand</th>
-                    <?php
-                    if ($UserData['user_role'] == 'admin'):
-                      ?>
-                      <th class="text-dark" style="width: 20%;">Purchase Rate</th>
-                      <?php
-                    endif;
-                    ?>
-                    <th class="text-dark" style="width: 15%;">Sale Rate</th>
-                    <!-- <?php if ($get_company['stock_manage'] == 1): ?>
-                      <th class="text-dark">Quanity instock</th>
-                    <?php endif; ?> -->
-                    <th class="text-dark" style="width: 15%;">Final Rate</th>
-                    <th class="text-dark" style="width: 15%;">Quantity</th>
-                    <th class="d-print-none text-dark " style="width: 15%;">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php $q = mysqli_query($dbc, "SELECT * FROM product where status=1");
-                  $c = 0;
-                  while ($r = mysqli_fetch_assoc($q)) {
-                    @$brandFetched = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
-                    @$categoryFetched = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-                    $c++;
-                    ?>
+              <div id="productTableWrapper" style="display: none;">
+                <table class="table dataTable col-12" style="width: 100%" id="product_tb">
+
+                  <thead>
                     <tr>
-                      <!-- <td><?= $c ?></td> -->
-                      <td class="text-uppercase"><?= $r['product_code'] ?></td>
-
-                      <td class="text-capitalize"><?= $r['product_name'] ?></td>
-                      <td class="text-capitalize"><?= $r['product_description'] ?></td>
-                      <td class="text-capitalize"><?= @$categoryFetched['categories_name'] ?></td>
-                      <td class="text-capitalize"><?= @$brandFetched['brand_name'] ?></td>
+                      <!-- <th class="text-dark">#</th> -->
+                      <th class="text-dark">Code</th>
+                      <th class="text-dark">Name</th>
+                      <th class="text-dark" style="width: 20%;">Description</th>
+                      <th class="text-dark " style="min-width: 5%;">Category</th>
+                      <th class="text-dark" style="width: 15%;">Brand</th>
                       <?php
                       if ($UserData['user_role'] == 'admin'):
                         ?>
-                        <td><?= $r['purchase_rate'] ?></td>
+                        <th class="text-dark" style="width: 20%;">Purchase Rate</th>
                         <?php
                       endif;
                       ?>
-                      <td><?= $r['current_rate'] ?>
-                      <td><?= $r['final_rate'] ?>
-                      </td>
-                      <td>
-                        <?php
-                        $product_id = $r['product_id'];
-                        $user_id = $_SESSION['user_id'];
-
-                        if ($_SESSION['user_role'] == 'admin') {
-                          $branch_id = $_GET['branch_id'] ?? '';
-                        } else {
-                          $branch_id = $_SESSION['branch_id'];
-                        }
-
-                        if (!empty($branch_id)) {
-                          $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'";
-                        } else {
-                          $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id'";
-                        }
-
-                        $inventory_stock = mysqli_query($dbc, $inventory_query);
-
-                        if (mysqli_num_rows($inventory_stock) > 0) {
-                          $i = mysqli_fetch_assoc($inventory_stock);
-                          $quantity = $i['quantity'] ?? 0;
-                          $badge_class = ($quantity <= 5) ? 'bg-danger text-white p-1 rounded' : 'bg-success text-white p-1 rounded';
-                          ?>
-                          <span class=' <?= $badge_class ?> '><?= $quantity ?></span>
-                          <?php
-                        } else {
-                          ?>
-                          <span class='<?= $badge_class ?>'>0</span>
-                          <?php
-                        }
-                        ?>
-                      </td>
-                      <td class="d-flex">
-
-                        <?php if (@$userPrivileges['nav_edit'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
-                          <form action="product.php?act=add" method="POST">
-                            <input type="hidden" name="edit_product_id" value="<?= base64_encode($r['product_id']) ?>">
-                            <button type="submit" class="btn btn-admin btn-sm m-1 d-inline-block">Edit</button>
-                          </form>
-                        <?php endif ?>
-                        <?php if (@$userPrivileges['nav_delete'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
-                          <button type="button"
-                            onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
-                            class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
-
-                        <?php endif ?>
-                        <a href="print_barcode.php?id=<?= base64_encode($r['product_id']) ?>"
-                          class="btn btn-primary btn-sm m-1">Barcode</a>
-
-
-                        <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
-                         onclick="getdata(<?=$r['product_id']?>)"  data-toggle="modal" data-target="#view_stock_modal">
-                          Detail
-                        </button>
-
-                      </td>
-
+                      <th class="text-dark" style="width: 15%;">Sale Rate</th>
+                      <!-- <?php if ($get_company['stock_manage'] == 1): ?>
+                      <th class="text-dark">Quanity instock</th>
+                    <?php endif; ?> -->
+                      <th class="text-dark" style="width: 15%;">Final Rate</th>
+                      <th class="text-dark" style="width: 15%;">Quantity</th>
+                      <th class="d-print-none text-dark " style="width: 15%;">Action</th>
                     </tr>
-                  <?php } ?>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    <?php $q = mysqli_query($dbc, "SELECT * FROM product where status=1");
+                    $c = 0;
+                    while ($r = mysqli_fetch_assoc($q)) {
+                      @$brandFetched = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
+                      @$categoryFetched = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
+                      $c++;
+                      ?>
+                      <tr>
+                        <!-- <td><?= $c ?></td> -->
+                        <td class="text-uppercase"><?= $r['product_code'] ?></td>
 
+                        <td class="text-capitalize"><?= $r['product_name'] ?></td>
+                        <td class="text-capitalize"><?= $r['product_description'] ?></td>
+                        <td class="text-capitalize"><?= @$categoryFetched['categories_name'] ?></td>
+                        <td class="text-capitalize"><?= @$brandFetched['brand_name'] ?></td>
+                        <?php
+                        if ($UserData['user_role'] == 'admin'):
+                          ?>
+                          <td><?= $r['purchase_rate'] ?></td>
+                          <?php
+                        endif;
+                        ?>
+                        <td><?= $r['current_rate'] ?>
+                        <td><?= $r['final_rate'] ?>
+                        </td>
+                        <td>
+                          <?php
+                          $product_id = $r['product_id'];
+                          $user_id = $_SESSION['user_id'];
+
+                          if ($_SESSION['user_role'] == 'admin') {
+                            $branch_id = $_GET['branch_id'] ?? '';
+                          } else {
+                            $branch_id = $_SESSION['branch_id'];
+                          }
+
+                          if (!empty($branch_id)) {
+                            $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'";
+                          } else {
+                            $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id'";
+                          }
+
+                          $inventory_stock = mysqli_query($dbc, $inventory_query);
+
+                          if (mysqli_num_rows($inventory_stock) > 0) {
+                            $i = mysqli_fetch_assoc($inventory_stock);
+                            $quantity = $i['quantity'] ?? 0;
+                            $badge_class = ($quantity <= 5) ? 'bg-danger text-white p-1 rounded' : 'bg-success text-white p-1 rounded';
+                            ?>
+                            <span class=' <?= $badge_class ?> '><?= $quantity ?></span>
+                            <?php
+                          } else {
+                            ?>
+                            <span class='<?= $badge_class ?>'>0</span>
+                            <?php
+                          }
+                          ?>
+                        </td>
+                        <td class="d-flex">
+
+                          <?php if (@$userPrivileges['nav_edit'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
+                            <form action="product.php?act=add" method="POST">
+                              <input type="hidden" name="edit_product_id" value="<?= base64_encode($r['product_id']) ?>">
+                              <button type="submit" class="btn btn-admin btn-sm m-1 d-inline-block">Edit</button>
+                            </form>
+                          <?php endif ?>
+                          <?php if (@$userPrivileges['nav_delete'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
+                            <button type="button"
+                              onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
+                              class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
+
+                          <?php endif ?>
+                          <a href="print_barcode.php?id=<?= base64_encode($r['product_id']) ?>"
+                            class="btn btn-primary btn-sm m-1">Barcode</a>
+
+
+                          <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
+                            onclick="getdata(<?= $r['product_id'] ?>)" data-toggle="modal" data-target="#view_stock_modal">
+                            Detail
+                          </button>
+
+                        </td>
+
+                      </tr>
+                    <?php } ?>
+                  </tbody>
+                </table>
+              </div>
 
             <?php endif ?>
           </div>
@@ -740,7 +740,24 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
           <form action="php_action/panel.php" method="POST" role="form" id="formData1">
             <div class="msg"></div>
             <div class="form-group row">
-              <div class="col-sm-4">
+              <div class="col-sm-6 ">
+                <label for="">Brand Category</label>
+                <div id="categoryDropdownContainer">
+                  <select class="form-control searchableSelect" name="category_id" id="tableData1" size="1">
+                    <option value="">Select Category</option>
+                    <?php
+                    $result = mysqli_query($dbc, "select * from categories");
+                    while ($row = mysqli_fetch_array($result)) {
+                      ?>
+                      <option data-price="<?= $row["category_price"] ?>" <?= @($brands['category_id'] != $row["categories_id"]) ? "" : "selected" ?> value="<?= $row["categories_id"] ?>">
+                        <?= $row["categories_name"] ?>-<?= $row["category_price"] ?>
+                      </option>
+                    <?php } ?>
+                  </select>
+                </div>
+
+              </div>
+              <div class="col-sm-6">
                 <label for="">Brand</label>
                 <input type="text" class="form-control" value="<?= @$brands['brand_name'] ?>" id="add_brand_name"
                   name="add_brand_name">
@@ -748,7 +765,9 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   name="brand_id">
 
               </div>
-              <div class="col-sm-4">
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-6">
                 <label for="brand_country">Country</label>
                 <select class="form-control searchableSelect" id="brand_country" name="brand_country">
                   <option value="">Select Country</option>
@@ -965,7 +984,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                 </select>
 
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label for="">Brand Status</label>
                 <select class="form-control" id="brand_status" name="brand_status">
 
@@ -1069,21 +1088,51 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
 
   function getdata(id) {
     $.ajax({
-        url: '', // same file
-        method: 'POST',
-        data: {
-          ajax: 'get_stock_detail',
-          product_id: id
-        },
-        success: function (response) {
-          // console.log('Response:', response); 
-          $('#view_stock_modal .modal-body .form-group').html(response);
-          $('#view_stock_modal').modal('show'); 
-        },
-        error: function (xhr, status, error) {
-          console.error('AJAX Error:', status, error);
-        }
-      });
-    
+      url: '', // same file
+      method: 'POST',
+      data: {
+        ajax: 'get_stock_detail',
+        product_id: id
+      },
+      success: function (response) {
+        // console.log('Response:', response); 
+        $('#view_stock_modal .modal-body .form-group').html(response);
+        $('#view_stock_modal').modal('show');
+      },
+      error: function (xhr, status, error) {
+        console.error('AJAX Error:', status, error);
+      }
+    });
+
   }
+</script>
+<script>
+  $(document).ready(function () {
+    $('#tableData1').on('change', function () {
+      const categoryIdForBrand = $(this).val();
+
+      $('#brandSelect').html('<option>Loading...</option>').prop('disabled', true);
+
+      if (categoryIdForBrand) {
+        $.ajax({
+          url: 'php_action/custom_action.php',
+          method: 'POST',
+          data: { category_id_for_brand: categoryIdForBrand },
+          success: function (response) {
+            console.log('Received:', response);
+            $('#brandSelect').html(response).prop('disabled', false);
+          },
+          error: function () {
+            $('#brandSelect').html('<option>Error loading brands</option>');
+          }
+        });
+      } else {
+        $('#brandSelect').html('<option value="">Select Brand</option>').prop('disabled', true);
+      }
+    });
+  
+  // loader 
+  $('#loader').hide();
+    $('#productTableWrapper').show();
+  });
 </script>

@@ -123,7 +123,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             
                         </div>
 
-                        <div class="form-group row mb-5">
+                        <div class="form-group row mb-3">
                             <div class="col-6 col-md-4">
                                 <label>Products</label>
                                 <input type="text" id="get_product_name" name="product_name" autocomplete="off"
@@ -177,8 +177,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <th class="text-dark">Product Name</th>
                                             <th class="text-dark">Final Rate</th>
                                             <th class="text-dark">Quantity</th>
-                                            <th class="text-dark">Amount</th>
-                                            <th class="text-dark">Action</th>
+                                            <th class="text-dark" style="width: 20%;">Amount</th>
+                                            <th class="text-dark" style="width: 20%;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table table-bordered" id="purchase_product_tb">
@@ -234,10 +234,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td colspan="3"></td>
                                             <td class="table-bordered"> Sub Total :</td>
                                             <td class="table-bordered" id="product_total_amount">
-                                                <?= @$fetchOrder['total_amount'] ? number_format((float)$fetchOrder['total_amount'], 2) : '0.00' ?>
+                                                <?= @$fetchOrder['total_amount'] ? number_format((float)$fetchOrder['total_amount'], 2) : '0' ?>
                                             </td>
-                                            <td class="table-bordered"></td>
-                                        </tr>
+                                       </tr>
                                         <tr>
                                             <td colspan="3"></td>
                                             <td class="table-bordered"> Discount :</td>
@@ -250,15 +249,13 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                     class="form-control form-control-sm d-none" placeholder="Freight"
                                                     value="0" min="0" name="freight">
                                             </td>
-                                            <td class="table-bordered"></td>
                                         </tr>
                                         <tr>
                                             <td colspan="3"></td>
                                             <td class="table-bordered"> <strong>Net Total :</strong> </td>
                                             <td class="table-bordered" id="product_grand_total_amount">
-                                                <?= @$fetchOrder['grand_total'] ? number_format((float)$fetchOrder['grand_total'], 2) : '0.00' ?>
+                                                <?= @$fetchOrder['grand_total'] ? number_format((float)$fetchOrder['grand_total'], 2) : '0' ?>
                                             </td>
-                                            <td class="table-bordered"></td>
                                         </tr>
                                     </tfoot>
                                 </table>

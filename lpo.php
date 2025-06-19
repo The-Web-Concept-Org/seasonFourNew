@@ -184,7 +184,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               </div>
 
             </div>
-            <div class="row mt-5">
+            <div class="row mt-3">
               <div class="col-12">
 
                 <table class="table  saleTable" id="myDiv">
@@ -244,7 +244,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                       <td colspan="4"></td>
                       <td class="table-bordered"> Sub Total :</td>
                       <td class="table-bordered" id="product_total_amount"><?= @$fetchPurchase['total_amount'] ?></td>
-                      <td class="table-bordered"></td>
                       </td>
                     </tr>
                     <tr>
@@ -254,8 +253,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           id="ordered_discount" class="form-control form-control-sm"
                           value="<?= @empty($_REQUEST['edit_order_id']) ? @$fetchPurchase['discount'] : "0" ?>" min="0"
                           name="ordered_discount">
-                      <td class="table-bordered"></td>
-
                       </td>
                     </tr>
                     <tr>
@@ -263,7 +260,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                       <td class="table-bordered"> <strong>Net Total :</strong> </td>
                       <td class="table-bordered " id="product_grand_total_amount"><?= @$fetchPurchase['grand_total'] ?>
                       </td>
-                      <td class="table-bordered"></td>
                     </tr>
 
                     <!-- <td class="table-bordered">Paid :</td> -->
