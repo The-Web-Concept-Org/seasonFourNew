@@ -120,7 +120,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             </div>
                         </div> <!-- end of form-group -->
 
-                        <div class="form-group row mb-5">
+                        <div class="form-group row mb-3">
                             <div class="col-4 col-md-2">
                                 <label>Product Code</label>
                                 <input type="text" autocomplete="off" name="product_code" id="get_product_code"
@@ -199,8 +199,8 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                             <!-- <th class="text-dark">Product Details</th> -->
                                             <th class="text-dark">Unit Price</th>
                                             <th class="text-dark">Quantity</th>
-                                            <th class="text-dark" style="width: 25%;">Amount</th>
-                                            <th class="text-dark">Action</th>
+                                            <th class="text-dark" style="width: 18%;">Amount</th>
+                                            <th class="text-dark" style="width: 30%;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table table-bordered" id="purchase_product_tb">
@@ -255,7 +255,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                                 <?= @$fetchGatepass['total_amount'] ?>
                                             </td>
                                             </td>
-                                            <td class="table-bordered"></td>
                                         </tr>
                                         <tr>
                                             <td colspan="4" class="table-bordered"></td>
@@ -266,8 +265,6 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                                     value="<?= @empty($_REQUEST['edit_order_id']) ? $fetchGatepass['discount'] : "0" ?>"
                                                     min="0" name="ordered_discount">
                                             </td>
-                                            <td class="table-bordered"></td>
-
                                         </tr>
                                         <tr>
                                             <td colspan="4" class="table-bordered"></td>
@@ -276,11 +273,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                                 <?= @$fetchGatepass['grand_total'] ?>
                                             </td>
                                             </td>
-                                            <td class="table-bordered"></td>
-
                                         </tr>
-
-
                                     </tfoot>
                                 </table>
                             </div>

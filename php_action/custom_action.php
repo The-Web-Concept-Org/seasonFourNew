@@ -3850,5 +3850,18 @@ if (isset($_POST['delete_manualbill']) && isset($_POST['edit_order_id'])) {
 	$stmt->close();
 }
 
+// when add product and select category then show only that brands which have same category id
+if (isset($_POST['category_id_for_brand'])) {
+    $category_id = intval($_POST['category_id_for_brand']);
+    $options = "<option value=''>Select Brand</option>";
+
+    $q = mysqli_query($dbc, "SELECT * FROM brands WHERE category_id = $category_id");
+    while ($r = mysqli_fetch_assoc($q)) {
+        $options .= "<option value='{$r['brand_id']}'>{$r['brand_name']}</option>";
+    }
+
+    echo $options;
+    exit; 
+}
 
 ?>

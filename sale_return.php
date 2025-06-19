@@ -42,8 +42,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
                         <?php if ($_SESSION['user_role'] == 'admin') { ?>
-                            <div class="dropdown-wrapper d-block mb-3 ml-auto">
-                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize d-block"
+                            <div class="dropdown-wrapper mb-3 ml-auto">
+                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize"
                                     required>
                                     <option selected disabled value="">Select Branch</option>
                                     <?php
@@ -209,7 +209,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                     class="form-control" name="order_file">
                             </div>
                         </div> <!-- end of form-group -->
-                        <div class="form-group row mb-5">
+                        <div class="form-group row mb-3">
                             <div class="col-6 col-md-2">
                                 <label>Code</label>
                                 <input type="text" name="product_code" autocomplete="off" id="get_product_code"
@@ -282,8 +282,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <th class="text-dark">Unit Price</th>
                                             <th class="text-dark">Final Rate</th>
                                             <th class="text-dark">Quantity</th>
-                                            <th class="text-dark">Amount</th>
-                                            <th class="text-dark">Action</th>
+                                            <th class="text-dark" style="width: 20%;">Amount</th>
+                                            <th class="text-dark" style="width: 20%;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table table-bordered" id="purchase_product_tb">
@@ -338,7 +338,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td class="table-bordered" id="product_total_amount">
                                                 <?= @$fetchOrder['total_amount'] ?>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -358,7 +357,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                                 </div>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -367,7 +365,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td class="table-bordered" id="product_grand_total_amount">
                                                 <?= @$fetchOrder['grand_total'] ?>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -389,7 +386,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                            </div> -->
                                                 </div>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -428,7 +424,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="table-bordered"> </td>
                                         </tr>
                                         <tr>
                                             <td colspan="5"></td>
@@ -438,7 +433,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                     class="form-control form-control-sm" id="remaining_ammount" required
                                                     readonly name="remaining_ammount"
                                                     value="<?= @$fetchOrder['due'] ?>">
-                                            <td class="table-bordered"> </td>
                                         </tr>
 
 
