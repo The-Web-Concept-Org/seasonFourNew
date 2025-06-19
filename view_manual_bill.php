@@ -44,8 +44,8 @@
             <table class="table  dataTable" id="view_orders_tb">
               <thead>
                 <tr>
-                  <th class="text-dark"> Date</th>
                   <th class="text-dark">Bill Id</th>
+                  <th class="text-dark"> Date</th>
                   <th class="text-dark">Customer Name</th>
                   <th class="text-dark">Amount</th>
                   <th class="text-dark">Comment</th>
@@ -80,8 +80,8 @@
 
 
                   <tr>
-                    <td><?= $r['timestamp'] ?></td>
                     <td>SF25-CI-<?= $r['order_id'] ?></td>
+                    <td><?= $r['timestamp'] ?></td>
                     <td><?= ucfirst($r['customer_name']) ?></td>
                     <td><?= $r['grand_total'] ?></td>
                     <td class="text-capitalize"><?= $r['order_narration'] ?></td>
