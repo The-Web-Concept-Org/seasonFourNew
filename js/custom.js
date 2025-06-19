@@ -674,6 +674,7 @@ $("#addProductPurchase").on("click", function () {
       $("#get_final_rate").val("");
       $("#instockQty").text("instock :0");
       $("#get_product_quantity").val("");
+      $("#get_product_code").focus();
 
       if ($("#product_idN_" + id).length) {
         $(".product_ids").each(function () {
@@ -720,7 +721,7 @@ $("#addProductPurchase").on("click", function () {
                 <td>${updated_total}</td>
                 <td>
                   <button type="button" onclick="removeByid('#product_idN_${id}')" class="fa fa-trash text-danger"></button>
-                  <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${product_quantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
+                  <button type="button" onclick="editByid(${id}, '${code}', '${price}', '${Currentquantity}', '${final_rate}')" class="fa fa-edit text-success"></button>
                 </td>
               </tr>
             `);

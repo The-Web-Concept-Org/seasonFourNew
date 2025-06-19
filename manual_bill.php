@@ -281,9 +281,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
         </div>
     </div>
     <?php include_once 'includes/foot.php'; ?>
-    <script>
-$(document).ready(function () {
-    
+</body>
+<script>
+    $(document).ready(function () {
     $('#order_date').datepicker({ dateFormat: 'yy-mm-dd' });
     
     let debounceTimeout;
@@ -303,8 +303,8 @@ $(document).ready(function () {
                     $('#add_pro_type').val('add');
                 } else {
                     $('#product_id').val('');
-                    $('#get_final_rate').val('');
-                    $('#add_pro_type').val('new');
+                    $('#get_final_rate').val(''); // Ensure finalRate is cleared for new products
+                    $('#add_pro_type').val('add'); // Set to 'add' to use existing row logic
                 }
             }
             updateSalePrice();
@@ -324,81 +324,139 @@ $(document).ready(function () {
         return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
     }
 
-$('#manualSale').on('click', function () {
-    let $btn = $(this);
-    let $spinner = $btn.find('.spinner-border');
-    let $text = $btn.find('.btn-text');
+    $('#manualSale').on('click', function () {
+        let $btn = $(this);
+        let $spinner = $btn.find('.spinner-border');
+        let $text = $btn.find('.btn-text');
 
-    // Show loader and disable button
-    $spinner.removeClass('d-none');
-    $text.addClass('d-none');
-    $btn.prop('disabled', true);
+        // Show loader and disable button
+        $spinner.removeClass('d-none');
+        $text.addClass('d-none');
+        $btn.prop('disabled', true);
 
-    setTimeout(() => {  // You can remove this timeout if you're calling a server or have async logic
-        let productName = $('#get_product_name').val().trim();
-        let finalRate = parseFloat($('#get_final_rate').val()) || 0;
-        let quantity = parseInt($('#get_product_quantity').val()) || 1;
-        let amount = finalRate * quantity;
-        let addProType = $('#add_pro_type').val();
-        let editRowId = $('#edit_row_id').val();
-        let productUid = $('#product_uid').val() || 'p_' + Date.now();
+        setTimeout(() => { // Simulate short delay to show spinner
+            let productName = $('#get_product_name').val().trim();
+            let finalRate = parseFloat($('#get_final_rate').val()) || 0;
+            let quantity = parseInt($('#get_product_quantity').val()) || 1;
+            let amount = finalRate * quantity;
+            let addProType = $('#add_pro_type').val();
+            let editRowId = $('#edit_row_id').val();
+            let productUid = $('#product_uid').val() || 'p_' + Date.now();
 
-        if (!productName) {
-            alert('Please enter or select a product name.');
-            resetButton();
-            return;
-        }
+            if (!productName) {
+                alert('Please enter or select a product name.');
+                resetButton();
+                return;
+            }
 
-        if (finalRate <= 0) {
-            alert('Final rate must be greater than 0.');
-            resetButton();
-            return;
-        }
+            if (finalRate <= 0) {
+                alert('Final rate must be greater than 0.');
+                resetButton();
+                return;
+            }
 
-        if (quantity <= 0) {
-            alert('Quantity must be greater than 0.');
-            resetButton();
-            return;
-        }
+            if (quantity <= 0) {
+                alert('Quantity must be greater than 0.');
+                resetButton();
+                return;
+            }
 
-        const rowId = productUid;
+            const rowId = editRowId || productUid;
 
-        // Remove existing product with same name if present
-        let existingRow = $(`input[name="product_names[]"][value="${productName}"]`).closest('tr');
-        if (existingRow.length) {
-            existingRow.remove();
-        }
+            if (addProType === 'add') {
+                // Check if product already exists in the table
+                let existingRow = $(`input[name="product_names[]"][value="${productName}"]`).closest('tr');
+                if (existingRow.length) {
+                    // Product exists, update quantity and recalculate amount
+                    let existingQuantity = parseInt(existingRow.find('input[name="product_quantites[]"]').val()) || 0;
+                    let newQuantity = existingQuantity + quantity;
+                    let newAmount = finalRate * newQuantity;
 
-        // Append new row
-        $('#purchase_product_tb').append(generateRowHTML(rowId, productName, finalRate, quantity, amount, 'add'));
+                    // Replace the existing row with updated values
+                    existingRow.replaceWith(`
+                        <tr id="product_idN_${rowId}">
+                            <input type="hidden" data-price="${finalRate}" data-quantity="${newQuantity}" 
+                                   id="product_ids_${rowId}" class="product_ids" name="product_ids[]" value="${rowId}">
+                            <input type="hidden" id="product_quantites_${rowId}" name="product_quantites[]" value="${newQuantity}">
+                            <input type="hidden" id="product_rates_${rowId}" name="product_rates[]" value="${finalRate}">
+                            <input type="hidden" id="product_final_rates_${rowId}" name="product_final_rates[]" value="${finalRate}">
+                            <input type="hidden" id="product_names_${rowId}" name="product_names[]" value="${productName}">
+                            <input type="hidden" id="product_actions_${rowId}" name="product_actions[]" value="add">
+                            <input type="hidden" id="product_uids_${rowId}" name="product_uids[]" value="${rowId}">
+                            <td>${productName}</td>
+                            <td>${finalRate.toFixed(2)}</td>
+                            <td>${newQuantity}</td>
+                            <td>${newAmount.toFixed(2)}</td>
+                            <td>
+                                <button type="button" onclick="removeByid('#product_idN_${rowId}')" class="fa fa-trash text-danger"></button>
+                                <button type="button" onclick="editByid('${rowId}', '${productName}', ${newQuantity}, ${finalRate}, '${rowId}')" class="fa fa-edit text-success ml-2"></button>
+                            </td>
+                        </tr>
+                    `);
+                } else {
+                    // Product doesn't exist, append new row
+                    $('#purchase_product_tb').append(generateRowHTML(rowId, productName, finalRate, quantity, amount, 'add'));
 
-        // Add new option to datalist if new product
-        if (addProType === 'new') {
-            let option = `<option value="${productName}" data-id="${rowId}" data-price="${finalRate}"></option>`;
-            $('#product_list').append(option);
-        }
+                    // Add new option to datalist if new product
+                    let option = `<option value="${productName}" data-id="${rowId}" data-price="${finalRate}"></option>`;
+                    $('#product_list').append(option);
+                }
+            } else if (addProType === 'update') {
+                // Check if editing an existing database-saved row
+                let existingRow = $(`#product_idN_${editRowId}`).length ? $(`#product_idN_${editRowId}`) : $(`input[name="product_names[]"][value="${productName}"]`).closest('tr');
+                if (existingRow.length) {
+                    // Update existing row
+                    let existingQuantity = parseInt(existingRow.find('input[name="product_quantites[]"]').val()) || 0;
+                    let newQuantity = quantity; // For update, use new quantity directly
+                    let newAmount = finalRate * newQuantity;
 
-        // Reset fields
-        $('#get_product_name').val('');
-        $('#product_id').val('');
-        $('#get_final_rate').val('');
-        $('#get_product_quantity').val('1');
-        $('#get_product_sale_price').val('');
-        $('#add_pro_type').val('add');
-        $('#edit_row_id').val('');
-        $('#product_uid').val('');
-        updateTotals();
+                    existingRow.replaceWith(`
+                        <tr id="product_idN_${rowId}">
+                            <input type="hidden" data-price="${finalRate}" data-quantity="${newQuantity}" 
+                                   id="product_ids_${rowId}" class="product_ids" name="product_ids[]" value="${rowId}">
+                            <input type="hidden" id="product_quantites_${rowId}" name="product_quantites[]" value="${newQuantity}">
+                            <input type="hidden" id="product_rates_${rowId}" name="product_rates[]" value="${finalRate}">
+                            <input type="hidden" id="product_final_rates_${rowId}" name="product_final_rates[]" value="${finalRate}">
+                            <input type="hidden" id="product_names_${rowId}" name="product_names[]" value="${productName}">
+                            <input type="hidden" id="product_actions_${rowId}" name="product_actions[]" value="update">
+                            <input type="hidden" id="product_uids_${rowId}" name="product_uids[]" value="${rowId}">
+                            <td>${productName}</td>
+                            <td>${finalRate.toFixed(2)}</td>
+                            <td>${newQuantity}</td>
+                            <td>${newAmount.toFixed(2)}</td>
+                            <td>
+                                <button type="button" onclick="removeByid('#product_idN_${rowId}')" class="fa fa-trash text-danger"></button>
+                                <button type="button" onclick="editByid('${rowId}', '${productName}', ${newQuantity}, ${finalRate}, '${rowId}')" class="fa fa-edit text-success ml-2"></button>
+                            </td>
+                        </tr>
+                    `);
+                } else {
+                    // No existing row found, append as new (should not happen with proper edit)
+                    $('#purchase_product_tb').append(generateRowHTML(rowId, productName, finalRate, quantity, amount, 'update'));
+                }
+            }
 
-        resetButton(); // Reset button at the end
-    }, 300); // Simulate short delay to show spinner
+            // Reset fields
+            $('#get_product_name').val('');
+            $('#get_product_name').focus();
+            $('#product_id').val('');
+            $('#get_final_rate').val('');
+            $('#get_product_quantity').val('');
+            $('#get_product_sale_price').val('');
+            $('#add_pro_type').val('add');
+            $('#edit_row_id').val('');
+            $('#product_uid').val('');
+            updateTotals();
 
-    function resetButton() {
-        $spinner.addClass('d-none');
-        $text.removeClass('d-none');
-        $btn.prop('disabled', false);
-    }
-});
+            resetButton(); // Reset button at the end
 
+            function resetButton() {
+                $spinner.addClass('d-none');
+                $text.removeClass('d-none');
+                $btn.prop('disabled', false);
+            }
+        }, 300);
+    });
 
     function generateRowHTML(rowId, productName, finalRate, quantity, amount, action) {
         return `
@@ -454,93 +512,92 @@ $('#manualSale').on('click', function () {
         $('#get_final_rate').val(parseFloat(finalRate));
         $('#get_product_quantity').val(quantity);
         $('#get_product_sale_price').val((parseFloat(finalRate) * quantity));
-        $('#add_pro_type').val(rowId.startsWith('new_') ? 'new' : 'add');
-        $('#edit_row_id').val(rowId);
-        $('#product_uid').val(productUid);
+        $('#add_pro_type').val('update');
+        $('#edit_row_id').val(rowId); 
+        $('#product_uid').val(productUid); 
         updateSalePrice();
+        // console.log('Editing:', { rowId, productName, quantity, finalRate, productUid }); 
     };
 
     window.getOrderTotal = function () {
         updateTotals();
     };
 
-$('#sale_btn').on('click', function (e) {
-    e.preventDefault();
+    $('#sale_btn').on('click', function (e) {
+        e.preventDefault();
 
-    const $btn = $(this);
-    const $spinner = $btn.find('.spinner-border');
-    const $text = $btn.find('.btn-text');
+        const $btn = $(this);
+        const $spinner = $btn.find('.spinner-border');
+        const $text = $btn.find('.btn-text');
 
-    if ($('#purchase_product_tb tr').length === 0) {
-        alert('Please add at least one product to the order.');
-        return;
-    }
+        if ($('#purchase_product_tb tr').length === 0) {
+            alert('Please add at least one product to the order.');
+            return;
+        }
 
-    if ($('#branch_id').val() === null || $('#branch_id').val() === '') {
-        alert('Please select a branch.');
-        return;
-    }
+        if ($('#branch_id').val() === null || $('#branch_id').val() === '') {
+            alert('Please select a branch.');
+            return;
+        }
 
-    // Show loader
-    $spinner.removeClass('d-none');
-    $text.addClass('d-none');
-    $btn.prop('disabled', true);
+        // Show loader
+        $spinner.removeClass('d-none');
+        $text.addClass('d-none');
+        $btn.prop('disabled', true);
 
-    let formData = $('#sale_order_fm').serializeArray();
-console.log(formData);
+        let formData = $('#sale_order_fm').serializeArray();
+        // console.log(formData);
 
-    $.ajax({
-        url: $('#sale_order_fm').attr('action'),
-        type: 'POST',
-        data: formData,
-        dataType: 'json',
-        success: function (response) {
-            // Hide loader
-            resetButton();
+        $.ajax({
+            url: $('#sale_order_fm').attr('action'),
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function (response) {
+                // Hide loader
+                resetButton();
 
-            if (response.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: response.message,
-                    showCancelButton: true,
-                    confirmButtonText: 'Print Order',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.open('print_sale.php?type=manualbill&id=' + response.order_id, '_blank');
-                        location.reload();
-                    } else {
-                        location.reload();
-                    }
-                });
-            } else {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message,
+                        showCancelButton: true,
+                        confirmButtonText: 'Print Order',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.open('print_sale.php?type=manualbill&id=' + response.order_id, '_blank');
+                            location.reload();
+                        } else {
+                            location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'An unknown error occurred.'
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                resetButton();
+                console.log('Status:', status, 'Error:', error, 'Response:', xhr.responseText);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: response.message || 'An unknown error occurred.'
+                    title: 'Request Failed',
+                    text: 'An error occurred while saving the order.'
                 });
             }
-        },
-        error: function (xhr, status, error) {
-            resetButton();
-            console.log('Status:', status, 'Error:', error, 'Response:', xhr.responseText);
-            Swal.fire({
-                icon: 'error',
-                title: 'Request Failed',
-                text: 'An error occurred while saving the order.'
-            });
+        });
+
+        function resetButton() {
+            $spinner.addClass('d-none');
+            $text.removeClass('d-none');
+            $btn.prop('disabled', false);
         }
     });
-
-    function resetButton() {
-        $spinner.addClass('d-none');
-        $text.removeClass('d-none');
-        $btn.prop('disabled', false);
-    }
 });
-
-});
-    </script>
-</body>
+</script>
 </html>
