@@ -397,7 +397,7 @@
             }
         } elseif ($_REQUEST['type'] == "manualbill") {
             $nameSHow = 'Customer_name';
-            $id_name = "Cash Invoice Id";
+            $id_name = "Id";
             $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
             $unique_id = 'SF25-Id-' . $order['order_id'];
 

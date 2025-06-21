@@ -43,8 +43,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                         <?php if ($_SESSION['user_role'] == 'admin') { ?>
                             <div class="dropdown-wrapper mb-3 ml-auto">
-                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize"
-                                    required>
+                                <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
                                     <option selected disabled value="">Select Branch</option>
                                     <?php
                                     $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
@@ -129,13 +128,21 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <label>Customer Account</label>
                                 <div class="input-group">
 
-                                    <select class="form-control searchableSelect"
+                                    <select class="form-control searchableSelect customer_name"
                                         onchange="getBalance(this.value,'customer_account_exp')"
                                         name="credit_order_client_name" id="credit_order_client_name"
                                         aria-label="Username" aria-describedby="basic-addon1">
                                         <option value="">Customer Account</option>
                                         <?php
-                                        $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer'");
+                                        $branch_id = $_SESSION['branch_id'];
+                                        $user_role = $_SESSION['user_role'];
+
+                                        if ($user_role === 'admin') {
+                                            $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer'";
+                                        } else {
+                                            $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer' AND branch_id = '$branch_id'";
+                                        }
+                                        $q = mysqli_query($dbc, $sql);
                                         while ($r = mysqli_fetch_assoc($q)) {
                                             ?>
                                             <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?> data-id="<?= $r['customer_id'] ?>"
@@ -387,7 +394,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                 </div>
                                             </td>
                                         </tr>
-                                        <tr>
+                                        <tr id="account_row" style="display: none;">
                                             <td colspan="5"></td>
 
                                             <td class="table-bordered">Account :</td>
@@ -429,13 +436,13 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td colspan="5"></td>
 
                                             <td class="table-bordered">Remaing Amount :</td>
-                                            <td class="table-bordered"><input type="number"
-                                                    class="form-control form-control-sm" id="remaining_ammount" required
+                                            <td class="table-bordered"><input type="text"
+                                                    class="form-control form-control-sm text-start" id="remaining_ammount" required
                                                     readonly name="remaining_ammount"
                                                     value="<?= @$fetchOrder['due'] ?>">
                                         </tr>
 
-
+ 
                                     </tfoot>
                                 </table>
                             </div>
@@ -483,3 +490,13 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 
 ?>
+<script>
+    $(document).ready(function () {
+  // Trigger branch change manually on edit
+  const isEditMode = !!$("[name='edit_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+
+  if (isEditMode) {
+    $("#branch_id").trigger("change");
+  }
+});
+</script>

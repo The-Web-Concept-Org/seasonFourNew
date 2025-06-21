@@ -107,24 +107,22 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 <label>Customer Account</label>
                 <div class="input-group">
 
-                  <select class="form-control searchableSelect" onchange="getBalance(this.value,'customer_account_exp')"
+                  <select class="form-control searchableSelect customer_name" onchange="getBalance(this.value,'customer_account_exp')"
                     name="credit_order_client_name" id="credit_order_client_name" required aria-label="Username" aria-
                     describedby="basic-addon1">
                     <option value="">Customer Account</option>
-                    <?php
-                    // Base query for active customers
-                    $query = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type='customer'";
+                   <?php
+                $branch_id = $_SESSION['branch_id'];
+                $user_role = $_SESSION['user_role'];
 
-                    // If in edit mode, include the customer from the quotation
-                    if (!empty($_REQUEST['edit_order_id']) && !empty($fetchOrder['customer_account'])) {
-                      $query .= " AND (branch_id = '" . $_SESSION['branch_id'] . "' OR customer_id = '" . $fetchOrder['customer_account'] . "')";
-                    } else {
-                      $query .= " AND branch_id = '" . $_SESSION['branch_id'] . "'";
-                    }
-
-                    $q = mysqli_query($dbc, $query);
-                    while ($r = mysqli_fetch_assoc($q)) {
-                      ?>
+                if ($user_role === 'admin') {
+                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer'";
+                } else {
+                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer' AND branch_id = '$branch_id'";
+                }
+                $q = mysqli_query($dbc, $sql);
+                while ($r = mysqli_fetch_assoc($q)) {
+                  ?>
                       <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?>
                         data-id="<?= $r['customer_id'] ?>" data-contact="<?= $r['customer_phone'] ?>"
                         value="<?= $r['customer_name'] ?>"><?= $r['customer_name'] ?> | <?= $r['customer_phone'] ?>
@@ -170,7 +168,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   name="quotation_file">
               </div>
             </div> <!-- end of form-group -->
-            <div class="form-group row mb-3">
+            <div class="form-group row mb-3
+            ">
               <div class="col-6 col-md-2">
                 <label>Product Code</label>
                 <input type="text" name="product_code" autocomplete="off" id="get_product_code" class="form-control">

@@ -115,8 +115,8 @@ $(document).ready(function () {
     var formData = new FormData(form);
 
     for (var pair of formData.entries()) {
-    console.log(pair[0] + ': ' + pair[1]);
-}
+      console.log(pair[0] + ': ' + pair[1]);
+    }
     const $btn = $("#sale_order_btn");
     const $spinner = $btn.find(".spinner-border");
     const $text = $btn.find(".btn-text");
@@ -154,9 +154,9 @@ $(document).ready(function () {
             if (result.isConfirmed) {
               window.open(
                 "print_sale.php?id=" +
-                  response.order_id +
-                  "&type=" +
-                  response.type,
+                response.order_id +
+                "&type=" +
+                response.type,
                 "_blank"
               );
               location.reload();
@@ -270,19 +270,19 @@ $(document).ready(function () {
               if (result.isConfirmed) {
                 window.open(
                   "print_voucher.php?type=debit&voucher_id=" +
-                    response.voucher_id,
+                  response.voucher_id,
                   "_blank"
                 );
               } else if (result.isDenied) {
                 window.open(
                   "print_voucher.php?type=credit&voucher_id=" +
-                    response.voucher_id,
+                  response.voucher_id,
                   "_blank"
                 );
               } else {
                 window.open(
                   "print_voucher.php?type=both&voucher_id=" +
-                    response.voucher_id,
+                  response.voucher_id,
                   "_blank"
                 );
               }
@@ -335,19 +335,19 @@ $(document).ready(function () {
               if (result.isConfirmed) {
                 window.open(
                   "print_voucher.php?type=debit&voucher_id=" +
-                    response.voucher_id,
+                  response.voucher_id,
                   "_blank"
                 );
               } else if (result.isDenied) {
                 window.open(
                   "print_voucher.php?type=credit&voucher_id=" +
-                    response.voucher_id,
+                  response.voucher_id,
                   "_blank"
                 );
               } else {
                 window.open(
                   "print_voucher.php?type=both&voucher_id=" +
-                    response.voucher_id,
+                  response.voucher_id,
                   "_blank"
                 );
               }
@@ -405,8 +405,10 @@ $(document).ready(function () {
     var payment_type = $("#payment_type").val();
     //   var podid=  $('#get_product_name :selected').val();
     var branch_id = $("#branch_id").val();
+    var purchase_return = $("#purchase_return").val();
     var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
-
+  
+  
     $.ajax({
       type: "POST",
       url: "php_action/custom_action.php",
@@ -430,11 +432,17 @@ $(document).ready(function () {
       dataType: "json",
       success: function (response) {
         $("#get_product_price").val(response.price);
+        $("#get_product_sale_price").val(response.price);
+        $("#get_product_detail").val(response.description);
+        $("#get_final_rate").val(response.final_rate);
         $("#instockQty").html("instock :" + response.qty);
-        console.log(response.qty);
+        console.log(response);
         if (
-          !isSaleReturn &&
-          (payment_type === "cash_in_hand" || payment_type === "credit_sale")
+          (!isSaleReturn &&
+            (payment_type === "cash_in_hand" || payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
+              purchase_return === "purchase_return") ||
+          (payment_type === "cash_purchase" &&
+            purchase_return === "purchase_return")
         ) {
           $("#get_product_quantity").attr("max", response.qty);
           $("#addProductPurchase").prop("disabled", response.qty <= 0);
@@ -504,6 +512,7 @@ $("#get_product_name").on("change", function () {
   var credit_sale_type = $("#credit_sale_type").val();
   var price_type = $("#price_type").val();
   var branch_id = $("#branch_id").val();
+  var purchase_return = $("#purchase_return").val();
   var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
   $.ajax({
@@ -536,11 +545,13 @@ $("#get_product_name").on("change", function () {
         $("#get_product_detail").val(response.description);
         $("#get_final_rate").val(response.final_rate);
         $("#instockQty").html("instock :" + response.qty);
-        console.log(response.qty);
-
+        console.log(response);
         if (
-          !isSaleReturn &&
-          (payment_type === "cash_in_hand" || payment_type === "credit_sale")
+          (!isSaleReturn &&
+            (payment_type === "cash_in_hand" || payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
+              purchase_return === "purchase_return") ||
+          (payment_type === "cash_purchase" &&
+            purchase_return === "purchase_return")
         ) {
           $("#get_product_quantity").attr("max", response.qty);
           $("#addProductPurchase").prop("disabled", response.qty <= 0);
@@ -555,7 +566,7 @@ $("#get_product_name").on("change", function () {
 
   // Call the function for both purchase and sale prices
   fetchProductPrice(price_type);
-  fetchProductPrice(price_type);
+  // fetchProductPrice(price_type);
 });
 $("#product_code").on("change", function () {
   //var code=  $('#get_product_code').val();
@@ -622,7 +633,7 @@ $("#addProductPurchase").on("click", function () {
 
       var payment_type = $("#payment_type").val();
       var isSaleReturn = $("#order_return").val() === "order_return";
-
+var isPurchaseReturn = $("#purchase_return").val() === "purchase_return";
       var name = $("#get_product_name :selected").text();
       var price = parseFloat($("#get_product_price").val());
       var sale_price = parseFloat($("#get_product_sale_price").val());
@@ -634,8 +645,8 @@ $("#addProductPurchase").on("click", function () {
       var pro_type = $("#add_pro_type").val();
 
       if (
-        payment_type === "cash_purchase" ||
-        payment_type === "credit_purchase" ||
+       (payment_type === "cash_purchase" && !isPurchaseReturn ) ||
+        (payment_type === "credit_purchase" && !isPurchaseReturn) ||
         isSaleReturn
       ) {
         max_qty = 99999999999;
@@ -711,12 +722,11 @@ $("#addProductPurchase").on("click", function () {
                 <td>${code}</td>
                 <td>${name}</td>
                 <td>${price}</td>
-                ${
-                  get_final_rate
-                    ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+                ${get_final_rate
+                ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
                        <td>${final_rate}</td>`
-                    : ""
-                }
+                : ""
+              }
                 <td>${Currentquantity}</td>
                 <td>${updated_total}</td>
                 <td>
@@ -739,12 +749,11 @@ $("#addProductPurchase").on("click", function () {
             <td>${code}</td>
             <td>${name}</td>
             <td>${price}</td>
-            ${
-              get_final_rate
-                ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
+            ${get_final_rate
+            ? `<input type="hidden" id="product_final_rate_${id}" name="product_final_rates[]" value="${final_rate}">
                    <td>${final_rate}</td>`
-                : ""
-            }
+            : ""
+          }
             <td>${product_quantity}</td>
             <td>${total_price}</td>
             <td>
@@ -904,53 +913,53 @@ function addbarcode_product(code, action_value) {
 
             $("#product_idN_" + res.product_id).replaceWith(
               '<tr id="product_idN_' +
-                res.product_id +
-                '">\
+              res.product_id +
+              '">\
 					<input type="hidden" data-price="' +
-                res.current_rate +
-                '" data-quantity="' +
-                Currentquantity +
-                '" id="product_ids_' +
-                res.product_id +
-                '" class="product_ids" name="product_ids[]" value="' +
-                res.product_id +
-                '">\
+              res.current_rate +
+              '" data-quantity="' +
+              Currentquantity +
+              '" id="product_ids_' +
+              res.product_id +
+              '" class="product_ids" name="product_ids[]" value="' +
+              res.product_id +
+              '">\
 					<input type="hidden" id="product_quantites_' +
-                res.product_id +
-                '" name="product_quantites[]" value="' +
-                Currentquantity +
-                '">\
+              res.product_id +
+              '" name="product_quantites[]" value="' +
+              Currentquantity +
+              '">\
 					<input type="hidden" id="product_rates_' +
-                res.product_id +
-                '" name="product_rates[]" value="' +
-                res.current_rate +
-                '">\
+              res.product_id +
+              '" name="product_rates[]" value="' +
+              res.current_rate +
+              '">\
 					<td>' +
-                res.product_code +
-                "  </td>\
+              res.product_code +
+              "  </td>\
           <td>" +
-                res.product_name +
-                ' (<span class="text-success">' +
-                res.brand_name +
-                "</span>) </td>\
+              res.product_name +
+              ' (<span class="text-success">' +
+              res.brand_name +
+              "</span>) </td>\
 					<td>" +
-                res.current_rate +
-                " </td>\
+              res.current_rate +
+              " </td>\
 					<td>" +
-                Currentquantity +
-                " </td>\
+              Currentquantity +
+              " </td>\
 					<td>" +
-                res.current_rate * Currentquantity +
-                ' </td>\
+              res.current_rate * Currentquantity +
+              ' </td>\
 					<td> <button type="button" onclick="addbarcode_product(`' +
-                res.product_code +
-                '`,`plus`)" class="fa fa-plus text-success" href="#" ></button>\
+              res.product_code +
+              '`,`plus`)" class="fa fa-plus text-success" href="#" ></button>\
 						<button type="button" onclick="addbarcode_product(`' +
-                res.product_code +
-                '`,`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
+              res.product_code +
+              '`,`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
 						<button type="button" onclick="removeByid(`#product_idN_' +
-                res.product_id +
-                '`)" class="fa fa-trash text-danger" href="#" ></button>\
+              res.product_id +
+              '`)" class="fa fa-trash text-danger" href="#" ></button>\
 						</td>\
 					</tr>'
             );
@@ -960,53 +969,53 @@ function addbarcode_product(code, action_value) {
       } else {
         $("#purchase_product_tb").append(
           '<tr id="product_idN_' +
-            res.product_id +
-            '">\
+          res.product_id +
+          '">\
 			          <input type="hidden" data-price="' +
-            res.current_rate +
-            '"  data-quantity="1" id="product_ids_' +
-            res.product_id +
-            '" class="product_ids" name="product_ids[]" value="' +
-            res.product_id +
-            '">\
+          res.current_rate +
+          '"  data-quantity="1" id="product_ids_' +
+          res.product_id +
+          '" class="product_ids" name="product_ids[]" value="' +
+          res.product_id +
+          '">\
 			          <input type="hidden" id="product_quantites_' +
-            res.product_id +
-            '" name="product_quantites[]" value="1">\
+          res.product_id +
+          '" name="product_quantites[]" value="1">\
 			          <input type="hidden" id="product_rate_' +
-            res.product_id +
-            '" name="product_rates[]" value="' +
-            res.current_rate +
-            '">\
+          res.product_id +
+          '" name="product_rates[]" value="' +
+          res.current_rate +
+          '">\
 			          <input type="hidden" id="product_totalrate_' +
-            res.product_id +
-            '" name="product_totalrates[]" value="' +
-            res.current_rate +
-            '">\
+          res.product_id +
+          '" name="product_totalrates[]" value="' +
+          res.current_rate +
+          '">\
 			          <td>' +
-            res.product_code +
-            "  </td>\
+          res.product_code +
+          "  </td>\
                 <td>" +
-            res.product_name +
-            ' (<span class="text-success">' +
-            res.brand_name +
-            "</span>)</td>\
+          res.product_name +
+          ' (<span class="text-success">' +
+          res.brand_name +
+          "</span>)</td>\
 			           <td>" +
-            res.current_rate +
-            "</td>\
+          res.current_rate +
+          "</td>\
 			           <td>1</td>\
 			          <td>" +
-            res.current_rate +
-            '</td>\
+          res.current_rate +
+          '</td>\
 			          <td>\
 			            <button type="button" onclick="addbarcode_product(`' +
-            res.product_code +
-            '`,`plus`)" class="fa fa-plus text-success" href="#" ></button>\
+          res.product_code +
+          '`,`plus`)" class="fa fa-plus text-success" href="#" ></button>\
 						<button type="button" onclick="addbarcode_product(`' +
-            res.product_code +
-            '`,`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
+          res.product_code +
+          '`,`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
 						<button type="button" onclick="removeByid(`#product_idN_' +
-            res.product_id +
-            '`)" class="fa fa-trash text-danger" href="#" ></button>\
+          res.product_id +
+          '`)" class="fa fa-trash text-danger" href="#" ></button>\
 						</td>\
 			          </tr>'
         );
@@ -1048,54 +1057,54 @@ function addProductOrder(id, max = 100, action_value) {
 
             $("#product_idN_" + id).replaceWith(
               '<tr id="product_idN_' +
-                id +
-                '">\
+              id +
+              '">\
           <input type="hidden" data-price="' +
-                res.current_rate +
-                '" data-quantity="' +
-                Currentquantity +
-                '" id="product_ids_' +
-                id +
-                '" class="product_ids" name="product_ids[]" value="' +
-                res.product_id +
-                '">\
+              res.current_rate +
+              '" data-quantity="' +
+              Currentquantity +
+              '" id="product_ids_' +
+              id +
+              '" class="product_ids" name="product_ids[]" value="' +
+              res.product_id +
+              '">\
           <input type="hidden" id="product_quantites_' +
-                id +
-                '" name="product_quantites[]" value="' +
-                Currentquantity +
-                '">\
+              id +
+              '" name="product_quantites[]" value="' +
+              Currentquantity +
+              '">\
           <input type="hidden" id="product_rates_' +
-                id +
-                '" name="product_rates[]" value="' +
-                res.current_rate +
-                '">\
+              id +
+              '" name="product_rates[]" value="' +
+              res.current_rate +
+              '">\
           <td>' +
-                res.product_name +
-                ' (<span class="text-success">' +
-                res.brand_name +
-                "</span>) </td>\
+              res.product_name +
+              ' (<span class="text-success">' +
+              res.brand_name +
+              "</span>) </td>\
           <td>" +
-                res.current_rate +
-                " </td>\
+              res.current_rate +
+              " </td>\
           <td>" +
-                Currentquantity +
-                " </td>\
+              Currentquantity +
+              " </td>\
           <td>" +
-                res.current_rate * Currentquantity +
-                ' </td>\
+              res.current_rate * Currentquantity +
+              ' </td>\
           <td> <button type="button" onclick="addProductOrder(' +
-                id +
-                "," +
-                res.quantity +
-                ',`plus`)" class="fa fa-plus text-success" href="#" ></button>\
+              id +
+              "," +
+              res.quantity +
+              ',`plus`)" class="fa fa-plus text-success" href="#" ></button>\
             <button type="button" onclick="addProductOrder(' +
-                id +
-                "," +
-                res.quantity +
-                ',`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
+              id +
+              "," +
+              res.quantity +
+              ',`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
             <button type="button" onclick="removeByid(`#product_idN_' +
-                id +
-                '`)" class="fa fa-trash text-danger" href="#" ></button>\
+              id +
+              '`)" class="fa fa-trash text-danger" href="#" ></button>\
             </td>\
           </tr>'
             );
@@ -1105,54 +1114,54 @@ function addProductOrder(id, max = 100, action_value) {
       } else {
         $("#purchase_product_tb").append(
           '<tr id="product_idN_' +
-            id +
-            '">\
+          id +
+          '">\
                 <input type="hidden" data-price="' +
-            res.current_rate +
-            '"  data-quantity="1" id="product_ids_' +
-            id +
-            '" class="product_ids" name="product_ids[]" value="' +
-            id +
-            '">\
+          res.current_rate +
+          '"  data-quantity="1" id="product_ids_' +
+          id +
+          '" class="product_ids" name="product_ids[]" value="' +
+          id +
+          '">\
                 <input type="hidden" id="product_quantites_' +
-            id +
-            '" name="product_quantites[]" value="1">\
+          id +
+          '" name="product_quantites[]" value="1">\
                 <input type="hidden" id="product_rate_' +
-            id +
-            '" name="product_rates[]" value="' +
-            res.current_rate +
-            '">\
+          id +
+          '" name="product_rates[]" value="' +
+          res.current_rate +
+          '">\
                 <input type="hidden" id="product_totalrate_' +
-            id +
-            '" name="product_totalrates[]" value="' +
-            res.current_rate +
-            '">\
+          id +
+          '" name="product_totalrates[]" value="' +
+          res.current_rate +
+          '">\
                 <td>' +
-            res.product_name +
-            ' (<span class="text-success">' +
-            res.brand_name +
-            "</span>)</td>\
+          res.product_name +
+          ' (<span class="text-success">' +
+          res.brand_name +
+          "</span>)</td>\
                  <td>" +
-            res.current_rate +
-            "</td>\
+          res.current_rate +
+          "</td>\
                  <td>1</td>\
                 <td>" +
-            res.current_rate +
-            '</td>\
+          res.current_rate +
+          '</td>\
                 <td>\
                   <button type="button" onclick="addProductOrder(' +
-            id +
-            "," +
-            res.quantity +
-            ',`plus`)" class="fa fa-plus text-success" href="#" ></button>\
+          id +
+          "," +
+          res.quantity +
+          ',`plus`)" class="fa fa-plus text-success" href="#" ></button>\
             <button type="button" onclick="addProductOrder(' +
-            id +
-            "," +
-            res.quantity +
-            ',`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
+          id +
+          "," +
+          res.quantity +
+          ',`minus`)" class="fa fa-minus text-warning" href="#" ></button>\
             <button type="button" onclick="removeByid(`#product_idN_' +
-            id +
-            '`)" class="fa fa-trash text-danger" href="#" ></button>\
+          id +
+          '`)" class="fa fa-trash text-danger" href="#" ></button>\
             </td>\
                 </tr>'
         );
@@ -1262,13 +1271,15 @@ function setAmountPaid(id, paid) {
 }
 
 let purchaseType = (value) => {
-  if (value == "cash") {
+  console.log("Selected purchase type:", value);
+  if (value == "cash_purchase") {
     let total_amount = $("#product_grand_total_amount").text();
     $("#paid_ammount").val(total_amount);
     $("#paid_ammount").attr("readonly", true);
     $("#remaining_ammount").val(0);
     $("#payment_type").val("cash_purchase");
     $("#payment_account").attr("required", true);
+    $(".for_cash").show();
   } else {
     let total_amount = $("#product_grand_total_amount").text();
     $("#payment_account").attr("required", false);
@@ -1276,46 +1287,54 @@ let purchaseType = (value) => {
     $("#remaining_ammount").val(total_amount);
     $("#paid_ammount").attr("readonly", false);
     $("#payment_type").val("credit_purchase");
+    $("#payment_account").attr("required", false);
+    $(".for_cash").hide();
   }
 };
 
 let saleType = (value) => {
-    if (value == "cash") {
-        let total_amount = $("#product_grand_total_amount").text();
-        $("#paid_ammount").val(total_amount);
-        $("#paid_ammount").attr("readonly", false);
-        $("#payment_account").attr("required", true);
-        $("#credit_order_client_name").attr("required", false);
-        $("#remaining_ammount").val(0);
-        $("#payment_type").val("cash_in_hand");
-        $("#form_type").val("cash_in_hand");
-        $(".return_days-div").hide();
-        $(".cash-sale-div1").show();
-        $(".cash-sale-div2").show();
-        $(".input-group-prepend").hide();
-        $("#credit_order_client_name").attr("name", "zksjf");
-        $("#sale_order_client_name").attr("name", "sale_order_client_name");
-        $("#client_contact").attr("name", "sdsa");
-        $("#split_payment_container").show(); // Show split payment checkbox
-    } else {
-        let total_amount = $("#product_grand_total_amount").text();
-        $("#paid_ammount").val(0);
-        $("#payment_type").val("credit_sale");
-         $("#payment_account").attr("required", false);
-         $("#credit_order_client_name").attr("required", true);
-        $("#form_type").val("credit_sale");
-        $("#credit_order_client_name").attr("name", "credit_order_client_name");
-        $("#sale_order_client_name").attr("name", "skd");
-        $("#client_contact").attr("name", "client_contact");
-        $("#remaining_ammount").val(total_amount);
-        $("#paid_ammount").attr("readonly", false);
-        $(".return_days-div").show();
-        $(".input-group-prepend").show();
-        $(".cash-sale-div1").hide();
-        $(".cash-sale-div2").hide();
-        $("#split_payment_container").hide(); // Hide split payment checkbox
-        toggleSplitPayment(false); // Reset split payment state
-    }
+
+  if (value == "cash") {
+    let total_amount = $("#product_grand_total_amount").text();
+    $("#paid_ammount").val(total_amount);
+    $("#paid_ammount").attr("readonly", false);
+    $("#payment_account").attr("required", true);
+    $("#credit_order_client_name").attr("required", false);
+    $("#remaining_ammount").val(0);
+    $("#payment_type").val("cash_in_hand");
+    $("#form_type").val("cash_in_hand");
+    $(".return_days-div").hide();
+    $(".cash-sale-div1").show();
+    $(".cash-sale-div2").show();
+    $(".input-group-prepend").hide();
+    $("#credit_order_client_name").attr("name", "zksjf");
+    $("#sale_order_client_name").attr("name", "sale_order_client_name");
+    $("#client_contact").attr("name", "sdsa");
+    $("#account_row").show();
+    $("#split_payment_container").show(); // Show split payment checkbox
+  } else {
+    let total_amount = $("#product_grand_total_amount").text();
+    $("#paid_ammount").val(0);
+    $("#payment_type").val("credit_sale");
+    $("#payment_account").attr("required", false);
+    $("#credit_order_client_name").attr("required", true);
+    $("#form_type").val("credit_sale");
+    $("#credit_order_client_name").attr("name", "credit_order_client_name");
+    $("#sale_order_client_name").attr("name", "skd");
+    $("#client_contact").attr("name", "client_contact");
+    $("#remaining_ammount").val(total_amount);
+    $("#paid_ammount").attr("readonly", false);
+    $(".return_days-div").show();
+    $(".input-group-prepend").show();
+    $(".cash-sale-div1").hide();
+    $(".cash-sale-div2").hide();
+    $("#account_row").hide();
+    $("#split_payment_container").hide(); // Hide split payment checkbox
+    toggleSplitPayment(false); // Reset split payment state
+  console.log(total_amount);
+  
+  }
+  toggleSplitPayment();
 };
 $(document).ready(function () {
   $("#sale_type").change();
@@ -1347,7 +1366,7 @@ $(document).ready(function () {
 
         // Populate customer type lists
         if (response.customers.length) {
-          var $customerSelect = $("#credit_order_client_name");
+          var $customerSelect = $(".customer_name");
           $customerSelect
             .empty()
             .append('<option value="">Customer Account</option>');
@@ -1355,22 +1374,22 @@ $(document).ready(function () {
           response.customers.forEach(function (cust) {
             $customerSelect.append(
               '<option data-id="' +
-                cust.customer_id +
-                '" data-contact="' +
-                cust.customer_phone +
-                '" value="' +
-                cust.customer_name +
-                '">' +
-                cust.customer_name +
-                " | " +
-                cust.customer_phone +
-                "</option>"
+              cust.customer_id +
+              '" data-contact="' +
+              cust.customer_phone +
+              '" value="' +
+              cust.customer_name +
+              '">' +
+              cust.customer_name +
+              " | " +
+              cust.customer_phone +
+              "</option>"
             );
           });
         }
 
         if (response.banks.length) {
-          var $paymentSelect = $("#payment_account");
+          var $paymentSelect = $("#payment_account, #bank_account, #cash_account");
           $paymentSelect
             .empty()
             .append('<option value="">Select Account</option>');
@@ -1378,19 +1397,38 @@ $(document).ready(function () {
           response.banks.forEach(function (bank) {
             $paymentSelect.append(
               '<option value="' +
-                bank.customer_id +
-                '">' +
-                bank.customer_name +
-                "</option>"
+              bank.customer_id +
+              '">' +
+              bank.customer_name +
+              "</option>"
             );
           });
         }
 
         if (response.suppliers.length) {
-          response.suppliers.forEach(function (item) {
-            $("#supplier_list").append("<li>" + item.customer_name + "</li>");
+          const $supplierSelect = $(".supplier_name");
+          $supplierSelect
+            .empty()
+            .append('<option value="">Select Supplier</option>');
+
+          response.suppliers.forEach(function (sup) {
+            $supplierSelect.append(
+              '<option data-id="' +
+              sup.customer_id +
+              '" data-contact="' +
+              sup.customer_phone +
+              '" value="' +
+              sup.customer_name +
+              '">' +
+              sup.customer_name +
+              " | " +
+              sup.customer_phone +
+              "</option>"
+            );
           });
+          
         }
+
       },
     });
   });

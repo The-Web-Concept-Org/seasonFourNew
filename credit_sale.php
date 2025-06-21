@@ -128,13 +128,21 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-sm-3 return_days-div">
                                 <label>Customer Account</label>
                                 <div class="input-group">
-                                    <select class="form-control searchableSelect"
+                                    <select class="form-control searchableSelect customer_name"
                                         onchange="getBalance(this.value,'customer_account_exp')"
                                         name="credit_order_client_name" id="credit_order_client_name"
                                         aria-label="Username" aria-describedby="basic-addon1">
                                         <option value="">Customer Account</option>
                                         <?php
-                                        $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='customer' AND branch_id='" . $_SESSION['branch_id'] . "'");
+                                        $branch_id = $_SESSION['branch_id'];
+                $user_role = $_SESSION['user_role'];
+
+                if ($user_role === 'admin') {
+                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer'";
+                } else {
+                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer' AND branch_id = '$branch_id'";
+                }
+                                        $q = mysqli_query($dbc, $sql);
                                         while ($r = mysqli_fetch_assoc($q)) {
                                             ?>
                                             <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?> data-id="<?= $r['customer_id'] ?>"
@@ -398,7 +406,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             </td>
                                         </tr>
                                         <!-- Default Account Row -->
-                                        <tr id="account_row">
+                                        <tr id="account_row"  style="display: none;">
                                             <td colspan="5"></td>
                                             <td class="table-bordered">Account:</td>
                                             <td class="table-bordered">
@@ -541,13 +549,75 @@ if (!empty($_REQUEST['edit_order_id'])) {
 <script>
     let bankAutoFill = true;
 
+// function toggleSplitPayment() {
+//     const isSplit = document.getElementById('split_payment').checked;
+
+//     document.getElementById('account_row').style.display = isSplit ? 'none' : '';
+//     document.getElementById('remaining_row').style.display = isSplit ? 'none' : '';
+//     document.getElementById('split_payment_row').style.display = isSplit ? '' : 'none';
+//     document.getElementById('split_error_row').style.display = 'none';
+//     const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
+//     document.getElementById('cash_amount').setAttribute('max', paid);
+
+//     const paymentAccountEl = document.getElementById('payment_account');
+//     const cashAmountEl = document.getElementById('cash_amount');
+//     const bankAmountEl = document.getElementById('bank_amount');
+//     const cashAccountEl = document.getElementById('cash_account');
+//     const bankAccountEl = document.getElementById('bank_account');
+
+//     if (isSplit) {
+//         //  Clear payment account (single field)
+//         if (paymentAccountEl) {
+//             paymentAccountEl.value = '';
+//             paymentAccountEl.removeAttribute('required');
+//         }
+
+//         // Add required to split fields
+//         if (cashAmountEl) cashAmountEl.setAttribute('required', true);
+//         if (bankAmountEl) bankAmountEl.setAttribute('required', true);
+//         if (cashAccountEl) cashAccountEl.setAttribute('required', true);
+//         if (bankAccountEl) bankAccountEl.setAttribute('required', true);
+
+//         const cashVal = parseFloat(cashAmountEl.value) || 0;
+//         const bankVal = parseFloat(bankAmountEl.value) || 0;
+
+//         if (cashVal === 0 && bankVal === 0) {
+//             cashAmountEl.value = "";
+//             bankAmountEl.value = paid;
+//             bankAutoFill = true;
+//         }
+
+//     } else {
+//         //  Clear split values
+//         if (cashAmountEl) {
+//             cashAmountEl.value = 0;
+//             cashAmountEl.removeAttribute('required');
+//         }
+
+//         if (bankAmountEl) {
+//             bankAmountEl.value = 0;
+//             bankAmountEl.removeAttribute('required');
+//         }
+
+//         if (cashAccountEl) cashAccountEl.removeAttribute('required');
+//         if (bankAccountEl) bankAccountEl.removeAttribute('required');
+
+//         //  Add required to single payment account
+//         // if (paymentAccountEl) paymentAccountEl.setAttribute('required', true);
+//     }
+// }
+
 function toggleSplitPayment() {
     const isSplit = document.getElementById('split_payment').checked;
+    const saleType = document.getElementById('sale_type').value;
 
-    document.getElementById('account_row').style.display = isSplit ? 'none' : '';
+    const isCredit = saleType === 'credit';
+
+    const showAccountRow = !isSplit && !isCredit;
+
+    document.getElementById('account_row').style.display = showAccountRow ? '' : 'none';
     document.getElementById('remaining_row').style.display = isSplit ? 'none' : '';
     document.getElementById('split_payment_row').style.display = isSplit ? '' : 'none';
-
     document.getElementById('split_error_row').style.display = 'none';
 
     const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
@@ -560,13 +630,11 @@ function toggleSplitPayment() {
     const bankAccountEl = document.getElementById('bank_account');
 
     if (isSplit) {
-        //  Clear payment account (single field)
         if (paymentAccountEl) {
             paymentAccountEl.value = '';
             paymentAccountEl.removeAttribute('required');
         }
 
-        // Add required to split fields
         if (cashAmountEl) cashAmountEl.setAttribute('required', true);
         if (bankAmountEl) bankAmountEl.setAttribute('required', true);
         if (cashAccountEl) cashAccountEl.setAttribute('required', true);
@@ -582,7 +650,6 @@ function toggleSplitPayment() {
         }
 
     } else {
-        //  Clear split values
         if (cashAmountEl) {
             cashAmountEl.value = 0;
             cashAmountEl.removeAttribute('required');
@@ -596,8 +663,9 @@ function toggleSplitPayment() {
         if (cashAccountEl) cashAccountEl.removeAttribute('required');
         if (bankAccountEl) bankAccountEl.removeAttribute('required');
 
-        //  Add required to single payment account
-        // if (paymentAccountEl) paymentAccountEl.setAttribute('required', true);
+        // if (!isCredit && paymentAccountEl) {
+        //     paymentAccountEl.setAttribute('required', true);
+        // }
     }
 }
 
@@ -667,6 +735,15 @@ document.addEventListener("DOMContentLoaded", function () {
     validateSplit();
 
     
+});
+
+$(document).ready(function () {
+  // Trigger branch change manually on edit
+  const isEditMode = !!$("[name='edit_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+
+  if (isEditMode) {
+    $("#branch_id").trigger("change");
+  }
 });
 
 </script>
