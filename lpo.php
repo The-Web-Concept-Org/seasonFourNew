@@ -70,7 +70,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label>LPO Date</label>
 
                 <input type="text" name="purchase_date" id="purchase_date"
-                  value="<?= @empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchPurchase['purchase_date'] ?>"
+                  value="<?= @empty($_REQUEST['edit_purchase_id']) ? date('Y-m-d') : $fetchPurchase['lpo_date'] ?>"
                   readonly class="form-control">
               </div>
               <!-- <div class="col-md-1">
@@ -80,12 +80,20 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               <div class="col-sm-4">
                 <label>Select Supplier</label>
                 <div class="input-group">
-                  <select class="form-control searchableSelect" name="cash_purchase_supplier"
+                  <select class="form-control searchableSelect supplier_name" name="cash_purchase_supplier"
                     id="credit_order_client_name" required onchange="getBalance(this.value,'customer_account_exp')"
                     aria-label="Username" aria-describedby="basic-addon1">
                     <option value="">Select Supplier</option>
                     <?php
-                    $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='supplier'");
+                    $branch_id = $_SESSION['branch_id'];
+                    $user_role = $_SESSION['user_role'];
+
+                    if ($user_role === 'admin') {
+                      $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'supplier'";
+                    } else {
+                      $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'supplier' AND branch_id = '$branch_id'";
+                    }
+                    $q = mysqli_query($dbc, $sql);
                     while ($r = mysqli_fetch_assoc($q)) {
                       ?>
                       <option <?= @($fetchPurchase['customer_account'] == $r['customer_id']) ? "selected" : "" ?>
