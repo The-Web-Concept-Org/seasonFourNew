@@ -1358,50 +1358,93 @@ $(document).ready(function () {
       type: "POST",
       data: { get_branch_data: branch_id },
       dataType: "json",
-      success: function (response) {
-  // Always reset these before population
+success: function (response) {
   $("#customer_list, #bank_list, #supplier_list").empty();
 
   // === Customer Select ===
-  var $customerSelect = $(".customer_name");
+  const $customerSelect = $(".customer_name");
+  const selectedCustomerId = $("#selected_customer_id").val();
   $customerSelect.empty().append('<option value="">Customer Account</option>');
 
   if (response.customers?.length) {
     response.customers.forEach(function (cust) {
+      const isSelected = selectedCustomerId == cust.customer_id ? 'selected' : '';
       $customerSelect.append(
-        `<option data-id="${cust.customer_id}" data-contact="${cust.customer_phone}" value="${cust.customer_name}">
+        `<option ${isSelected} data-id="${cust.customer_id}" data-contact="${cust.customer_phone}" value="${cust.customer_name}">
           ${cust.customer_name} | ${cust.customer_phone}
         </option>`
       );
     });
   }
 
-  // === Payment Accounts (Banks) ===
-  var $paymentSelect = $("#payment_account, #bank_account, #cash_account");
-  $paymentSelect.empty().append('<option value="">Select Account</option>');
+  // // === Payment Accounts (Banks) ===
+  // const $paymentSelect = $("#payment_account, #bank_account, #cash_account");
+  // const selectedBankId = $("#selected_bank_id").val();
+  // $paymentSelect.empty().append('<option value="">Select Account</option>');
 
-  if (response.banks?.length) {
-    response.banks.forEach(function (bank) {
-      $paymentSelect.append(
-        `<option value="${bank.customer_id}">${bank.customer_name}</option>`
-      );
-    });
-  }
+  // if (response.banks?.length) {
+  //   response.banks.forEach(function (bank) {
+  //     const isSelected = selectedBankId == bank.customer_id ? 'selected' : '';
+  //     $paymentSelect.append(
+  //       `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+  //     );
+  //   });
+  // }
+
+  const selectedPaymentAccountId = $("#selected_payment_account_id").val();
+const selectedBankAccountId = $("#selected_bank_account_id").val();
+const selectedCashAccountId = $("#selected_cash_account_id").val();
+
+// === Payment Account
+const $paymentSelect = $("#payment_account");
+$paymentSelect.empty().append('<option value="">Select Account</option>');
+
+response.banks?.forEach(function (bank) {
+  const isSelected = bank.customer_id == selectedPaymentAccountId ? 'selected' : '';
+  $paymentSelect.append(
+    `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+  );
+});
+
+// === Bank Account
+const $bankSelect = $("#bank_account");
+$bankSelect.empty().append('<option value="">Select Account</option>');
+
+response.banks?.forEach(function (bank) {
+  const isSelected = bank.customer_id == selectedBankAccountId ? 'selected' : '';
+  $bankSelect.append(
+    `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+  );
+});
+
+// === Cash Account
+const $cashSelect = $("#cash_account");
+$cashSelect.empty().append('<option value="">Select Account</option>');
+
+response.banks?.forEach(function (bank) {
+  const isSelected = bank.customer_id == selectedCashAccountId ? 'selected' : '';
+  $cashSelect.append(
+    `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+  );
+});
 
   // === Supplier Select ===
   const $supplierSelect = $(".supplier_name");
+  const selectedSupplierId = $("#selected_supplier_id").val();
   $supplierSelect.empty().append('<option value="">Select Supplier</option>');
 
   if (response.suppliers?.length) {
     response.suppliers.forEach(function (sup) {
+      const isSelected = selectedSupplierId == sup.customer_id ? 'selected' : '';
       $supplierSelect.append(
-        `<option data-id="${sup.customer_id}" data-contact="${sup.customer_phone}" value="${sup.customer_name}">
+        `<option ${isSelected} data-id="${sup.customer_id}" data-contact="${sup.customer_phone}" value="${sup.customer_name}">
           ${sup.customer_name} | ${sup.customer_phone}
         </option>`
       );
     });
   }
 }
+
 ,
     });
   });

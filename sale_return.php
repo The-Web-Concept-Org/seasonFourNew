@@ -20,7 +20,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                     <div class="row">
                         <div class="col-12 mx-auto h4">
-                            <b class="text-center card-text pb-3"> Sale Return</b>
+                            <b class="text-center card-text pb-3"> Sale Return <span id="branch_name_display"></span>
+                            </b>
 
 
                             <!-- <a href="#" onclick="reload_page()" class="btn btn-admin float-right btn-sm">Add New</a> -->
@@ -40,6 +41,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         <input type="hidden" name="order_return" id="order_return" value="order_return">
                         <input type="hidden" name="user_id"
                             value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
+
+                        <input type="hidden" id="selected_customer_id" value="<?= @$fetchOrder['customer_account'] ?>">
+                        <input type="hidden" id="selected_payment_account_id"
+                            value="<?= @$fetchOrder['payment_account'] ?>">
+                        <input type="hidden" id="selected_supplier_id" value="<?= @$fetchOrder['supplier_account'] ?>">
+
 
                         <?php if ($_SESSION['user_role'] == 'admin') { ?>
                             <div class="dropdown-wrapper mb-3 ml-auto">
@@ -64,9 +71,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-md-4 d-flex ">
                                 <div class="w-100 pe-1">
                                     <label>ID#</label>
-                                    <?php $result = mysqli_query($dbc, "
-    SHOW TABLE STATUS LIKE 'orders_return'
-");
+                                    <?php $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'orders_return' ");
                                     $data = mysqli_fetch_assoc($result);
                                     $next_increment = $data['Auto_increment']; ?>
                                     <input type="text" name="next_increment" id="next_increment"
@@ -437,12 +442,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
                                             <td class="table-bordered">Remaing Amount :</td>
                                             <td class="table-bordered"><input type="text"
-                                                    class="form-control form-control-sm text-start" id="remaining_ammount" required
-                                                    readonly name="remaining_ammount"
+                                                    class="form-control form-control-sm text-start"
+                                                    id="remaining_ammount" required readonly name="remaining_ammount"
                                                     value="<?= @$fetchOrder['due'] ?>">
                                         </tr>
 
- 
+
                                     </tfoot>
                                 </table>
                             </div>
@@ -491,12 +496,14 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 ?>
 <script>
+   
     $(document).ready(function () {
-  // Trigger branch change manually on edit
-  const isEditMode = !!$("[name='edit_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+        const isEditMode = !!$("[name='product_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+        //   console.log("Edit mode:", isEditMode);
+        //   console.log("Branch ID element:", $("#branch_id"));
+        if (isEditMode) {
+            $("#branch_id").trigger("change");
 
-  if (isEditMode) {
-    $("#branch_id").trigger("change");
-  }
-});
+        }
+    });
 </script>

@@ -118,6 +118,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             Manual Bill</option>
                                         <option value="lpo" <?= @$fetchOrder['type'] == "lpo" ? "selected" : "" ?>>LPO</option>
                                         <option value="quotation" <?= @$fetchOrder['type'] == "quotation" ? "selected" : "" ?>>Quotation</option>
+                                        <option value="delivery_note" <?= @$fetchOrder['type'] == "delivery_note" ? "selected" : "" ?>>Delivery Note</option>
                                     </select>
                             </div>
                             
