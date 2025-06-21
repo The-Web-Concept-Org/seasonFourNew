@@ -40,6 +40,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         <input type="hidden" name="user_id"
                             value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
+                             <input type="hidden" id="selected_customer_id" value="<?= @$fetchOrder['customer_account'] ?>">
+                            <input type="hidden" id="selected_payment_account_id" value="<?= @$fetchOrder['payment_account'] ?>">
+                            <input type="hidden" id="selected_bank_account_id" value="<?= @$fetchOrder['bank_payment_account'] ?>">
+                            <input type="hidden" id="selected_cash_account_id" value="<?= @$fetchOrder['cash_payment_account'] ?>">
+
+
                         <?php if ($_SESSION['user_role'] == 'admin') { ?>
                             <div class="dropdown-wrapper ml-auto mb-3">
                                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
@@ -737,24 +743,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
 });
 
-// $(document).ready(function () {
-//   // Trigger branch change manually on edit
-//   const isEditMode = !!$("[name='edit_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
-
-//   if (isEditMode) {
-//     $("#branch_id").trigger("change");
-//   }
-// });
-
-document.addEventListener("DOMContentLoaded", function () {
-  const isEditMode = document.querySelector("[name='edit_order_id']")?.value ||
-    new URLSearchParams(window.location.search).get("edit_order_id");
-
-  if (isEditMode) {
-    document.getElementById("branch_id")?.dispatchEvent(new Event("change"));
-  }
-});
-
 </script>
 
 </html>
@@ -777,3 +765,14 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 
 ?>
+<script>
+    $(document).ready(function () {
+  const isEditMode = !!$("[name='product_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+//   console.log("Edit mode:", isEditMode);
+//   console.log("Branch ID element:", $("#branch_id"));
+  if (isEditMode) {
+    $("#branch_id").trigger("change");
+    
+  }
+});
+</script>

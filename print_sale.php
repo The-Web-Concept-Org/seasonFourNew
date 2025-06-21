@@ -627,7 +627,24 @@
                                 <th style="width: 5%;">S.No</th>
                                 <th style="width: 25%;" class="text-left pl-3">Description</th>
                                 <th style="width: 5%;">Qty</th>
-                                <?php if ($_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)) { ?>
+                                <?php $shouldShow = true; // Default to showing content
+                                
+                                    // Hide if it's a gatepass
+                                    if (($_REQUEST['type'] ?? '') === 'gatepass') {
+                                        $shouldShow = false;
+                                    }
+
+                                    // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
+                                    if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
+                                        $shouldShow = false;
+                                    }
+
+                                    // Special case: Show if it's manualbill AND NOT delivery_note
+                                    if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
+                                        $shouldShow = true;
+                                    }
+
+                                    if ($shouldShow) { ?>
                                     <th style="width: 5%;">Unit Price</th>
                                     <th style="width: 5%;">Amount</th>
                                 <?php } ?>
@@ -646,10 +663,15 @@
                                         <td class="text-center border"><?= $jc ?></td>
                                         <td class="text-left border pl-3"><?= strtoupper($item['product_name']) ?></td>
                                         <td class="text-center border"><?= $item['quantity'] ?></td>
-                                        <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
-                                        <td class="text-center border">
-                                            <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
-                                        </td>
+                                        <?php
+                                        // Special case: Show if it's manualbill AND NOT delivery_note
+                                        if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note')
+                                        : ?>
+                                            <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
+                                            <td class="text-center border">
+                                                <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php } ?>
                             </tbody>
@@ -695,10 +717,24 @@
                             <tr class="tablefooter" style="font-size: 14px;">
                                 <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
 
-                                <?php if (
-                                    $_REQUEST['type'] != 'gatepass' &&
-                                    (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)
-                                ): ?>
+                                <?php $shouldShow = true; // Default to showing content
+                                
+                                    // Hide if it's a gatepass
+                                    if (($_REQUEST['type'] ?? '') === 'gatepass') {
+                                        $shouldShow = false;
+                                    }
+
+                                    // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
+                                    if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
+                                        $shouldShow = false;
+                                    }
+
+                                    // Special case: Show if it's manualbill AND NOT delivery_note
+                                    if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
+                                        $shouldShow = true;
+                                    }
+
+                                    if ($shouldShow): ?>
                                     <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
                                         <td class="border">Total Amount:</td>
                                         <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
@@ -711,10 +747,24 @@
                                 <?php endif; ?>
                             <?php endif; ?>
 
-                            <?php if (
-                                $_REQUEST['type'] != 'gatepass' &&
-                                (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)
-                            ): ?>
+                            <?php $shouldShow = true; // Default to showing content
+                            
+                                // Hide if it's a gatepass
+                                if (($_REQUEST['type'] ?? '') === 'gatepass') {
+                                    $shouldShow = false;
+                                }
+
+                                // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
+                                if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
+                                    $shouldShow = false;
+                                }
+
+                                // Special case: Show if it's manualbill AND NOT delivery_note
+                                if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
+                                    $shouldShow = true;
+                                }
+
+                                if ($shouldShow): ?>
                                 <tr class="tablefooter" style="font-size: 14px; border: none !important;">
                                     <td colspan="3" class="text-left border-none"><?= amountToWordsKD($order['grand_total']) ?>
                                         ONLY</td>
