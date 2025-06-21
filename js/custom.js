@@ -1271,7 +1271,7 @@ function setAmountPaid(id, paid) {
 }
 
 let purchaseType = (value) => {
-  console.log("Selected purchase type:", value);
+  // console.log("Selected purchase type:", value);
   if (value == "cash_purchase") {
     let total_amount = $("#product_grand_total_amount").text();
     $("#paid_ammount").val(total_amount);
@@ -1359,77 +1359,50 @@ $(document).ready(function () {
       data: { get_branch_data: branch_id },
       dataType: "json",
       success: function (response) {
-        // Empty the fields before adding
-        $("#customer_list").empty();
-        $("#bank_list").empty();
-        $("#supplier_list").empty();
+  // Always reset these before population
+  $("#customer_list, #bank_list, #supplier_list").empty();
 
-        // Populate customer type lists
-        if (response.customers.length) {
-          var $customerSelect = $(".customer_name");
-          $customerSelect
-            .empty()
-            .append('<option value="">Customer Account</option>');
+  // === Customer Select ===
+  var $customerSelect = $(".customer_name");
+  $customerSelect.empty().append('<option value="">Customer Account</option>');
 
-          response.customers.forEach(function (cust) {
-            $customerSelect.append(
-              '<option data-id="' +
-              cust.customer_id +
-              '" data-contact="' +
-              cust.customer_phone +
-              '" value="' +
-              cust.customer_name +
-              '">' +
-              cust.customer_name +
-              " | " +
-              cust.customer_phone +
-              "</option>"
-            );
-          });
-        }
+  if (response.customers?.length) {
+    response.customers.forEach(function (cust) {
+      $customerSelect.append(
+        `<option data-id="${cust.customer_id}" data-contact="${cust.customer_phone}" value="${cust.customer_name}">
+          ${cust.customer_name} | ${cust.customer_phone}
+        </option>`
+      );
+    });
+  }
 
-        if (response.banks.length) {
-          var $paymentSelect = $("#payment_account, #bank_account, #cash_account");
-          $paymentSelect
-            .empty()
-            .append('<option value="">Select Account</option>');
+  // === Payment Accounts (Banks) ===
+  var $paymentSelect = $("#payment_account, #bank_account, #cash_account");
+  $paymentSelect.empty().append('<option value="">Select Account</option>');
 
-          response.banks.forEach(function (bank) {
-            $paymentSelect.append(
-              '<option value="' +
-              bank.customer_id +
-              '">' +
-              bank.customer_name +
-              "</option>"
-            );
-          });
-        }
+  if (response.banks?.length) {
+    response.banks.forEach(function (bank) {
+      $paymentSelect.append(
+        `<option value="${bank.customer_id}">${bank.customer_name}</option>`
+      );
+    });
+  }
 
-        if (response.suppliers.length) {
-          const $supplierSelect = $(".supplier_name");
-          $supplierSelect
-            .empty()
-            .append('<option value="">Select Supplier</option>');
+  // === Supplier Select ===
+  const $supplierSelect = $(".supplier_name");
+  $supplierSelect.empty().append('<option value="">Select Supplier</option>');
 
-          response.suppliers.forEach(function (sup) {
-            $supplierSelect.append(
-              '<option data-id="' +
-              sup.customer_id +
-              '" data-contact="' +
-              sup.customer_phone +
-              '" value="' +
-              sup.customer_name +
-              '">' +
-              sup.customer_name +
-              " | " +
-              sup.customer_phone +
-              "</option>"
-            );
-          });
-          
-        }
-
-      },
+  if (response.suppliers?.length) {
+    response.suppliers.forEach(function (sup) {
+      $supplierSelect.append(
+        `<option data-id="${sup.customer_id}" data-contact="${sup.customer_phone}" value="${sup.customer_name}">
+          ${sup.customer_name} | ${sup.customer_phone}
+        </option>`
+      );
+    });
+  }
+}
+,
     });
   });
 });

@@ -227,7 +227,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="text" name="product_code" autocomplete="off" id="get_product_code"
                                     class="form-control">
                             </div>
-                            <div class="col-6 col-md-4">
+                            <div class="col-6 col-sm-2 col-md-4">
                                 <label>Products</label>
                                 <input type="hidden" id="add_pro_type" value="add">
                                 <select class="form-control searchableSelect" id="get_product_name" name="product_id">
@@ -737,12 +737,21 @@ document.addEventListener("DOMContentLoaded", function () {
     
 });
 
-$(document).ready(function () {
-  // Trigger branch change manually on edit
-  const isEditMode = !!$("[name='edit_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+// $(document).ready(function () {
+//   // Trigger branch change manually on edit
+//   const isEditMode = !!$("[name='edit_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+
+//   if (isEditMode) {
+//     $("#branch_id").trigger("change");
+//   }
+// });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const isEditMode = document.querySelector("[name='edit_order_id']")?.value ||
+    new URLSearchParams(window.location.search).get("edit_order_id");
 
   if (isEditMode) {
-    $("#branch_id").trigger("change");
+    document.getElementById("branch_id")?.dispatchEvent(new Event("change"));
   }
 });
 
