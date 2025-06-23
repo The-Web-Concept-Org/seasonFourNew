@@ -36,6 +36,10 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
             <input type="hidden" name="purchase_return" id="purchase_return" value="purchase_return">
             <input type="hidden" name="price_type" id="price_type" value="sale">
+            <!-- <input type="hidden" id="selected_customer_id" value="<?= @$fetchPurchase['customer_account'] ?>"> -->
+            <input type="hidden" id="selected_payment_account_id" value="<?= @$fetchPurchase['payment_account'] ?>">
+            <input type="hidden" id="selected_supplier_id" value="<?= @$fetchPurchase['customer_account'] ?>">
+
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper mb-3 ml-auto">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
@@ -81,12 +85,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
               <div class="col-md-2">
                 <label for="Sale Type">Purchase Type</label>
-                <select name="purchase_type" onchange="purchaseType(this.value)"
-              class="form-control" id="purchase_type">
-              <option value="cash_purchase" <?= @$fetchPurchase['payment_type'] == "cash_purchase" ? "selected" : "" ?>>
-                Cash</option>
-              <option value="credit_purchase" <?= @$fetchPurchase['payment_type'] == "credit_purchase" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
-            </select>
+                <select name="purchase_type" onchange="purchaseType(this.value)" class="form-control"
+                  id="purchase_type">
+                  <option value="cash_purchase" <?= @$fetchPurchase['payment_type'] == "cash_purchase" ? "selected" : "" ?>>
+                    Cash</option>
+                  <option value="credit_purchase" <?= @$fetchPurchase['payment_type'] == "credit_purchase" || !isset($_REQUEST['edit_purchase_id']) ? "selected" : "" ?>>Credit</option>
+                </select>
 
               </div>
               <div class="col-sm-3">
@@ -97,7 +101,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     aria-label="Username" aria-describedby="basic-addon1">
                     <option value="">Select Supplier</option>
                     <?php
-                     $branch_id = $_SESSION['branch_id'];
+                    $branch_id = $_SESSION['branch_id'];
                     $user_role = $_SESSION['user_role'];
 
                     if ($user_role === 'admin') {
@@ -303,7 +307,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                               <input type="checkbox" class="custom-control-input" id="full_payment_check">
                               <label class="custom-control-label" for="full_payment_check">Full Payment</label>
                             </div> -->
-</div>
+                        </div>
                       </td>
                     </tr>
 
@@ -315,7 +319,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                         <div class="input-group">
                           <select class="form-control" required onchange="getBalance(this.value,'payment_account_bl')"
                             name="payment_account" id="payment_account" aria-label="Username"
-                            aria-describedby="basic-addon1" >
+                            aria-describedby="basic-addon1">
                             <option value="">Select Account</option>
                             <?php
                             $branch_id = $_SESSION['branch_id'];
@@ -387,11 +391,20 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
     $('#ordered_discount').val("<?= @$fetchPurchase['discount'] ?>");
     $('#paid_ammount').val("<?= @$fetchPurchase['paid'] ?>");
   }, 500);
+
+</script>
+<script>
+
   $(document).ready(function () {
+    const isEditMode = !!$("[name='product_purchase_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+    //   console.log("Edit mode:", isEditMode);
+    //   console.log("Branch ID element:", $("#branch_id"));
     const selectedType = $("#purchase_type").val();
-  if (selectedType) {
-    purchaseType(selectedType);
-  }
-  
-});
+    if (selectedType) {
+      purchaseType(selectedType);
+    }
+    if (isEditMode) {
+      $("#branch_id").trigger("change");
+    }
+  });
 </script>

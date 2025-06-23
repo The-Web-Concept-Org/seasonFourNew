@@ -111,17 +111,21 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                             <div class="col-sm-2">
                                 <label>Type</label>
-                                <select name="type" class="form-control"
-                                        id="type">
-                                        <option <?= isset($_REQUEST['edit_order_id']) ? "" : "selected" ?>
+                                <select name="type" class="form-control" id="type">
+                                    <!-- <option <?= isset($_REQUEST['edit_order_id']) ? "" : "selected" ?>
                                             value="Sale_Invoice" <?= @$fetchOrder['type'] == "Manual Bill" ? "selected" : "" ?>>
-                                            Manual Bill</option>
-                                        <option value="lpo" <?= @$fetchOrder['type'] == "lpo" ? "selected" : "" ?>>LPO</option>
-                                        <option value="quotation" <?= @$fetchOrder['type'] == "quotation" ? "selected" : "" ?>>Quotation</option>
-                                        <option value="delivery_note" <?= @$fetchOrder['type'] == "delivery_note" ? "selected" : "" ?>>Delivery Note</option>
-                                    </select>
+                                            Manual Bill</option> -->
+                                    <option value="Sale_Invoice" <?= (!isset($_REQUEST['edit_order_id']) || @$fetchOrder['type'] == "Manual Bill") ? "selected" : "" ?>>
+                                        Manual Bill
+                                    </option>
+
+                                    <option value="lpo" <?= @$fetchOrder['type'] == "lpo" ? "selected" : "" ?>>LPO</option>
+                                    <option value="quotation" <?= @$fetchOrder['type'] == "quotation" ? "selected" : "" ?>>
+                                        Quotation</option>
+                                    <option value="delivery_note" <?= @$fetchOrder['type'] == "delivery_note" ? "selected" : "" ?>>Delivery Note</option>
+                                </select>
                             </div>
-                            
+
                         </div>
 
                         <div class="form-group row mb-3">
@@ -139,9 +143,11 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                                   WHERE product.status = 1');
                                     while ($row = mysqli_fetch_array($result)) {
                                         ?>
-                                        <option value="<?= $row['categories_name'] ?>-<?= $row['product_name'] ?>-<?= $row['brand_name'] ?>"
+                                        <option
+                                            value="<?= $row['categories_name'] ?>-<?= $row['product_name'] ?>-<?= $row['brand_name'] ?>"
                                             data-id="<?= $row['product_id'] ?>" data-price="<?= $row['current_rate'] ?>"
-                                            data-category="<?= $row['categories_name'] ?>" data-brand="<?= $row['brand_name'] ?>">
+                                            data-category="<?= $row['categories_name'] ?>"
+                                            data-brand="<?= $row['brand_name'] ?>">
                                         </option>
                                     <?php } ?>
                                 </datalist>
@@ -153,7 +159,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                             <div class="col-6 col-sm-2 col-md-2">
                                 <label>Quantity</label>
-                                <input type="number" class="form-control" id="get_product_quantity" value="" min="1" 
+                                <input type="number" class="form-control" id="get_product_quantity" value="" min="1"
                                     name="quantity">
                             </div>
                             <div class="col-6 col-sm-1 col-md-2">
@@ -192,40 +198,42 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             foreach ($product_items as $r):
                                                 $unique_id = uniqid('p_');
                                                 $product_uid = $r['product_uid'] ?? $unique_id;
+                                                $product_name_js = json_encode($r['product_name']); // for JS
+                                                $product_name_html = htmlspecialchars($r['product_name']); // for display
                                                 ?>
                                                 <tr id="product_idN_<?= $unique_id ?>">
-                                                    <input type="hidden" data-price="<?= $r['final_rate'] ?>"
+                                                     <input type="hidden" data-price="<?= $r['final_rate'] ?>"
                                                         data-quantity="<?= $r['quantity'] ?>"
                                                         id="product_ids_<?= $unique_id ?>" class="product_ids"
                                                         name="product_ids[]" value="<?= $r['product_id'] ?>">
+
                                                     <input type="hidden" id="product_quantites_<?= $unique_id ?>"
                                                         name="product_quantites[]" value="<?= $r['quantity'] ?>">
-                                                    
+
                                                     <input type="hidden" id="product_final_rates_<?= $unique_id ?>"
                                                         name="product_final_rates[]" value="<?= $r['final_rate'] ?>">
                                                     <input type="hidden" id="product_names_<?= $unique_id ?>"
-                                                        name="product_names[]" value="<?= htmlspecialchars($r['product_name']) ?>">
+                                                        name="product_names[]" value="<?= $product_name_html ?>">
                                                     <input type="hidden" id="product_actions_<?= $unique_id ?>"
                                                         name="product_actions[]" value="update">
                                                     <input type="hidden" id="product_uids_<?= $unique_id ?>"
                                                         name="product_uids[]" value="<?= $product_uid ?>">
-                                                    <td><?= htmlspecialchars(@$r['product_name']) ?></td>
-                                                    <td><?= number_format((float)$r['final_rate'], 2) ?></td>
+                                                    <td><?= $product_name_html ?></td>
+                                                    <td><?= number_format((float) $r['final_rate'], 2) ?></td>
                                                     <td><?= $r['quantity'] ?></td>
-                                                    <td><?= number_format((float)$r['final_rate'] * (float)$r['quantity'], 2) ?></td>
+                                                    <td><?= number_format((float) $r['final_rate'] * (float) $r['quantity'], 2) ?>
+                                                    </td>
                                                     <td>
                                                         <button type="button"
                                                             onclick="removeByid('#product_idN_<?= $unique_id ?>')"
                                                             class="fa fa-trash text-danger"></button>
-                                                        <button type="button"
-                                                            onclick="editByid(
-                                                                '<?= htmlspecialchars($r['product_id']) ?>',
-                                                                '<?= htmlspecialchars($r['product_name']) ?>',
-                                                                <?= $r['quantity'] ?>,
-                                                                <?= $r['final_rate'] ?>,
-                                                                '<?= $product_uid ?>'
-                                                            )"
-                                                            class="fa fa-edit text-success ml-2"></button>
+                                                        <button type="button" onclick='editByid(
+                                                                    <?= json_encode($r["product_id"]) ?>,
+                                                                    <?= $product_name_js ?>,
+                                                                    <?= (int) $r["quantity"] ?>,
+                                                                    <?= (float) $r["final_rate"] ?>,
+                                                                    <?= json_encode($product_uid) ?>
+                                                                )' class="fa fa-edit text-success ml-2"></button>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; endif; ?>
@@ -235,9 +243,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td colspan="3"></td>
                                             <td class="table-bordered"> Sub Total :</td>
                                             <td class="table-bordered" id="product_total_amount">
-                                                <?= @$fetchOrder['total_amount'] ? number_format((float)$fetchOrder['total_amount'], 2) : '0' ?>
+                                                <?= @$fetchOrder['total_amount'] ? number_format((float) $fetchOrder['total_amount'], 2) : '0' ?>
                                             </td>
-                                       </tr>
+                                        </tr>
                                         <tr>
                                             <td colspan="3"></td>
                                             <td class="table-bordered"> Discount :</td>
@@ -255,7 +263,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td colspan="3"></td>
                                             <td class="table-bordered"> <strong>Net Total :</strong> </td>
                                             <td class="table-bordered" id="product_grand_total_amount">
-                                                <?= @$fetchOrder['grand_total'] ? number_format((float)$fetchOrder['grand_total'], 2) : '0' ?>
+                                                <?= @$fetchOrder['grand_total'] ? number_format((float) $fetchOrder['grand_total'], 2) : '0' ?>
                                             </td>
                                         </tr>
                                     </tfoot>
@@ -269,7 +277,8 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <button class="btn btn-admin ml-2" name="sale_order_btn" value="print" type="submit"
                                     id="sale_btn">
                                     <span class="btn-text">Save and Print</span>
-  <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"
+                                        aria-hidden="true"></span>
                                 </button>
                             </div>
                         </div>
@@ -282,320 +291,291 @@ if (!empty($_REQUEST['edit_order_id'])) {
 </body>
 <script>
     $(document).ready(function () {
-    $('#order_date').datepicker({ dateFormat: 'yy-mm-dd' });
-    
-    let debounceTimeout;
-    $('#get_product_name').on('input change', function () {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-            let productName = $(this).val().trim();
-            let editRowId = $('#edit_row_id').val();
+        $('#order_date').datepicker({ dateFormat: 'yy-mm-dd' });
 
-            if (!editRowId) {
-                let selectedOption = $('#product_list option[value="' + productName.replace(/"/g, '\\"') + '"]');
-                if (selectedOption.length) {
-                    let productId = selectedOption.data('id');
-                    let price = selectedOption.data('price');
-                    $('#product_id').val(productId);
-                    $('#get_final_rate').val(price);
-                    $('#add_pro_type').val('add');
-                } else {
-                    $('#product_id').val('');
-                    $('#get_final_rate').val(''); // Ensure finalRate is cleared for new products
-                    $('#add_pro_type').val('add'); // Set to 'add' to use existing row logic
+        let debounceTimeout;
+        $('#get_product_name').on('input change', function () {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                let productName = $(this).val().trim();
+                let editRowId = $('#edit_row_id').val();
+
+                if (!editRowId) {
+                    let selectedOption = $('#product_list option[value="' + productName.replace(/"/g, '\\"') + '"]');
+                    if (selectedOption.length) {
+                        let productId = selectedOption.data('id');
+                        let price = selectedOption.data('price');
+                        $('#product_id').val(productId);
+                        $('#get_final_rate').val(price);
+                        $('#add_pro_type').val('add');
+                    } else {
+                        $('#product_id').val('');
+                        $('#get_final_rate').val('');
+                        $('#add_pro_type').val('add');
+                    }
                 }
-            }
-            updateSalePrice();
-        }, 300);
-    });
+                updateSalePrice();
+            }, 300);
+        });
 
-    // Update sale price
-    $('#get_product_quantity, #get_final_rate').on('input', updateSalePrice);
+        // Update sale price
+        $('#get_product_quantity, #get_final_rate').on('input', updateSalePrice);
 
-    function updateSalePrice() {
-        let finalRate = parseFloat($('#get_final_rate').val()) || 0;
-        let quantity = parseInt($('#get_product_quantity').val()) || 1;
-        $('#get_product_sale_price').val((finalRate * quantity));
-    }
-
-    function sanitizeId(name) {
-        return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
-    }
-
-    $('#manualSale').on('click', function () {
-        let $btn = $(this);
-        let $spinner = $btn.find('.spinner-border');
-        let $text = $btn.find('.btn-text');
-
-        // Show loader and disable button
-        $spinner.removeClass('d-none');
-        $text.addClass('d-none');
-        $btn.prop('disabled', true);
-
-        setTimeout(() => { // Simulate short delay to show spinner
-            let productName = $('#get_product_name').val().trim();
+        function updateSalePrice() {
             let finalRate = parseFloat($('#get_final_rate').val()) || 0;
             let quantity = parseInt($('#get_product_quantity').val()) || 1;
-            let amount = finalRate * quantity;
-            let addProType = $('#add_pro_type').val();
-            let editRowId = $('#edit_row_id').val();
-            let productUid = $('#product_uid').val() || 'p_' + Date.now();
+            $('#get_product_sale_price').val((finalRate * quantity));
+        }
 
-            if (!productName) {
-                alert('Please enter or select a product name.');
-                resetButton();
-                return;
-            }
+        function sanitizeId(name) {
+            return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
+        }
 
-            if (finalRate <= 0) {
-                alert('Final rate must be greater than 0.');
-                resetButton();
-                return;
-            }
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-            if (quantity <= 0) {
-                alert('Quantity must be greater than 0.');
-                resetButton();
-                return;
-            }
+        $('#manualSale').on('click', function () {
+            let $btn = $(this);
+            let $spinner = $btn.find('.spinner-border');
+            let $text = $btn.find('.btn-text');
 
-            const rowId = editRowId || productUid;
+            // Show loader and disable button
+            $spinner.removeClass('d-none');
+            $text.addClass('d-none');
+            $btn.prop('disabled', true);
 
-            if (addProType === 'add') {
-                // Check if product already exists in the table
-                let existingRow = $(`input[name="product_names[]"][value="${productName}"]`).closest('tr');
-                if (existingRow.length) {
-                    // Product exists, update quantity and recalculate amount
-                    let existingQuantity = parseInt(existingRow.find('input[name="product_quantites[]"]').val()) || 0;
-                    let newQuantity = existingQuantity + quantity;
-                    let newAmount = finalRate * newQuantity;
+            setTimeout(() => {
+                let productName = $('#get_product_name').val().trim();
+                let finalRate = parseFloat($('#get_final_rate').val()) || 0;
+                let quantity = parseInt($('#get_product_quantity').val()) || 1;
+                let amount = finalRate * quantity;
+                let addProType = $('#add_pro_type').val();
+                let editRowId = $('#edit_row_id').val();
+                let productUid = $('#product_uid').val() || 'p_' + Date.now();
 
-                    // Replace the existing row with updated values
-                    existingRow.replaceWith(`
-                        <tr id="product_idN_${rowId}">
-                            <input type="hidden" data-price="${finalRate}" data-quantity="${newQuantity}" 
-                                   id="product_ids_${rowId}" class="product_ids" name="product_ids[]" value="${rowId}">
-                            <input type="hidden" id="product_quantites_${rowId}" name="product_quantites[]" value="${newQuantity}">
-                            <input type="hidden" id="product_rates_${rowId}" name="product_rates[]" value="${finalRate}">
-                            <input type="hidden" id="product_final_rates_${rowId}" name="product_final_rates[]" value="${finalRate}">
-                            <input type="hidden" id="product_names_${rowId}" name="product_names[]" value="${productName}">
-                            <input type="hidden" id="product_actions_${rowId}" name="product_actions[]" value="add">
-                            <input type="hidden" id="product_uids_${rowId}" name="product_uids[]" value="${rowId}">
-                            <td>${productName}</td>
-                            <td>${finalRate.toFixed(2)}</td>
-                            <td>${newQuantity}</td>
-                            <td>${newAmount.toFixed(2)}</td>
-                            <td>
-                                <button type="button" onclick="removeByid('#product_idN_${rowId}')" class="fa fa-trash text-danger"></button>
-                                <button type="button" onclick="editByid('${rowId}', '${productName}', ${newQuantity}, ${finalRate}, '${rowId}')" class="fa fa-edit text-success ml-2"></button>
-                            </td>
-                        </tr>
-                    `);
-                } else {
-                    // Product doesn't exist, append new row
-                    $('#purchase_product_tb').append(generateRowHTML(rowId, productName, finalRate, quantity, amount, 'add'));
-
-                    // Add new option to datalist if new product
-                    let option = `<option value="${productName}" data-id="${rowId}" data-price="${finalRate}"></option>`;
-                    $('#product_list').append(option);
+                if (!productName) {
+                    alert('Please enter or select a product name.');
+                    resetButton();
+                    return;
                 }
-            } else if (addProType === 'update') {
-                // Check if editing an existing database-saved row
-                let existingRow = $(`#product_idN_${editRowId}`).length ? $(`#product_idN_${editRowId}`) : $(`input[name="product_names[]"][value="${productName}"]`).closest('tr');
-                if (existingRow.length) {
-                    // Update existing row
-                    let existingQuantity = parseInt(existingRow.find('input[name="product_quantites[]"]').val()) || 0;
-                    let newQuantity = quantity; // For update, use new quantity directly
-                    let newAmount = finalRate * newQuantity;
 
-                    existingRow.replaceWith(`
-                        <tr id="product_idN_${rowId}">
-                            <input type="hidden" data-price="${finalRate}" data-quantity="${newQuantity}" 
-                                   id="product_ids_${rowId}" class="product_ids" name="product_ids[]" value="${rowId}">
-                            <input type="hidden" id="product_quantites_${rowId}" name="product_quantites[]" value="${newQuantity}">
-                            <input type="hidden" id="product_rates_${rowId}" name="product_rates[]" value="${finalRate}">
-                            <input type="hidden" id="product_final_rates_${rowId}" name="product_final_rates[]" value="${finalRate}">
-                            <input type="hidden" id="product_names_${rowId}" name="product_names[]" value="${productName}">
-                            <input type="hidden" id="product_actions_${rowId}" name="product_actions[]" value="update">
-                            <input type="hidden" id="product_uids_${rowId}" name="product_uids[]" value="${rowId}">
-                            <td>${productName}</td>
-                            <td>${finalRate.toFixed(2)}</td>
-                            <td>${newQuantity}</td>
-                            <td>${newAmount.toFixed(2)}</td>
-                            <td>
-                                <button type="button" onclick="removeByid('#product_idN_${rowId}')" class="fa fa-trash text-danger"></button>
-                                <button type="button" onclick="editByid('${rowId}', '${productName}', ${newQuantity}, ${finalRate}, '${rowId}')" class="fa fa-edit text-success ml-2"></button>
-                            </td>
-                        </tr>
-                    `);
-                } else {
-                    // No existing row found, append as new (should not happen with proper edit)
-                    $('#purchase_product_tb').append(generateRowHTML(rowId, productName, finalRate, quantity, amount, 'update'));
+                if (finalRate <= 0) {
+                    alert('Final rate must be greater than 0.');
+                    resetButton();
+                    return;
                 }
-            }
 
-            // Reset fields
-            $('#get_product_name').val('');
-            $('#get_product_name').focus();
-            $('#product_id').val('');
-            $('#get_final_rate').val('');
-            $('#get_product_quantity').val('');
-            $('#get_product_sale_price').val('');
-            $('#add_pro_type').val('add');
-            $('#edit_row_id').val('');
-            $('#product_uid').val('');
+                if (quantity <= 0) {
+                    alert('Quantity must be greater than 0.');
+                    resetButton();
+                    return;
+                }
+
+                const rowId = editRowId || productUid;
+                const escapedName = escapeHtml(productName);
+
+                if (addProType === 'add') {
+                    // Check if product already exists in the table using safer filter
+                    let existingRow = $('input[name="product_names[]"]').filter(function () {
+                        return $(this).val().trim() === productName;
+                    }).closest('tr');
+
+                    if (existingRow.length) {
+                        let existingQuantity = parseInt(existingRow.find('input[name="product_quantites[]"]').val()) || 0;
+                        let newQuantity = existingQuantity + quantity;
+                        let newAmount = finalRate * newQuantity;
+
+                        existingRow.replaceWith(generateRowHTML(rowId, escapedName, finalRate, newQuantity, newAmount, 'add'));
+                    } else {
+                        $('#purchase_product_tb').append(generateRowHTML(rowId, escapedName, finalRate, quantity, amount, 'add'));
+
+                        // Add new option to datalist
+                        $('#product_list').append(`<option value="${escapedName}" data-id="${rowId}" data-price="${finalRate}"></option>`);
+                    }
+                } else if (addProType === 'update') {
+                    let existingRow = $(`#product_idN_${editRowId}`).length
+                        ? $(`#product_idN_${editRowId}`)
+                        : $('input[name="product_names[]"]').filter(function () {
+                            return $(this).val().trim() === productName;
+                        }).closest('tr');
+
+                    if (existingRow.length) {
+                        let newQuantity = quantity;
+                        let newAmount = finalRate * newQuantity;
+
+                        existingRow.replaceWith(generateRowHTML(rowId, escapedName, finalRate, newQuantity, newAmount, 'update'));
+                    } else {
+                        $('#purchase_product_tb').append(generateRowHTML(rowId, escapedName, finalRate, quantity, amount, 'update'));
+                    }
+                }
+
+                // Reset fields
+                $('#get_product_name').val('').focus();
+                $('#product_id').val('');
+                $('#get_final_rate').val('');
+                $('#get_product_quantity').val('');
+                $('#get_product_sale_price').val('');
+                $('#add_pro_type').val('add');
+                $('#edit_row_id').val('');
+                $('#product_uid').val('');
+                updateTotals();
+                resetButton();
+
+                function resetButton() {
+                    $spinner.addClass('d-none');
+                    $text.removeClass('d-none');
+                    $btn.prop('disabled', false);
+                }
+            }, 300);
+        });
+
+        function generateRowHTML(rowId, productName, finalRate, quantity, amount, action) {
+            return `
+        <tr id="product_idN_${rowId}">
+            <input type="hidden" data-price="${finalRate}" data-quantity="${quantity}" 
+                   id="product_ids_${rowId}" class="product_ids" name="product_ids[]" value="${rowId}">
+            <input type="hidden" id="product_quantites_${rowId}" name="product_quantites[]" value="${quantity}">
+            <input type="hidden" id="product_rates_${rowId}" name="product_rates[]" value="${finalRate}">
+            <input type="hidden" id="product_final_rates_${rowId}" name="product_final_rates[]" value="${finalRate}">
+            <input type="hidden" id="product_names_${rowId}" name="product_names[]" value="${productName}">
+            <input type="hidden" id="product_actions_${rowId}" name="product_actions[]" value="${action}">
+            <input type="hidden" id="product_uids_${rowId}" name="product_uids[]" value="${rowId}">
+            <td>${productName}</td>
+            <td>${finalRate.toFixed(2)}</td>
+            <td>${quantity}</td>
+            <td>${amount.toFixed(2)}</td>
+            <td>
+                <button type="button" onclick="removeByid('#product_idN_${rowId}')" class="fa fa-trash text-danger"></button>
+                <button type="button" onclick="editByid('${rowId}', \`${productName.replace(/`/g, '\\`')}\`, ${quantity}, ${finalRate}, '${rowId}')" class="fa fa-edit text-success ml-2"></button>
+            </td>
+        </tr>
+    `;
+        }
+
+        function updateTotals() {
+            let subtotal = 0;
+            $('#purchase_product_tb tr').each(function () {
+                let price = parseFloat($(this).find('input[name="product_final_rates[]"]').val()) || 0;
+                let quantity = parseInt($(this).find('input[name="product_quantites[]"]').val()) || 0;
+                let action = $(this).find('input[name="product_actions[]"]').val() || 'update';
+                if (action !== 'delete') {
+                    subtotal += price * quantity;
+                }
+            });
+
+            let discount = parseFloat($('#ordered_discount').val()) || 0;
+            let freight = parseFloat($('#freight').val()) || 0;
+            let grandTotal = subtotal - discount + freight;
+
+            $('#product_total_amount').text(subtotal.toFixed(2));
+            $('#product_grand_total_amount').text(grandTotal.toFixed(2));
+        }
+
+        window.removeByid = function (selector) {
+            let row = $(selector);
+            row.find('input[name="product_actions[]"]').val('delete');
+            row.remove();
             updateTotals();
+        };
 
-            resetButton(); // Reset button at the end
+        window.editByid = function (rowId, productName, quantity, finalRate, productUid) {
+            $('#get_product_name').val(productName);
+            $('#get_final_rate').val(parseFloat(finalRate));
+            $('#get_product_quantity').val(quantity);
+            $('#get_product_sale_price').val((parseFloat(finalRate) * quantity));
+            $('#add_pro_type').val('update');
+            $('#edit_row_id').val(rowId);
+            $('#product_uid').val(productUid);
+            updateSalePrice();
+            // console.log('Editing:', { rowId, productName, quantity, finalRate, productUid }); 
+        };
+
+        window.getOrderTotal = function () {
+            updateTotals();
+        };
+
+        $('#sale_btn').on('click', function (e) {
+            e.preventDefault();
+
+            const $btn = $(this);
+            const $spinner = $btn.find('.spinner-border');
+            const $text = $btn.find('.btn-text');
+
+            if ($('#purchase_product_tb tr').length === 0) {
+                alert('Please add at least one product to the order.');
+                return;
+            }
+
+            if ($('#branch_id').val() === null || $('#branch_id').val() === '') {
+                alert('Please select a branch.');
+                return;
+            }
+
+            // Show loader
+            $spinner.removeClass('d-none');
+            $text.addClass('d-none');
+            $btn.prop('disabled', true);
+
+            let formData = $('#sale_order_fm').serializeArray();
+            // console.log(formData);
+
+            $.ajax({
+                url: $('#sale_order_fm').attr('action'),
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function (response) {
+                    // Hide loader
+                    resetButton();
+
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            showCancelButton: true,
+                            confirmButtonText: 'Print Order',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.open('print_sale.php?type=manualbill&id=' + response.order_id, '_blank');
+                                location.reload();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'An unknown error occurred.'
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    resetButton();
+                    console.log('Status:', status, 'Error:', error, 'Response:', xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Request Failed',
+                        text: 'An error occurred while saving the order.'
+                    });
+                }
+            });
 
             function resetButton() {
                 $spinner.addClass('d-none');
                 $text.removeClass('d-none');
                 $btn.prop('disabled', false);
             }
-        }, 300);
-    });
-
-    function generateRowHTML(rowId, productName, finalRate, quantity, amount, action) {
-        return `
-            <tr id="product_idN_${rowId}">
-                <input type="hidden" data-price="${finalRate}" data-quantity="${quantity}" 
-                    id="product_ids_${rowId}" class="product_ids" name="product_ids[]" value="${rowId}">
-                <input type="hidden" id="product_quantites_${rowId}" name="product_quantites[]" value="${quantity}">
-                <input type="hidden" id="product_rates_${rowId}" name="product_rates[]" value="${finalRate}">
-                <input type="hidden" id="product_final_rates_${rowId}" name="product_final_rates[]" value="${finalRate}">
-                <input type="hidden" id="product_names_${rowId}" name="product_names[]" value="${productName}">
-                <input type="hidden" id="product_actions_${rowId}" name="product_actions[]" value="${action}">
-                <input type="hidden" id="product_uids_${rowId}" name="product_uids[]" value="${rowId}">
-                <td>${productName}</td>
-                <td>${finalRate.toFixed(2)}</td>
-                <td>${quantity}</td>
-                <td>${amount.toFixed(2)}</td>
-                <td>
-                    <button type="button" onclick="removeByid('#product_idN_${rowId}')" class="fa fa-trash text-danger"></button>
-                    <button type="button" onclick="editByid('${rowId}', '${productName}', ${quantity}, ${finalRate}, '${rowId}')" class="fa fa-edit text-success ml-2"></button>
-                </td>
-            </tr>
-        `;
-    }
-
-    function updateTotals() {
-        let subtotal = 0;
-        $('#purchase_product_tb tr').each(function () {
-            let price = parseFloat($(this).find('input[name="product_final_rates[]"]').val()) || 0;
-            let quantity = parseInt($(this).find('input[name="product_quantites[]"]').val()) || 0;
-            let action = $(this).find('input[name="product_actions[]"]').val() || 'update';
-            if (action !== 'delete') {
-                subtotal += price * quantity;
-            }
         });
-
-        let discount = parseFloat($('#ordered_discount').val()) || 0;
-        let freight = parseFloat($('#freight').val()) || 0;
-        let grandTotal = subtotal - discount + freight;
-
-        $('#product_total_amount').text(subtotal.toFixed(2));
-        $('#product_grand_total_amount').text(grandTotal.toFixed(2));
-    }
-
-    window.removeByid = function (selector) {
-        let row = $(selector);
-        row.find('input[name="product_actions[]"]').val('delete');
-        row.remove();
-        updateTotals();
-    };
-
-    window.editByid = function (rowId, productName, quantity, finalRate, productUid) {
-        $('#get_product_name').val(productName);
-        $('#get_final_rate').val(parseFloat(finalRate));
-        $('#get_product_quantity').val(quantity);
-        $('#get_product_sale_price').val((parseFloat(finalRate) * quantity));
-        $('#add_pro_type').val('update');
-        $('#edit_row_id').val(rowId); 
-        $('#product_uid').val(productUid); 
-        updateSalePrice();
-        // console.log('Editing:', { rowId, productName, quantity, finalRate, productUid }); 
-    };
-
-    window.getOrderTotal = function () {
-        updateTotals();
-    };
-
-    $('#sale_btn').on('click', function (e) {
-        e.preventDefault();
-
-        const $btn = $(this);
-        const $spinner = $btn.find('.spinner-border');
-        const $text = $btn.find('.btn-text');
-
-        if ($('#purchase_product_tb tr').length === 0) {
-            alert('Please add at least one product to the order.');
-            return;
-        }
-
-        if ($('#branch_id').val() === null || $('#branch_id').val() === '') {
-            alert('Please select a branch.');
-            return;
-        }
-
-        // Show loader
-        $spinner.removeClass('d-none');
-        $text.addClass('d-none');
-        $btn.prop('disabled', true);
-
-        let formData = $('#sale_order_fm').serializeArray();
-        // console.log(formData);
-
-        $.ajax({
-            url: $('#sale_order_fm').attr('action'),
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function (response) {
-                // Hide loader
-                resetButton();
-
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: response.message,
-                        showCancelButton: true,
-                        confirmButtonText: 'Print Order',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.open('print_sale.php?type=manualbill&id=' + response.order_id, '_blank');
-                            location.reload();
-                        } else {
-                            location.reload();
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message || 'An unknown error occurred.'
-                    });
-                }
-            },
-            error: function (xhr, status, error) {
-                resetButton();
-                console.log('Status:', status, 'Error:', error, 'Response:', xhr.responseText);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Request Failed',
-                    text: 'An error occurred while saving the order.'
-                });
-            }
-        });
-
-        function resetButton() {
-            $spinner.addClass('d-none');
-            $text.removeClass('d-none');
-            $btn.prop('disabled', false);
-        }
     });
-});
 </script>
+
 </html>

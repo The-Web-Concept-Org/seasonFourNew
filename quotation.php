@@ -35,6 +35,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
             <input type="hidden" name="quotation_form" id="quotation_form" value="quotation">
             <input type="hidden" name="user_id" value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
+            <input type="hidden" id="selected_customer_id" value="<?= @$fetchOrder['customer_account'] ?>">
+            <!-- <input type="hidden" id="selected_payment_account_id" value="<?= @$fetchOrder['payment_account'] ?>"> -->
+            <input type="hidden" id="selected_supplier_id" value="<?= @$fetchOrder['supplier_account'] ?>">
 
             <div class="d-flex mb-3 align-items-center justify-content-end gap-4 px-3">
 
@@ -107,22 +110,22 @@ if (!empty($_REQUEST['edit_order_id'])) {
                 <label>Customer Account</label>
                 <div class="input-group">
 
-                  <select class="form-control searchableSelect customer_name" onchange="getBalance(this.value,'customer_account_exp')"
-                    name="credit_order_client_name" id="credit_order_client_name" required aria-label="Username" aria-
-                    describedby="basic-addon1">
+                  <select class="form-control searchableSelect customer_name"
+                    onchange="getBalance(this.value,'customer_account_exp')" name="credit_order_client_name"
+                    id="credit_order_client_name" required aria-label="Username" aria- describedby="basic-addon1">
                     <option value="">Customer Account</option>
-                   <?php
-                $branch_id = $_SESSION['branch_id'];
-                $user_role = $_SESSION['user_role'];
+                    <?php
+                    $branch_id = $_SESSION['branch_id'];
+                    $user_role = $_SESSION['user_role'];
 
-                if ($user_role === 'admin') {
-                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer'";
-                } else {
-                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer' AND branch_id = '$branch_id'";
-                }
-                $q = mysqli_query($dbc, $sql);
-                while ($r = mysqli_fetch_assoc($q)) {
-                  ?>
+                    if ($user_role === 'admin') {
+                      $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer'";
+                    } else {
+                      $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'customer' AND branch_id = '$branch_id'";
+                    }
+                    $q = mysqli_query($dbc, $sql);
+                    while ($r = mysqli_fetch_assoc($q)) {
+                      ?>
                       <option <?= @($fetchOrder['customer_account'] == $r['customer_id']) ? "selected" : "" ?>
                         data-id="<?= $r['customer_id'] ?>" data-contact="<?= $r['customer_phone'] ?>"
                         value="<?= $r['customer_name'] ?>"><?= $r['customer_name'] ?> | <?= $r['customer_phone'] ?>
@@ -377,5 +380,17 @@ if (!empty($_REQUEST['edit_order_id'])) {
         priceType.value = 'sale';
       }
     });
+  });
+</script>
+<script>
+
+  $(document).ready(function () {
+    const isEditMode = !!$("[name='product_order_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+    //   console.log("Edit mode:", isEditMode);
+    //   console.log("Branch ID element:", $("#branch_id"));
+    if (isEditMode) {
+      $("#branch_id").trigger("change");
+
+    }
   });
 </script>
