@@ -452,7 +452,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                             <td colspan="5"></td>
                                             <td class="table-bordered">Remaining Amount:</td>
                                             <td class="table-bordered">
-                                                <input type="text" class="form-control form-control-sm"
+                                                <input type="text" class="form-control form-control-sm" style="text-align: left;"
                                                     id="remaining_ammount" readonly name="remaining_ammount"
                                                     value="<?= @$fetchOrder['due'] ?>">
                                             </td>

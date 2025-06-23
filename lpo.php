@@ -36,6 +36,11 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <input type="hidden" name="payment_type" id="payment_type" value="credit_purchase">
             <input type="hidden" name="lpo_form" id="lpo_form" value="lpo">
             <input type="hidden" name="price_type" id="price_type" value="purchase">
+
+            <!-- <input type="hidden" id="selected_customer_id" value="<?= @$fetchPurchase['customer_account'] ?>"> -->
+            <!-- <input type="hidden" id="selected_payment_account_id" value="<?= @$fetchPurchase['payment_account'] ?>"> -->
+            <input type="hidden" id="selected_supplier_id" value="<?= @$fetchPurchase['customer_account'] ?>">
+
             <?php if ($_SESSION['user_role'] == 'admin') { ?>
               <div class="dropdown-wrapper ml-auto mb-3">
                 <select name="branch_id" id="branch_id" class="custom-dropdown text-capitalize" required>
@@ -334,3 +339,15 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
 
 </html>
 <?php include_once 'includes/foot.php'; ?>
+<script>
+
+  $(document).ready(function () {
+    const isEditMode = !!$("[name='product_purchase_id']").val() || new URLSearchParams(window.location.search).get("edit_order_id");
+    //   console.log("Edit mode:", isEditMode);
+    //   console.log("Branch ID element:", $("#branch_id"));
+    if (isEditMode) {
+      $("#branch_id").trigger("change");
+
+    }
+  });
+</script>

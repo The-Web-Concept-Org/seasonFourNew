@@ -407,8 +407,8 @@ $(document).ready(function () {
     var branch_id = $("#branch_id").val();
     var purchase_return = $("#purchase_return").val();
     var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
-  
-  
+
+
     $.ajax({
       type: "POST",
       url: "php_action/custom_action.php",
@@ -633,7 +633,7 @@ $("#addProductPurchase").on("click", function () {
 
       var payment_type = $("#payment_type").val();
       var isSaleReturn = $("#order_return").val() === "order_return";
-var isPurchaseReturn = $("#purchase_return").val() === "purchase_return";
+      var isPurchaseReturn = $("#purchase_return").val() === "purchase_return";
       var name = $("#get_product_name :selected").text();
       var price = parseFloat($("#get_product_price").val());
       var sale_price = parseFloat($("#get_product_sale_price").val());
@@ -645,7 +645,7 @@ var isPurchaseReturn = $("#purchase_return").val() === "purchase_return";
       var pro_type = $("#add_pro_type").val();
 
       if (
-       (payment_type === "cash_purchase" && !isPurchaseReturn ) ||
+        (payment_type === "cash_purchase" && !isPurchaseReturn) ||
         (payment_type === "credit_purchase" && !isPurchaseReturn) ||
         isSaleReturn
       ) {
@@ -1296,7 +1296,7 @@ let saleType = (value) => {
 
   if (value == "cash") {
     let total_amount = $("#product_grand_total_amount").text();
-    $("#paid_ammount").val(total_amount);
+    $("#paid_ammount").val(total_amount.trim());
     $("#paid_ammount").attr("readonly", false);
     $("#payment_account").attr("required", true);
     $("#credit_order_client_name").attr("required", false);
@@ -1322,17 +1322,17 @@ let saleType = (value) => {
     $("#credit_order_client_name").attr("name", "credit_order_client_name");
     $("#sale_order_client_name").attr("name", "skd");
     $("#client_contact").attr("name", "client_contact");
-    $("#remaining_ammount").val(total_amount);
+    $("#remaining_ammount").val(total_amount.trim());
     $("#paid_ammount").attr("readonly", false);
     $(".return_days-div").show();
     $(".input-group-prepend").show();
     $(".cash-sale-div1").hide();
     $(".cash-sale-div2").hide();
     $("#account_row").hide();
-    $("#split_payment_container").hide(); // Hide split payment checkbox
-    toggleSplitPayment(false); // Reset split payment state
-  console.log(total_amount);
-  
+    $("#split_payment_container").hide();
+    toggleSplitPayment(false); 
+    console.log(total_amount);
+
   }
   toggleSplitPayment();
 };
@@ -1358,94 +1358,94 @@ $(document).ready(function () {
       type: "POST",
       data: { get_branch_data: branch_id },
       dataType: "json",
-success: function (response) {
-  $("#customer_list, #bank_list, #supplier_list").empty();
+      success: function (response) {
+        $("#customer_list, #bank_list, #supplier_list").empty();
 
-  // === Customer Select ===
-  const $customerSelect = $(".customer_name");
-  const selectedCustomerId = $("#selected_customer_id").val();
-  $customerSelect.empty().append('<option value="">Customer Account</option>');
+        // === Customer Select ===
+        const $customerSelect = $(".customer_name");
+        const selectedCustomerId = $("#selected_customer_id").val();
+        $customerSelect.empty().append('<option value="">Customer Account</option>');
 
-  if (response.customers?.length) {
-    response.customers.forEach(function (cust) {
-      const isSelected = selectedCustomerId == cust.customer_id ? 'selected' : '';
-      $customerSelect.append(
-        `<option ${isSelected} data-id="${cust.customer_id}" data-contact="${cust.customer_phone}" value="${cust.customer_name}">
+        if (response.customers?.length) {
+          response.customers.forEach(function (cust) {
+            const isSelected = selectedCustomerId == cust.customer_id ? 'selected' : '';
+            $customerSelect.append(
+              `<option ${isSelected} data-id="${cust.customer_id}" data-contact="${cust.customer_phone}" value="${cust.customer_name}">
           ${cust.customer_name} | ${cust.customer_phone}
         </option>`
-      );
-    });
-  }
+            );
+          });
+        }
 
-  // // === Payment Accounts (Banks) ===
-  // const $paymentSelect = $("#payment_account, #bank_account, #cash_account");
-  // const selectedBankId = $("#selected_bank_id").val();
-  // $paymentSelect.empty().append('<option value="">Select Account</option>');
+        // // === Payment Accounts (Banks) ===
+        // const $paymentSelect = $("#payment_account, #bank_account, #cash_account");
+        // const selectedBankId = $("#selected_bank_id").val();
+        // $paymentSelect.empty().append('<option value="">Select Account</option>');
 
-  // if (response.banks?.length) {
-  //   response.banks.forEach(function (bank) {
-  //     const isSelected = selectedBankId == bank.customer_id ? 'selected' : '';
-  //     $paymentSelect.append(
-  //       `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
-  //     );
-  //   });
-  // }
+        // if (response.banks?.length) {
+        //   response.banks.forEach(function (bank) {
+        //     const isSelected = selectedBankId == bank.customer_id ? 'selected' : '';
+        //     $paymentSelect.append(
+        //       `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+        //     );
+        //   });
+        // }
 
-  const selectedPaymentAccountId = $("#selected_payment_account_id").val();
-const selectedBankAccountId = $("#selected_bank_account_id").val();
-const selectedCashAccountId = $("#selected_cash_account_id").val();
+        const selectedPaymentAccountId = $("#selected_payment_account_id").val();
+        const selectedBankAccountId = $("#selected_bank_account_id").val();
+        const selectedCashAccountId = $("#selected_cash_account_id").val();
 
-// === Payment Account
-const $paymentSelect = $("#payment_account");
-$paymentSelect.empty().append('<option value="">Select Account</option>');
+        // === Payment Account
+        const $paymentSelect = $("#payment_account");
+        $paymentSelect.empty().append('<option value="">Select Account</option>');
 
-response.banks?.forEach(function (bank) {
-  const isSelected = bank.customer_id == selectedPaymentAccountId ? 'selected' : '';
-  $paymentSelect.append(
-    `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
-  );
-});
+        response.banks?.forEach(function (bank) {
+          const isSelected = bank.customer_id == selectedPaymentAccountId ? 'selected' : '';
+          $paymentSelect.append(
+            `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+          );
+        });
 
-// === Bank Account
-const $bankSelect = $("#bank_account");
-$bankSelect.empty().append('<option value="">Select Account</option>');
+        // === Bank Account
+        const $bankSelect = $("#bank_account");
+        $bankSelect.empty().append('<option value="">Select Account</option>');
 
-response.banks?.forEach(function (bank) {
-  const isSelected = bank.customer_id == selectedBankAccountId ? 'selected' : '';
-  $bankSelect.append(
-    `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
-  );
-});
+        response.banks?.forEach(function (bank) {
+          const isSelected = bank.customer_id == selectedBankAccountId ? 'selected' : '';
+          $bankSelect.append(
+            `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+          );
+        });
 
-// === Cash Account
-const $cashSelect = $("#cash_account");
-$cashSelect.empty().append('<option value="">Select Account</option>');
+        // === Cash Account
+        const $cashSelect = $("#cash_account");
+        $cashSelect.empty().append('<option value="">Select Account</option>');
 
-response.banks?.forEach(function (bank) {
-  const isSelected = bank.customer_id == selectedCashAccountId ? 'selected' : '';
-  $cashSelect.append(
-    `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
-  );
-});
+        response.banks?.forEach(function (bank) {
+          const isSelected = bank.customer_id == selectedCashAccountId ? 'selected' : '';
+          $cashSelect.append(
+            `<option ${isSelected} value="${bank.customer_id}">${bank.customer_name}</option>`
+          );
+        });
 
-  // === Supplier Select ===
-  const $supplierSelect = $(".supplier_name");
-  const selectedSupplierId = $("#selected_supplier_id").val();
-  $supplierSelect.empty().append('<option value="">Select Supplier</option>');
+        // === Supplier Select ===
+        const $supplierSelect = $(".supplier_name");
+        const selectedSupplierId = $("#selected_supplier_id").val();
+        $supplierSelect.empty().append('<option value="">Select Supplier</option>');
 
-  if (response.suppliers?.length) {
-    response.suppliers.forEach(function (sup) {
-      const isSelected = selectedSupplierId == sup.customer_id ? 'selected' : '';
-      $supplierSelect.append(
-        `<option ${isSelected} data-id="${sup.customer_id}" data-contact="${sup.customer_phone}" value="${sup.customer_name}">
+        if (response.suppliers?.length) {
+          response.suppliers.forEach(function (sup) {
+            const isSelected = selectedSupplierId == sup.customer_id ? 'selected' : '';
+            $supplierSelect.append(
+              `<option ${isSelected} data-id="${sup.customer_id}" data-contact="${sup.customer_phone}" value="${sup.customer_name}">
           ${sup.customer_name} | ${sup.customer_phone}
         </option>`
-      );
-    });
-  }
-}
+            );
+          });
+        }
+      }
 
-,
+      ,
     });
   });
 });
