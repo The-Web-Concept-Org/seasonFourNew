@@ -54,6 +54,7 @@ if (isset($_REQUEST['new_voucher_date'])) {
 				'td_check_date' => @$_REQUEST['td_check_date'],
 				'check_type' => @$_REQUEST['check_type'],
 				'addby_user_id' => @$_SESSION['userId'],
+				'branch_id' => @$_REQUEST['branch_id'],
 			];
 		} else {
 			$data = [
@@ -142,6 +143,7 @@ if (isset($_REQUEST['new_voucher_date'])) {
 				'voucher_bank_name' => @$_REQUEST['voucher_bank_name'],
 				'check_type' => @$_REQUEST['check_type'],
 				'td_check_date' => @$_REQUEST['td_check_date'],
+				'branch_id' => @$_REQUEST['branch_id'],
 			];
 		} else {
 			$data = [
@@ -153,6 +155,7 @@ if (isset($_REQUEST['new_voucher_date'])) {
 				'voucher_amount' => @$_REQUEST['voucher_debit'],
 				'voucher_group' => @$_REQUEST['voucher_group'],
 				'editby_user_id' => @$_SESSION['userId'],
+				'branch_id' => @$_REQUEST['branch_id'],
 			];
 		}
 		if (update_data($dbc, "vouchers", $data, "voucher_id", $_REQUEST['voucher_id'])) {
@@ -230,6 +233,7 @@ if (isset($_REQUEST['new_sin_voucher_date'])) {
 			'voucher_amount' => $amount,
 			'voucher_group' => @$_REQUEST['voucher_group'],
 			'addby_user_id' => @$_SESSION['userId'],
+			'branch_id' => @$_REQUEST['branch_id'],
 		];
 		if (insert_data($dbc, "vouchers", $data)) {
 			$last_id = mysqli_insert_id($dbc);
