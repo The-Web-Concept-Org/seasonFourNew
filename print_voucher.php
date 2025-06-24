@@ -255,7 +255,7 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                         <b class="name">
                                             <?= $get_company['name'] ?>
                                         </b></strong></h4>
-                                <p class="notice"> Software Developed By : <b class="name">Samz Creation (0345-7573667)</b>
+                                <p class="notice"> Software Developed By : <b class="name">TWC (+92 313 7573667)</b>
                                     <b class="float-right"><?= $copy ?></b></p>
 
                             </div>
