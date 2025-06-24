@@ -45,9 +45,31 @@
 
               <div class="row d-print-none ">
 
+                <!-- <div class="col-sm-2">
+                  <?php if ($_SESSION['user_role'] == 'admin') { ?>
+                    <div class="ml-auto ">
+                      <label for="">Branch</label>
+                      <select name="branch_id" id="branch_id" class="form-control text-capitalize" required>
+                        <option selected disabled value="">Select Branch</option>
+                        <?php
+                        $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                        while ($row = mysqli_fetch_array($branch)) {
+                          ?>
+                          <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
+                            class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                            <?= $row['branch_name'] ?>
+                          </option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  <?php } else { ?>
+                    <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                  <?php } ?>
+
+                </div>
 
 
-                <div class="form-group col-sm-3">
+                <div class="form-group col-sm-2">
 
 
 
@@ -58,15 +80,67 @@
                   <select required class="form-control" id="ledger_customer_id" name="customer_id" autofocus="true">
                     <option value="">Select Account</option>
                     <?php
+                    $branch_id = $_SESSION['branch_id'];
+                    $user_role = $_SESSION['user_role'];
 
-                    $sql = get($dbc, "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' ");
+                    if ($user_role === 'admin') {
+                      $sql = "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' ";
+                    } else {
+                      $sql = "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' AND branch_id = '$branch_id'";
+                    }
+                    $sql = get($dbc, $sql);
                     while ($row = $sql->fetch_array()) {
 
                       echo "<option value='" . $row['customer_id'] . "'>" . $row['customer_name'] . "</option>";
                     } // while
                     ?>
                   </select>
-                </div><!-- group -->
+                </div> -->
+                <!-- group -->
+                <div class="col-sm-2">
+                  <?php if ($_SESSION['user_role'] == 'admin') { ?>
+                    <div class="ml-auto">
+                      <label for="">Branch</label>
+                      <select name="branch_id" id="branch_id" onchange="fetchAccounts(this.value)"
+                        class="form-control text-capitalize" required>
+                        <option selected disabled value="">Select Branch</option>
+                        <?php
+                        $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                        while ($row = mysqli_fetch_array($branch)) { ?>
+                          <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
+                            class="text-capitalize" value="<?= $row['branch_id'] ?>">
+                            <?= $row['branch_name'] ?>
+                          </option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  <?php } else { ?>
+                    <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                  <?php } ?>
+                </div>
+
+                <div class="form-group col-sm-2">
+                  <label for=""><?= ucfirst($_REQUEST['type']) ?> Account</label>
+                  <select required class="form-control" id="ledger_customer_id" name="customer_id">
+                    <option value="">Select Account</option>
+                    <?php
+                    $branch_id = $_SESSION['branch_id'];
+                    $user_role = $_SESSION['user_role'];
+
+                    if ($user_role === 'admin') {
+                      $sql = "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' ";
+                    } else {
+                      $sql = "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' AND branch_id = '$branch_id'";
+                    }
+                    $sql = get($dbc, $sql);
+                    while ($row = $sql->fetch_array()) {
+
+                      echo "<option value='" . $row['customer_id'] . "'>" . $row['customer_name'] . "</option>";
+                    } // while
+                    ?>
+                  </select>
+                </div>
+
                 <div class="form-group col-sm-2 ">
 
 
@@ -162,22 +236,26 @@
                     <img src="img/logo/<?= $get_company['logo'] ?>" width="90" height="90" class="img-fluid float-left"
                       style="margin-top: 10px">
                   </div>
-
                   <?php
-                  $branch = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : '';
-                  $fetchBranch = fetchRecord($dbc, "branch", "branch_id", $branch); ?>
+                  if ($_SESSION['user_role'] === 'admin' && isset($_POST['branch_id'])) {
+                    // Admin selected a branch
+                    $branch = $_POST['branch_id'];
+                  } else {
+                    // Non-admin or fallback to session branch
+                    $branch = $_SESSION['branch_id'];
+                  }
+
+                  $fetchBranch = fetchRecord($dbc, "branch", "branch_id", $branch);
+                  ?>
+
                   <div class="col-sm-5 mt-3">
                     <h1 style="margin-left: -20px; color: red;font-weight: bold;font-size: 30px">
-                      <?= $get_company['name'] ?></h1>
+                      <?= $get_company['name'] ?>
+                    </h1>
                     <p style="margin-left: -10px;  font-weight: bolder;font-size: 15px">Branch
                       :<?= $fetchBranch['branch_name'] ?></p>
-                      <p style="margin-left: -10px;margin-top: -12px; font-weight: bolder;font-size: 15px">PH No.
+                    <p style="margin-left: -10px;margin-top: -12px; font-weight: bolder;font-size: 15px">PH No.
                       :<?= $fetchBranch['branch_phone'] ?></p>
-                    
-
-
-
-
                   </div>
                   <div class="col-sm-4 offset-2 mt-4">
 
@@ -221,13 +299,6 @@
 
                       <thead>
                         <tr>
-
-
-
-
-
-
-
                           <th>Date</th>
                           <?php if (isset($_POST['fullledger'])): ?>
 
@@ -261,10 +332,6 @@
 
 
                       <tbody>
-
-
-
-
 
 
 
@@ -354,13 +421,16 @@
 
                                 <?php if ($check_remaing_balance < 0 and $row['transaction_from'] == "invoice"): ?>
                                   <td class="text-danger">
-                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?></td>
+                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?>
+                                  </td>
                                 <?php elseif ($row['transaction_from'] == "voucher"): ?>
                                   <td class="text-info">
-                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?></td>
+                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?>
+                                  </td>
                                 <?php else: ?>
                                   <td class="text-success">
-                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?></td>
+                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?>
+                                  </td>
                                 <?php endif ?>
                                 <?php if (isset($_POST['fullledger'])): ?>
 
@@ -484,18 +554,53 @@
 
 </body>
 
+<script>
+  // Fetch accounts on branch change or on load (non-admin)
+  function fetchAccounts(branchId = '') {
+    const type = "<?= $_REQUEST['type'] ?>";
+
+    $.ajax({
+      url: 'php_action/custom_action.php',
+      method: 'POST',
+      data: {
+        branch_id: branchId,
+        type: type
+      },
+      success: function (response) {
+        $('#ledger_customer_id').html(response);
+      },
+      error: function () {
+        alert("Failed to load accounts.");
+      }
+    });
+  }
+
+  // Triggered for admin when branch is selected
+  $('#branch_id').on('change', function () {
+    const selectedBranch = $(this).val();
+    fetchAccounts(selectedBranch);
+  });
+
+  // On page load (for non-admin)
+  <?php if ($_SESSION['user_role'] !== 'admin') { ?>
+    $(function () {
+      fetchAccounts('<?= $_SESSION['branch_id'] ?>');
+    });
+  <?php } ?>
+</script>
+
 </html>
 <?php include_once 'includes/foot.php'; ?>
 
 <style type="text/css">
   @media print {
     thead>tr>th {
-      font-size: 25px !important;
+      font-size: 23px !important;
       color: black !important;
     }
 
     tr>td {
-      font-size: 22px !important;
+      font-size: 20px !important;
     }
 
   }

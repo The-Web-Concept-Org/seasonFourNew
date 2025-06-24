@@ -3745,5 +3745,35 @@ if (isset($_POST['category_id_for_brand'])) {
 	echo $options;
 	exit;
 }
+if (isset($_POST['branch_id']) && isset($_POST['type'])) {
 
+	$branch_id = mysqli_real_escape_string($dbc, $_POST['branch_id']);
+	$type = mysqli_real_escape_string($dbc, $_POST['type']);
+
+	if (empty($type)) {
+		echo "<option value=''>Invalid Type</option>";
+		exit;
+	}
+
+	// Build WHERE clause
+	$where = "WHERE customer_status = 1 AND customer_type = '$type'";
+	if (!empty($branch_id)) {
+		$where .= " AND branch_id = '$branch_id'";
+	}
+
+	$query = "SELECT customer_id, customer_name FROM customers $where ORDER BY customer_name ASC";
+	$result = mysqli_query($dbc, $query);
+
+	echo "<option value=''>Select Account</option>";
+	if (mysqli_num_rows($result) > 0) {
+		while ($row = mysqli_fetch_assoc($result)) {
+			echo "<option value='{$row['customer_id']}'>{$row['customer_name']}</option>";
+		}
+	} else {
+		echo "<option value=''>No accounts found</option>";
+	}
+
+} else {
+	echo "<option value=''>Missing parameters</option>";
+}
 ?>
