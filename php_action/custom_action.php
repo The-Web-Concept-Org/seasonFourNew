@@ -3745,10 +3745,10 @@ if (isset($_POST['category_id_for_brand'])) {
 	echo $options;
 	exit;
 }
-if (isset($_POST['branch_id']) && isset($_POST['type'])) {
+if (isset($_POST[' branch_id_for_ledgers']) && isset($_POST['type_for_ledgers'])) {
 
-	$branch_id = mysqli_real_escape_string($dbc, $_POST['branch_id']);
-	$type = mysqli_real_escape_string($dbc, $_POST['type']);
+	$branch_id = mysqli_real_escape_string($dbc, $_POST[' branch_id_for_ledgers']);
+	$type = mysqli_real_escape_string($dbc, $_POST['type_for_ledgers']);
 
 	if (empty($type)) {
 		echo "<option value=''>Invalid Type</option>";
@@ -3773,7 +3773,5 @@ if (isset($_POST['branch_id']) && isset($_POST['type'])) {
 		echo "<option value=''>No accounts found</option>";
 	}
 
-} else {
-	echo "<option value=''>Missing parameters</option>";
 }
 ?>
