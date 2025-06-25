@@ -7,11 +7,11 @@ $customer_id2 = fetchRecord($dbc, "customers", "customer_id", $vouchers['custome
 
 if ($vouchers['voucher_group'] == 'single_voucher') {
 
-    $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id1'] . "' WHERE transaction_id = '" . $vouchers['transaction_id1'] . "'  "));
+    $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id1'] . "' AND transaction_id = '" . $vouchers['transaction_id1'] . "'  "));
     $previous_balance = (int) $from_balance['from_balance'] + (int) $vouchers['voucher_amount'];
 
-    $from_balance2 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id2'] . "' WHERE transaction_id = '" . $vouchers['transaction_id12'] . "'  "));
-    $previous_balance2 = (int) $from_balance2['from_balance'] - (int) $vouchers['voucher_amount'];
+    @$from_balance2 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id2'] . "' AND transaction_id = '" . $vouchers['transaction_id12'] . "'  "));
+    @$previous_balance2 = (int) $from_balance2['from_balance'] - (int) $vouchers['voucher_amount'];
 
 
     # code...
@@ -80,7 +80,8 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                         class="img-fluid float-right">
                                 </div>
                                 <div class="col-sm-7 mt-1">
-                                    <h1 style="margin-left: -20px; color: red;font-weight: bold;"><?= $get_company['name'] ?>
+                                    <h1 style="margin-left: -20px; color: red;font-weight: bold;">
+                                        <?= $get_company['name'] ?>
                                     </h1>
                                     <p style="margin-left: -10px; font-weight: bold;">Ph
                                         No.<?= $get_company['company_phone'] ?></p>
@@ -99,16 +100,35 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                     <div class="col invoice-to">
                                         <div class="text-gray-light font-weight-bold text-dark">DETAILS:</div>
                                         <h2 class="to"><?= ucfirst($customer_id1['customer_name']) ?></h2>
-                                        <div class="email font-weight-bold text-dark"><?= $customer_id1['customer_phone'] ?></div>
+                                        <div class="email font-weight-bold text-dark"><?= $customer_id1['customer_phone'] ?>
+                                        </div>
                                         <div class="address font-weight-bold text-dark"><?= $customer_id1['customer_address'] ?>
                                         </div>
 
                                     </div>
+                                    <?php
+
+                                    // Example: "general_voucher" → "GV"
+                                    $voucherType = $vouchers['voucher_group']; // e.g., "general_voucher"
+                                    $parts = explode('_', $voucherType);
+                                    $typeCode = strtoupper(substr($parts[0], 0, 1) . substr($parts[1] ?? '', 0, 1));
+
+
+
+
+                                    // Assume voucher_id is numeric (e.g., 1, 25, 345)
+                                    $prefix = "SF25";
+                                    // You can dynamically generate this from the voucher_type if needed
+                                    $numericId = str_pad($vouchers['voucher_id'], 7, '0', STR_PAD_LEFT); // Pads to 7 digits
+                            
+                                    $formattedVoucherId = "$prefix-$typeCode-$numericId";
+                                    ?>
                                     <div class="col invoice-details">
-                                        <h1 class="font-weight-bold text-dark invoice-id">Voucher # <?= $vouchers['voucher_id'] ?>
+                                        <h1 class="font-weight-bold text-dark invoice-id">Voucher # <?= $formattedVoucherId ?>
                                         </h1>
                                         <div class="font-weight-bold text-dark date">Voucher Type:
-                                            <?= strtoupper($vouchers['voucher_type']) ?></div>
+                                            <?= strtoupper($vouchers['voucher_type']) ?>
+                                        </div>
                                         <div class="font-weight-bold text-dark date">Voucher Date/Time:
 
                                             <?php
@@ -120,16 +140,19 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                             $users = fetchRecord($dbc, "users", "user_id", $vouchers['editby_user_id']);
                                             ?>
                                             <div class="font-weight-bold text-dark date">Edit By:
-                                                <?= strtoupper($users['username']) ?></div>
+                                                <?= strtoupper($users['username']) ?>
+                                            </div>
 
                                         <?php } else {
                                             $users = fetchRecord($dbc, "users", "user_id", $vouchers['addby_user_id']);
                                             ?>
                                             <div class="font-weight-bold text-dark date">Added By:
-                                                <?= strtoupper($users['username']) ?></div>
+                                                <?= strtoupper($users['username']) ?>
+                                            </div>
                                         <?php } ?>
                                         <div class="font-weight-bold text-dark address">Type:
-                                            <?= ucfirst($customer_id1['customer_type']) ?></div>
+                                            <?= ucfirst($customer_id1['customer_type']) ?>
+                                        </div>
 
 
 
@@ -160,7 +183,8 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                                 <tr>
                                                     <td class="no">Narration</td>
                                                     <td colspan="5" class="text-center no">
-                                                        <?= ucfirst($vouchers['voucher_hint']) ?></td>
+                                                        <?= ucfirst($vouchers['voucher_hint']) ?>
+                                                    </td>
                                                 </tr>
 
 
@@ -180,14 +204,16 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                         <h2 class="to"><?= ucfirst(@$customer_id2['customer_name']) ?></h2>
                                         <div class="email font-weight-bold text-dark"><?= @$customer_id2['customer_phone'] ?>
                                         </div>
-                                        <div class="address font-weight-bold text-dark"><?= @$customer_id2['customer_address'] ?>
+                                        <div class="address font-weight-bold text-dark">
+                                            <?= @$customer_id2['customer_address'] ?>
                                         </div>
                                     </div>
                                     <div class="col invoice-details">
-                                        <h1 class="font-weight-bold text-dark invoice-id">Voucher # <?= $vouchers['voucher_id'] ?>
+                                        <h1 class="font-weight-bold text-dark invoice-id">Voucher # <?= $formattedVoucherId ?>
                                         </h1>
                                         <div class="font-weight-bold text-dark date">Voucher Type:
-                                            <?= strtoupper($vouchers['voucher_type']) ?></div>
+                                            <?= strtoupper($vouchers['voucher_type']) ?>
+                                        </div>
                                         <div class="font-weight-bold text-dark date">Voucher Date/Time:
 
                                             <?php
@@ -198,16 +224,19 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                             $users = fetchRecord($dbc, "users", "user_id", $vouchers['editby_user_id']);
                                             ?>
                                             <div class="font-weight-bold text-dark date">Edit By:
-                                                <?= strtoupper($users['username']) ?></div>
+                                                <?= strtoupper($users['username']) ?>
+                                            </div>
 
                                         <?php } else {
                                             $users = fetchRecord($dbc, "users", "user_id", $vouchers['addby_user_id']);
                                             ?>
                                             <div class="font-weight-bold text-dark date">Added By:
-                                                <?= strtoupper($users['username']) ?></div>
+                                                <?= strtoupper($users['username']) ?>
+                                            </div>
                                         <?php } ?>
                                         <div class="font-weight-bold text-dark address"> Type:
-                                            <?= ucfirst(@$customer_id2['customer_type']) ?></div>
+                                            <?= ucfirst(@$customer_id2['customer_type']) ?>
+                                        </div>
 
 
 
@@ -238,7 +267,8 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                                 <tr>
                                                     <td class="no">Narration</td>
                                                     <td colspan="5" class="text-center no">
-                                                        <?= ucfirst($vouchers['voucher_hint']) ?></td>
+                                                        <?= ucfirst($vouchers['voucher_hint']) ?>
+                                                    </td>
                                                 </tr>
 
 
@@ -256,7 +286,8 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                             <?= $get_company['name'] ?>
                                         </b></strong></h4>
                                 <p class="notice"> Software Developed By : <b class="name">TWC (+92 313 7573667)</b>
-                                    <b class="float-right"><?= $copy ?></b></p>
+                                    <b class="float-right"><?= $copy ?></b>
+                                </p>
 
                             </div>
                             <div class="row mb-5" style="font-size: 18px">

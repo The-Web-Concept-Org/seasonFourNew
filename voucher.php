@@ -53,12 +53,12 @@ if (isset($_REQUEST['id'])) {
                       </div>
                       <div class="col-sm-4">
                         <select class="form-control searchableSelect" name="voucher_type">
-                          <option <?= @($voucher['voucher_type'] === "general_voucher") ? "selected" : "" ?>
-                            value="general_voucher">General Voucher</option>
-                          <option <?= @($voucher['voucher_type'] === "payment_clearance") ? "selected" : "" ?>
-                            value="payment_clearance ">Payment Clearance </option>
-                          <option <?= @($voucher['voucher_type'] === "transferring") ? "selected" : "" ?> value="transferring">
-                            Transferring</option>
+                          <option <?= @($voucher['voucher_type'] === "receipt") ? "selected" : "" ?> value="receipt">Receipt
+                          </option>
+                          <option <?= @($voucher['voucher_type'] === "payment") ? "selected" : "" ?> value="payment">Payment
+                          </option>
+                          <option <?= @($voucher['voucher_type'] === "jv") ? "selected" : "" ?> value="jv">
+                            JV</option>
                         </select>
 
                       </div>
@@ -121,7 +121,7 @@ if (isset($_REQUEST['id'])) {
                         </div>
                       </div>
                       <div class="col-sm-2 text-right">
-                        Debit
+                        Debit/ Money Out
                       </div>
 
                       <div class="col-sm-4">
@@ -188,7 +188,7 @@ if (isset($_REQUEST['id'])) {
                           </div>
                         </div>
                       </div>
-                      <div class="col-sm-2 text-right">Credit
+                      <div class="col-sm-2 text-right">Credit/ Money In
                       </div>
 
                       <div class="col-sm-4">
@@ -328,7 +328,7 @@ if (isset($_REQUEST['id'])) {
                           while ($r = mysqli_fetch_assoc($q)) {
                             ?>
                             <option <?= @($voucher['voucher_type'] == $r['expense_id']) ? "checked" : "" ?>
-                              value="<?= $r['expense_id'] ?>"><?= strtoupper($r['expense_name']) ?></option>
+                              value="<?= $r['expense_name'] ?>"><?= strtoupper($r['expense_name']) ?></option>
                           <?php } ?>
 
                         </select>
@@ -389,7 +389,7 @@ if (isset($_REQUEST['id'])) {
                         </div>
                       </div>
                       <div class="col-sm-2 text-right">
-                        Debit
+                        Debit/ Money Out
                       </div>
 
                       <div class="col-sm-4">
@@ -420,7 +420,7 @@ if (isset($_REQUEST['id'])) {
                               // Non-admin: only their branch, only 'expense' customers
                               $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'expense' AND branch_id = $branch_id ORDER BY customer_type ASC");
                             }
-                           $type2 = '';
+                            $type2 = '';
                             while ($r = mysqli_fetch_assoc($q)):
                               $type = $r['customer_type'];
                               $branchId = $r['branch_id']
@@ -453,7 +453,7 @@ if (isset($_REQUEST['id'])) {
                           </div>
                         </div>
                       </div>
-                      <div class="col-sm-2 text-right"> Credit
+                      <div class="col-sm-2 text-right"> Credit/ Money In
                       </div>
 
                       <div class="col-sm-4">
@@ -584,7 +584,7 @@ if (isset($_REQUEST['id'])) {
                       </div>
                     </div>
                     <div class="form-group row">
-                      <div class="col-sm-2 text-right"> Credit
+                      <div class="col-sm-2 text-right"> Credit/ Money In
                       </div>
 
                       <div class="col-sm-4">
@@ -593,7 +593,7 @@ if (isset($_REQUEST['id'])) {
                           class="form-control">
                       </div>
                       <div class="col-sm-2 text-right">
-                        Debit
+                        Debit/ Money Out
                       </div>
 
                       <div class="col-sm-4">
@@ -603,14 +603,6 @@ if (isset($_REQUEST['id'])) {
                       </div>
                     </div> <!-- end of formgr0up -->
 
-                    <!-- <div class="form-group row">
-                      <div class="col-sm-2 text-right">Hint
-                      </div>
-                      <div class="col-sm-10">
-                        <input type="text" name="voucher_hint" class="form-control"
-                          value="<?= @$voucher['voucher_hint'] ?>">
-                      </div>
-                    </div> -->
                     <div class="form-group">
                       <div class="row">
                         <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>

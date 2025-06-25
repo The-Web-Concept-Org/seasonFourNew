@@ -215,11 +215,11 @@
 									</tbody>
 									<tfoot>
 										<tr>
-											<th colspan="3" style="text-align: center;">
-												<h3>Total : </h3>
+											<th colspan="3" style="text-align: end;">
+												<h3>.</h3>
 											</th>
+											<th style="text-align: center;"> <h3>Total :</h3> </th>
 
-											<th> - </th>
 											<th>
 												<h3><?= $gtotal ?></h3>
 											</th>

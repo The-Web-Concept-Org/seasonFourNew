@@ -563,8 +563,8 @@
       url: 'php_action/custom_action.php',
       method: 'POST',
       data: {
-        branch_id: branchId,
-        type: type
+        branch_id_for_ledgers: branchId,
+        type_for_ledgers: type
       },
       success: function (response) {
         $('#ledger_customer_id').html(response);
