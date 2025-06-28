@@ -2977,7 +2977,7 @@ if (isset($_REQUEST['credit_order_client_name']) && isset($_REQUEST['order_retur
 						'total' => $total,
 						'order_id' => $_REQUEST['product_order_id'],
 						'quantity' => $product_quantites,
-						'product_detail' => $_REQUEST['product_detail'][$x],
+						'product_detail' => @$_REQUEST['product_detail'][$x],
 						'order_item_status' => 1,
 						'branch_id' => $_REQUEST['branch_id'],
 						'user_id' => $_REQUEST['user_id'],
@@ -3745,9 +3745,9 @@ if (isset($_POST['category_id_for_brand'])) {
 	echo $options;
 	exit;
 }
-if (isset($_POST[' branch_id_for_ledgers']) && isset($_POST['type_for_ledgers'])) {
+if (isset($_POST['branch_id_for_ledgers']) && isset($_POST['type_for_ledgers'])) {
 
-	$branch_id = mysqli_real_escape_string($dbc, $_POST[' branch_id_for_ledgers']);
+	$branch_id = mysqli_real_escape_string($dbc, $_POST['branch_id_for_ledgers']);
 	$type = mysqli_real_escape_string($dbc, $_POST['type_for_ledgers']);
 
 	if (empty($type)) {

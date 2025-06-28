@@ -10,8 +10,8 @@ if (isset($_REQUEST['id'])) {
 <body class="horizontal light  ">
   <div class="wrapper">
     <?php include_once 'includes/header.php'; ?>
-    <main role="main" class="main-content">
-      <div class="container">
+    <main role="main" class="container-fluid">
+      <div class="">
         <div class="card">
           <div class="card-header card-bg">
             <div class="col-12 mx-auto h4">
@@ -23,6 +23,11 @@ if (isset($_REQUEST['id'])) {
             </div>
           </div>
 
+          <?php
+          $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'vouchers'");
+          $data = mysqli_fetch_assoc($result);
+          $next_increment = $data['Auto_increment'];
+          ?>
           <div class="card-body">
             <div class="row">
 
@@ -32,27 +37,63 @@ if (isset($_REQUEST['id'])) {
                   <form action="php_action/custom_action.php" method="POST" id="voucher_general_fm">
                     <div class="form-group row">
                       <div class="col-sm-2 text-right">
+                        Id
+                      </div>
+                      <div class="col-sm-4">
+                        <?php
+                        $default_prefix = "SF25-GV-";
+                        $default_id = isset($_REQUEST['id']) ? $voucher['voucher_id'] : $next_increment;
+                        $numericId = str_pad($default_id, 7, '0', STR_PAD_LEFT); // Pads to 7 digits
+                      
+                        ?>
+                        <input type="text" class="form-control" name="" value="<?= $default_prefix . $numericId ?>"
+                          readonly>
+                        <input type="hidden" class="form-control" name="voucher_id" value="<?= @$voucher['voucher_id'] ?>"
+                          readonly>
+
+                      </div>
+
+                      <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                        <!-- Branch field for admin -->
+                        <label for="branch_id" class="col-sm-2 col-form-label text-right">Branch</label>
+                        <div class="col-sm-4">
+                          <select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
+                            <option selected disabled value="">Select Branch</option>
+                            <?php
+                            $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                            while ($row = mysqli_fetch_array($branch)) { ?>
+                              <option <?= (@$voucher['branch_id'] == $row['branch_id']) ? 'selected' : '' ?>
+                                value="<?= $row['branch_id'] ?>">
+                                <?= $row['branch_name'] ?>
+                              </option>
+                            <?php } ?>
+                          </select>
+                        </div>
+
+                      <?php else: ?>
+                        <input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                      <?php endif; ?>
+                    </div>
+
+
+                    <div class="form-group row">
+                      <div class="col-sm-2 text-right">
                         Date
                       </div>
                       <div class="col-sm-4">
-                        <?php if (isset($_REQUEST['id'])): ?>
-                          <input type="date" class="form-control" name="new_voucher_date"
-                            value="<?= @$voucher['voucher_date'] ?>">
 
-                        <?php else: ?>
-                          <input type="date" class="form-control" name="new_voucher_date" value="<?= date('Y-m-d') ?>">
-
-                        <?php endif ?>
-                        <input type="hidden" class="form-control" name="voucher_id"
-                          value="<?= @$voucher['voucher_id'] ?>">
-                        <input type="hidden" class="form-control" name="voucher_group" value="general_voucher">
+                        <input type="date" class="form-control" name="new_voucher_date"
+                          value="<?= @empty($_REQUEST['id']) ? date('Y-m-d') : $voucher['voucher_date'] ?>">
                       </div>
+
+
+                      <input type="hidden" class="form-control" name="voucher_group" value="general_voucher">
 
                       <div class="col-sm-2 text-right">
                         Type
                       </div>
                       <div class="col-sm-4">
-                        <select class="form-control searchableSelect" name="voucher_type">
+                        <select class="form-control" name="voucher_type">
                           <option <?= @($voucher['voucher_type'] === "receipt") ? "selected" : "" ?> value="receipt">Receipt
                           </option>
                           <option <?= @($voucher['voucher_type'] === "payment") ? "selected" : "" ?> value="payment">Payment
@@ -200,37 +241,13 @@ if (isset($_REQUEST['id'])) {
 
                     <div class="form-group">
                       <div class="row">
-                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-                          <!-- Branch field for admin -->
-                          <label for="branch_id" class="col-sm-2 col-form-label text-right">Branch</label>
-                          <div class="col-sm-4">
-                            <select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
-                              <option selected disabled value="">Select Branch</option>
-                              <?php
-                              $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                              while ($row = mysqli_fetch_array($branch)) { ?>
-                                <option <?= (@$voucher['branch_id'] == $row['branch_id']) ? 'selected' : '' ?>
-                                  value="<?= $row['branch_id'] ?>">
-                                  <?= $row['branch_name'] ?>
-                                </option>
-                              <?php } ?>
-                            </select>
-                          </div>
-                          <div class="col-sm-2 text-right">Hint</div>
-                          <div class="col-sm-4">
-                            <input type="text" name="voucher_hint" class="form-control"
-                              value="<?= @$voucher['voucher_hint'] ?>">
-                          </div>
-                        <?php else: ?>
-                          <!-- No branch dropdown, align hint to left -->
-                          <input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
 
-                          <label for="voucher_hint" class="col-sm-2 col-form-label text-right">Hint</label>
-                          <div class="col-sm-10">
-                            <input type="text" name="voucher_hint" class="form-control"
-                              value="<?= @$voucher['voucher_hint'] ?>">
-                          </div>
-                        <?php endif; ?>
+                        <label for="voucher_hint" class="col-sm-2 col-form-label text-right">Hint</label>
+                        <div class="col-sm-10">
+                          <input type="text" name="voucher_hint" class="form-control"
+                            value="<?= @$voucher['voucher_hint'] ?>">
+                        </div>
+
                       </div>
                     </div>
 
@@ -303,6 +320,45 @@ if (isset($_REQUEST['id'])) {
                   <form action="php_action/custom_action.php" method="POST" id="voucher_expense_fm">
                     <div class="form-group row">
                       <div class="col-sm-2 text-right">
+                        Id
+                      </div>
+                      <div class="col-sm-4">
+                        <?php
+                        $default_prefix = "SF25-EV-";
+                        $default_id = isset($_REQUEST['id']) ? $voucher['voucher_id'] : $next_increment;
+                        $numericId = str_pad($default_id, 7, '0', STR_PAD_LEFT); // Pads to 7 digits
+                      
+                        ?>
+                        <input type="text" class="form-control" name="" value="<?= $default_prefix . $numericId ?>"
+                          readonly>
+                        <input type="hidden" class="form-control" name="voucher_id" value="<?= @$voucher['voucher_id'] ?>"
+                          readonly>
+
+                      </div>
+
+                      <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                        <!-- Branch field for admin -->
+                        <label for="branch_id" class="col-sm-2 col-form-label text-right">Branch</label>
+                        <div class="col-sm-4">
+                          <select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
+                            <option selected disabled value="">Select Branch</option>
+                            <?php
+                            $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                            while ($row = mysqli_fetch_array($branch)) { ?>
+                              <option <?= (@$voucher['branch_id'] == $row['branch_id']) ? 'selected' : '' ?>
+                                value="<?= $row['branch_id'] ?>">
+                                <?= $row['branch_name'] ?>
+                              </option>
+                            <?php } ?>
+                          </select>
+                        </div>
+
+                      <?php else: ?>
+                        <input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                      <?php endif; ?>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-sm-2 text-right">
                         Date
                       </div>
                       <div class="col-sm-4">
@@ -314,8 +370,6 @@ if (isset($_REQUEST['id'])) {
                           <input type="date" class="form-control" name="new_voucher_date" value="<?= date('Y-m-d') ?>">
 
                         <?php endif ?>
-                        <input type="hidden" class="form-control" name="voucher_id"
-                          value="<?= @$voucher['voucher_id'] ?>">
                         <input type="hidden" class="form-control" name="voucher_group" value="expense_voucher">
 
                       </div>
@@ -464,30 +518,9 @@ if (isset($_REQUEST['id'])) {
 
                     </div>
                     <div class="form-group row">
-                      <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-                        <!-- Branch field for admin -->
-                        <label for="branch_id" class="col-sm-2 col-form-label text-right">Branch</label>
-                        <div class="col-sm-4">
-                          <select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
-                            <option selected disabled value="">Select Branch</option>
-                            <?php
-                            $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                            while ($row = mysqli_fetch_array($branch)) { ?>
-                              <option <?= (@$voucher['branch_id'] == $row['branch_id']) ? 'selected' : '' ?>
-                                value="<?= $row['branch_id'] ?>">
-                                <?= $row['branch_name'] ?>
-                              </option>
-                            <?php } ?>
-                          </select>
-                        </div>
-                      <?php else: ?>
-                        <!-- Hidden input for non-admin -->
-                        <input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
-                      <?php endif; ?>
-
                       <!-- Hint field -->
                       <label class="col-sm-2 col-form-label text-right">Hint</label>
-                      <div class="col-sm-4">
+                      <div class="col-sm-10">
                         <input type="text" name="voucher_hint" class="form-control"
                           value="<?= @$voucher['voucher_hint'] ?>">
                       </div>
@@ -510,6 +543,45 @@ if (isset($_REQUEST['id'])) {
 
 
                   <form action="php_action/custom_action.php" method="POST" id="voucher_single_fm">
+                    <div class="form-group row">
+                      <div class="col-sm-2 text-right">
+                        Id
+                      </div>
+                      <div class="col-sm-4">
+                        <?php
+                        $default_prefix = "SF25-SV-";
+                        $default_id = isset($_REQUEST['id']) ? $voucher['voucher_id'] : $next_increment;
+                        $numericId = str_pad($default_id, 7, '0', STR_PAD_LEFT); // Pads to 7 digits
+                      
+                        ?>
+                        <input type="text" class="form-control" name="" value="<?= $default_prefix . $numericId ?>"
+                          readonly>
+                        <input type="hidden" class="form-control" name="voucher_id" value="<?= @$voucher['voucher_id'] ?>"
+                          readonly>
+
+                      </div>
+
+                      <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                        <!-- Branch field for admin -->
+                        <label for="branch_id" class="col-sm-2 col-form-label text-right">Branch</label>
+                        <div class="col-sm-4">
+                          <select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
+                            <option selected disabled value="">Select Branch</option>
+                            <?php
+                            $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                            while ($row = mysqli_fetch_array($branch)) { ?>
+                              <option <?= (@$voucher['branch_id'] == $row['branch_id']) ? 'selected' : '' ?>
+                                value="<?= $row['branch_id'] ?>">
+                                <?= $row['branch_name'] ?>
+                              </option>
+                            <?php } ?>
+                          </select>
+                        </div>
+
+                      <?php else: ?>
+                        <input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                      <?php endif; ?>
+                    </div>
                     <div class="form-group row">
                       <div class="col-sm-2 text-right">
                         Date
@@ -605,37 +677,12 @@ if (isset($_REQUEST['id'])) {
 
                     <div class="form-group">
                       <div class="row">
-                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-                          <!-- Branch field for admin -->
-                          <label for="branch_id" class="col-sm-2 col-form-label text-right">Branch</label>
-                          <div class="col-sm-4">
-                            <select class="form-control searchableSelect" name="branch_id" id="branch_id" required>
-                              <option selected disabled value="">Select Branch</option>
-                              <?php
-                              $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                              while ($row = mysqli_fetch_array($branch)) { ?>
-                                <option <?= (@$voucher['branch_id'] == $row['branch_id']) ? 'selected' : '' ?>
-                                  value="<?= $row['branch_id'] ?>">
-                                  <?= $row['branch_name'] ?>
-                                </option>
-                              <?php } ?>
-                            </select>
-                          </div>
-                          <div class="col-sm-2 text-right">Hint</div>
-                          <div class="col-sm-4">
-                            <input type="text" name="voucher_hint" class="form-control"
-                              value="<?= @$voucher['voucher_hint'] ?>">
-                          </div>
-                        <?php else: ?>
-                          <!-- No branch dropdown, align hint to left -->
-                          <input type="hidden" name="branch_id" value="<?= $_SESSION['branch_id'] ?>">
+                        <label for="voucher_hint" class="col-sm-2 col-form-label text-right">Hint</label>
+                        <div class="col-sm-10">
+                          <input type="text" name="voucher_hint" class="form-control"
+                            value="<?= @$voucher['voucher_hint'] ?>">
+                        </div>
 
-                          <label for="voucher_hint" class="col-sm-2 col-form-label text-right">Hint</label>
-                          <div class="col-sm-10">
-                            <input type="text" name="voucher_hint" class="form-control"
-                              value="<?= @$voucher['voucher_hint'] ?>">
-                          </div>
-                        <?php endif; ?>
                       </div>
                     </div>
 
@@ -682,7 +729,7 @@ if (isset($_REQUEST['id'])) {
                   <table class="table  dataTable" id="voucher_expense_tb">
                     <thead>
                       <tr>
-                        <th class="text-dark">#</th>
+                        <th class="text-dark">Voucher Id</th>
                         <th class="text-dark">Date</th>
                         <th class="text-dark">From Account</th>
                         <th class="text-dark">To Account</th>
@@ -717,18 +764,20 @@ if (isset($_REQUEST['id'])) {
                         $username = fetchRecord($dbc, "users", "user_id", $r['addby_user_id'])['username'];
 
 
-
+                        $numericId = str_pad($r['voucher_id'], 7, '0', STR_PAD_LEFT); // Pads to 7 digits
+                    
                         ?>
                         <tr>
-                          <td><?= $r['voucher_id'] ?></td>
+                          <td><?= $numericId ?></td>
                           <td><?= $r['voucher_date'] ?></td>
                           <td class="text-capitalize"><?= $customer_id1 ?></td>
                           <td class="text-capitalize"><?= @$customer_id2 ?></td>
                           <td><?= $r['voucher_amount'] ?></td>
                           <td><?= $r['voucher_hint'] ?></td>
-                          <td class="text-capitalize"><?= $r['voucher_group'] ?></td>
+                          <td class="text-capitalize"><?= $r['voucher_group'] ?> <strong>( <?= $r['voucher_type'] ?>)
+                            </strong></td>
                           <td class="text-capitalize"><?= $username ?></td>
-                          <td>
+                          <td class="d-flex">
                             <?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>
                               <form action="voucher.php" method="POST">
                                 <input type="hidden" name="id" value="<?= base64_encode($r['voucher_id']) ?>">
