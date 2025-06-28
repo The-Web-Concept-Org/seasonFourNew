@@ -123,7 +123,13 @@
 										<select class="form-control" name="exp_cat">
 											<option value="all">All</option>
 											<?php
-											$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_type = 'expense'");
+											if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+												$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_type = 'expense'");
+											} else {
+											$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_type = 'expense' AND branch_id = '" . $_SESSION['branch_id'] . "'");
+                                            }
+											
+											
 											while ($r = mysqli_fetch_assoc($q)):
 												?>
 												<option value="<?= $r['customer_id'] ?>"><?= $r['customer_name'] ?></option>

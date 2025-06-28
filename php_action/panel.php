@@ -185,16 +185,16 @@ if (isset($_REQUEST['add_category_name'])) {
 				while ($product = mysqli_fetch_assoc($proQ)):
 					$current_rate=$fif_rate=$thir_rate=$total=0;
 					$total=(double)$product['product_mm']*(double)$product['product_inch']*(double)$product['product_meter'];
-					$current_rate=($total*(double)$_REQUEST['category_price'])/54;
+					$current_rate=($total*(double)@$_REQUEST['category_price'])/54;
 					$current_rate=round($current_rate);
 
-					$purchase_rate=($total*(double)$_REQUEST['category_purchase'])/54;
+					$purchase_rate=($total*(double)@$_REQUEST['category_purchase'])/54;
 					$purchase_rate=round($purchase_rate);
 
-					$fif_rate=($total*((double)$_REQUEST['category_price']+0.05))/54;
+					$fif_rate=($total*((double)@$_REQUEST['category_price']+0.05))/54;
 					$fif_rate=round($fif_rate);
 
-					$thir_rate=($total*((double)$_REQUEST['category_price']+0.10))/54;
+					$thir_rate=($total*((double)@$_REQUEST['category_price']+0.10))/54;
 					$thir_rate=round($thir_rate);
 					$data_array = [
 						'current_rate'=>@$current_rate,

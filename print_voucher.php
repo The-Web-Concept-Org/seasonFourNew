@@ -7,16 +7,18 @@ $customer_id2 = fetchRecord($dbc, "customers", "customer_id", $vouchers['custome
 
 if ($vouchers['voucher_group'] == 'single_voucher') {
 
-    $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id1'] . "' AND transaction_id = '" . $vouchers['transaction_id1'] . "'  "));
-    $previous_balance = (int) $from_balance['from_balance'] + (int) $vouchers['voucher_amount'];
+    // $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id1'] . "' AND transaction_id = '" . $vouchers['transaction_id1'] . "'  "));
+    // $previous_balance = (int) $from_balance['from_balance'] + (int) $vouchers['voucher_amount'];
+    $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit - debit) AS from_balance FROM transactions WHERE customer_id = '{$vouchers['customer_id1']}' AND transaction_id <= '{$vouchers['transaction_id1']}' "));
+    $previous_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit - debit) AS previous_bal FROM transactions WHERE customer_id = '{$vouchers['customer_id1']}' AND transaction_id < '{$vouchers['transaction_id1']}'"));
 
-    @$from_balance2 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id2'] . "' AND transaction_id = '" . $vouchers['transaction_id12'] . "'  "));
+    @$from_balance2 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id2'] . "' AND transaction_id = '" . $vouchers['transaction_id2'] . "'  "));
     @$previous_balance2 = (int) $from_balance2['from_balance'] - (int) $vouchers['voucher_amount'];
 
 
     # code...
 } else {
-    $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id1'] . "'"));
+    $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id1'] . "' "));
     $previous_balance = (int) $from_balance['from_balance'] + (int) $vouchers['voucher_amount'];
 
     $from_balance2 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='" . $vouchers['customer_id2'] . "'"));
@@ -174,7 +176,9 @@ if ($vouchers['voucher_group'] == 'single_voucher') {
                                                     <td class="unit">
                                                         <h3>Previous Balance</h3>
                                                     </td>
-                                                    <td class="qty"><?= number_format($previous_balance) ?></td>
+                                                    <td class="qty">
+                                                        <?= number_format($previous_balance['previous_bal'] ?? 0, ) ?>
+                                                    </td>
                                                     <td class="total">
                                                         <h3>Current Balance</h3>
                                                     </td>
