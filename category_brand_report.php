@@ -14,6 +14,15 @@
         font-weight: bolder !important;
         color: #000 !important;
     }
+    @media print {
+  .print_hide {
+    display: none !important;
+  }
+  .form_sec {
+    display: none !important;
+  }
+}
+
 </style>
 
 <body class="horizontal light  ">
@@ -21,7 +30,7 @@
         <?php include_once 'includes/header.php'; ?>
         <main role="main" class="main-content">
             <div class="container-fluid">
-                <div class="card">
+                <div class="card form_sec">
                     <div class="card-header card-bg" align="center">
 
                         <div class="row d-print-none">
@@ -134,10 +143,10 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th style="width:5% ;">Sr.No</th>
+                                        <th style="width:5% ;">Pro_Id</th>
                                         <th>Category</th>
-                                        <th>Brand</th>
                                         <th>Name</th>
+                                        <th>Brand</th>
                                         <th>Stock</th>
                                     </tr>
                                 </thead>
@@ -166,6 +175,7 @@
 
                                     $query = mysqli_query($dbc, "SELECT 
                                                             product.product_name,
+                                                            product.product_id,
                                                             inventory.quantity_instock,
                                                             brands.brand_name,
                                                             categories.categories_name
@@ -174,7 +184,7 @@
                                                         JOIN brands ON product.brand_id = brands.brand_id
                                                         JOIN categories ON product.category_id = categories.categories_id
                                                         $where
-                                                        ORDER BY product.product_name ASC
+                                                        ORDER BY product.product_id DESC
                                                         ");
 
 
@@ -183,10 +193,10 @@
                                     while ($row = mysqli_fetch_assoc($query)) {
                                         ?>
                                         <tr>
-                                            <td><?= $sr ?></td>
+                                            <td><?= $row['product_id'] ?></td>
                                             <td class="text-capitalize"><?= $row['categories_name'] ?></td>
-                                            <td class="text-capitalize"><?= $row['brand_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['product_name'] ?></td>
+                                            <td class="text-capitalize"><?= $row['brand_name'] ?></td>
                                             <td><?= $row['quantity_instock'] ?></td>
                                         </tr>
                                         <?php

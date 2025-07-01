@@ -38,19 +38,39 @@ if (isset($_REQUEST['delete_bymanually'])) {
 		$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
 
 		if ($get_company['stock_manage'] == 1) {
-			$proQ = get($dbc, "order_item WHERE order_id='" . $id . "' ");
+			$branch_id = $orders['branch_id'];
 
+			// Fetch all related order items
+			$proQ = mysqli_query($dbc, "SELECT * FROM order_item WHERE order_id = '$id'");
 			while ($proR = mysqli_fetch_assoc($proQ)) {
-				$newqty = 0;
-				$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-				$newqty = (int) $quantity_instock['quantity_instock'] + (int) $proR['quantity'];
-				$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+				$product_id = $proR['product_id'];
+				$qty = (int) $proR['quantity'];
+
+				// Adjust inventory if it exists
+				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
+				if (mysqli_num_rows($invQ) > 0) {
+					$inv = mysqli_fetch_assoc($invQ);
+					$newQty = (int) $inv['quantity_instock'] + $qty;
+
+					mysqli_query($dbc, "
+					UPDATE inventory 
+					SET quantity_instock = '$newQty', inventory_timestamp = NOW() 
+					WHERE inventory_id = '{$inv['inventory_id']}'
+				");
+				}
 			}
 		}
+
+		// Delete related transactions
 		deleteFromTable($dbc, "transactions", 'transaction_id', $orders['transaction_paid_id']);
 		deleteFromTable($dbc, "transactions", 'transaction_id', $orders['transaction_id']);
+		deleteFromTable($dbc, "transactions", 'transaction_id', $orders['transaction_paid_id_cash']);
+		deleteFromTable($dbc, "transactions", 'transaction_id', $orders['transaction_paid_id_bank']);
+
+		// Delete the order and its items
 		if (mysqli_query($dbc, "DELETE FROM orders WHERE $row='$id'")) {
-			$msg = "Data Has been deleted...";
+			mysqli_query($dbc, "DELETE FROM order_item WHERE order_id='$id'");
+			$msg = "Order and related items deleted, inventory updated.";
 			$sts = "success";
 		} else {
 			$msg = mysqli_error($dbc);
@@ -58,23 +78,41 @@ if (isset($_REQUEST['delete_bymanually'])) {
 		}
 	} elseif ($table == "purchase") {
 
+		$vouchers = fetchRecord($dbc, 'purchase', $row, $id);
 		$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
 
 		if ($get_company['stock_manage'] == 1) {
-			$proQ = get($dbc, "purchase_item WHERE purchase_id='" . $id . "' ");
+			$branch_id = $vouchers['branch_id'];
 
+			// Fetch all related items
+			$proQ = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE purchase_id = '$id'");
 			while ($proR = mysqli_fetch_assoc($proQ)) {
-				$newqty = 0;
-				$quantity_instock = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM  product WHERE product_id='" . $proR['product_id'] . "' "));
-				$newqty = (int) $quantity_instock['quantity_instock'] - (int) $proR['quantity'];
-				$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
+				$product_id = $proR['product_id'];
+				$qty = (int) $proR['quantity'];
+
+				// Check if inventory exists for this product and branch
+				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
+				if (mysqli_num_rows($invQ) > 0) {
+					$inv = mysqli_fetch_assoc($invQ);
+					$newQty = (int) $inv['quantity_instock'] - $qty;
+
+					mysqli_query($dbc, "
+                    UPDATE inventory 
+                    SET quantity_instock = '$newQty', inventory_timestamp = NOW() 
+                    WHERE inventory_id = '{$inv['inventory_id']}'
+                ");
+				}
 			}
 		}
-		$vouchers = fetchRecord($dbc, 'purchase', $row, $id);
+
+		// Delete related transactions
 		@deleteFromTable($dbc, "transactions", 'transaction_id', $vouchers['transaction_paid_id']);
 		@deleteFromTable($dbc, "transactions", 'transaction_id', $vouchers['transaction_id']);
+
+		// Delete purchase and items
 		if (mysqli_query($dbc, "DELETE FROM purchase WHERE $row='$id'")) {
-			$msg = "Data Has been deleted...";
+			mysqli_query($dbc, "DELETE FROM purchase_item WHERE purchase_id='$id'");
+			$msg = "Purchase and related items deleted, inventory updated.";
 			$sts = "success";
 		} else {
 			$msg = mysqli_error($dbc);

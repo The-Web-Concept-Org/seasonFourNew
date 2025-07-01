@@ -369,6 +369,8 @@ $(document).ready(function () {
     //   var podid=  $('#get_product_name :selected').val();
     var branch_id = $("#branch_id").val();
     var purchase_return = $("#purchase_return").val();
+    var delivery_note = $("#delivery_note").val();
+    var gatepass = $("#gatepass").val();
     var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
 
@@ -402,10 +404,10 @@ $(document).ready(function () {
         console.log(response);
         if (
           (!isSaleReturn &&
-            (payment_type === "cash_in_hand" || payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
+            (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
               purchase_return === "purchase_return") ||
-          (payment_type === "cash_purchase" &&
-            purchase_return === "purchase_return")
+          (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
+          (delivery_note === "yes") || (gatepass === "gatepass")
         ) {
           $("#get_product_quantity").attr("max", response.qty);
           $("#addProductPurchase").prop("disabled", response.qty <= 0);
@@ -476,7 +478,10 @@ $("#get_product_name").on("change", function () {
   var price_type = $("#price_type").val();
   var branch_id = $("#branch_id").val();
   var purchase_return = $("#purchase_return").val();
+  var delivery_note = $("#delivery_note").val();
+  var gatepass = $("#gatepass").val();
   var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
+  console.log(delivery_note);
 
   $.ajax({
     type: "POST",
@@ -511,10 +516,10 @@ $("#get_product_name").on("change", function () {
         console.log(response);
         if (
           (!isSaleReturn &&
-            (payment_type === "cash_in_hand" || payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
+            (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
               purchase_return === "purchase_return") ||
-          (payment_type === "cash_purchase" &&
-            purchase_return === "purchase_return")
+          (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
+          (delivery_note === "yes") || (gatepass === "gatepass")
         ) {
           $("#get_product_quantity").attr("max", response.qty);
           $("#addProductPurchase").prop("disabled", response.qty <= 0);
