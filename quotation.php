@@ -77,11 +77,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
             </div>
 
             <div class="row form-group">
-              <input type="hidden" name="payment_type" id="payment_type"
-                value="<?= $allowStock == '0' ? 'credit_purchase' : 'cash_in_hand' ?>">
+              <input type="hidden" name="payment_type" id="payment_type" value="cash_in_hand">
               <input type="hidden" name="quotation_form" id="quotation_form" value="quotation_form">
-              <input type="hidden" name="price_type" id="price_type"
-                value="<?= $allowStock == '0' ? 'purchase' : 'sale' ?>">
+              <input type="hidden" name="price_type" id="price_type" value="sale">
+              <input type="hidden" name="delivery_note" id="delivery_note" value="no">
 
               <div class="col-md-4">
                 <div class="row">
@@ -373,11 +372,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
     allowStock.addEventListener('change', function () {
       if (this.value === '0') {
-        paymentType.value = 'credit_purchase';
-        priceType.value = 'purchase';
+        delivery_note.value = "no" ;
       } else if (this.value === '1') {
-        paymentType.value = 'cash_in_hand';
-        priceType.value = 'sale';
+        delivery_note.value = "yes" ;
       }
     });
   });
