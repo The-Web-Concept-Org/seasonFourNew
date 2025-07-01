@@ -254,40 +254,15 @@ $(document).ready(function () {
             denyButtonText: `Add New`,
           }).then((result) => {
             if (result.isConfirmed) {
-              // Ask which type of print
-              Swal.fire({
-                title: "Which type of do you Print?",
-                showDenyButton: true,
-                showCancelButton: true,
-                confirmButtonText: `Debit`,
-                denyButtonText: `Credit`,
-                cancelButtonText: "Both",
-              }).then((printResult) => {
-                if (printResult.isConfirmed) {
-                  window.open(
-                    "print_voucher.php?type=debit&voucher_id=" + response.voucher_id,
-                    "_blank"
-                  );
-                } else if (printResult.isDenied) {
-                  window.open(
-                    "print_voucher.php?type=credit&voucher_id=" + response.voucher_id,
-                    "_blank"
-                  );
-                } else {
-                  window.open(
-                    "print_voucher.php?type=both&voucher_id=" + response.voucher_id,
-                    "_blank"
-                  );
-                }
-
-                // ✅ Reload page after print
-                location.reload();
-              });
-            } else if (result.isDenied) {
-              // ✅ Reload page on Add New
+              window.open(
+                "print_voucher_custom.php?voucher_id=" + response.voucher_id,
+                "_blank"
+              );
               location.reload();
-            } else {
-              // ✅ Reload page on Cancel
+            } else if (
+              result.isDenied ||
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
               location.reload();
             }
           });
@@ -324,44 +299,24 @@ $(document).ready(function () {
           denyButtonText: `Add New`,
         }).then((result) => {
           if (result.isConfirmed) {
-            // Ask which type to print
-            Swal.fire({
-              title: "Which type of do you Print?",
-              showDenyButton: true,
-              showCancelButton: true,
-              confirmButtonText: `Debit`,
-              denyButtonText: `Credit`,
-              cancelButtonText: "Both",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.open(
-                  "print_voucher.php?type=debit&voucher_id=" + response.voucher_id,
-                  "_blank"
-                );
-              } else if (result.isDenied) {
-                window.open(
-                  "print_voucher.php?type=credit&voucher_id=" + response.voucher_id,
-                  "_blank"
-                );
-              } else {
-                window.open(
-                  "print_voucher.php?type=both&voucher_id=" + response.voucher_id,
-                  "_blank"
-                );
-              }
-
-              // ✅ Reload after any print option
-              location.reload();
-            });
-          } else {
-            // ✅ Reload after Add New or Cancel
+            window.open(
+              "print_voucher_custom.php?voucher_id=" + response.voucher_id,
+              "_blank"
+            );
+            location.reload();
+          } else if (
+            result.isDenied ||
+            result.dismiss === Swal.DismissReason.cancel
+          ) {
             location.reload();
           }
         });
       }
-      ,
-    }); //ajax call
-  }); //main
+    });
+  });
+
+  //ajax call
+  //main
   $("#voucher_single_fm").on("submit", function (e) {
     e.preventDefault();
     var form = $("#voucher_single_fm");
@@ -392,18 +347,15 @@ $(document).ready(function () {
           denyButtonText: `Add New`,
         }).then((result) => {
           if (result.isConfirmed) {
-            // Open print window
             window.open(
-              "print_voucher.php?type=debit&voucher_id=" + response.voucher_id,
+              "print_voucher_custom.php?voucher_id=" + response.voucher_id,
               "_blank"
             );
-            // ✅ Reload after printing
             location.reload();
-          } else if (result.isDenied) {
-            // ✅ Reload after Add New
-            location.reload();
-          } else {
-            // ✅ Reload after Cancel
+          } else if (
+            result.isDenied ||
+            result.dismiss === Swal.DismissReason.cancel
+          ) {
             location.reload();
           }
         });

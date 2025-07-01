@@ -1673,7 +1673,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$newqty = (float) $quantity_instock['quantity_instock'] - (float) $proR['quantity'];
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$newqty' WHERE product_id='" . $proR['product_id'] . "' ");
 
-						$branch_id = $_SESSION['branch_id'];
+						$branch_id = $_REQUEST['branch_id'];
 						$user_id = $_SESSION['user_id'];
 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $proR['product_id'] . "' AND branch_id='" . $branch_id . "' ");
 						if (mysqli_num_rows($inventory) > 0) {
@@ -1725,7 +1725,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 						$qty = (float) $quantity_instock['quantity_instock'] + $product_quantites;
 						$quantity_update = mysqli_query($dbc, "UPDATE product SET  quantity_instock='$qty' WHERE product_id='" . $product_id . "' ");
 
-						$branch_id = $_SESSION['branch_id'];
+						$branch_id = $_REQUEST['branch_id'];
 						$user_id = $_SESSION['user_id'];
 						$inventory = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='" . $product_id . "' AND branch_id='" . $branch_id . "' ");
 						if (mysqli_num_rows($inventory) > 0) {
@@ -1737,7 +1737,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 							$insert_inventory = [
 								'product_id' => $_REQUEST['product_ids'][$x],
 								'quantity_instock' => $product_quantites,
-								'branch_id' => $_SESSION['branch_id'],
+								'branch_id' => $_REQUEST['branch_id'],
 								'user_id' => $_SESSION['user_id'],
 							];
 							insert_data($dbc, 'inventory', $insert_inventory);
@@ -1749,41 +1749,40 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 				$total_grand = (float) $total_ammount - (float) @$_REQUEST['ordered_discount'];
 				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
-
 				$transactions = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['product_purchase_id']);
-				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_id']);
-				@deleteFromTable($dbc, "transactions", 'transaction_id', $transactions['transaction_paid_id']);
-
-
-				if ($_REQUEST['payment_type'] == "credit_purchase"):
-					if ($due_amount > 0) {
-						$debit = [
+				// Update credit purchase transaction
+				if ($_REQUEST['payment_type'] == "credit_purchase") {
+					if ($due_amount > 0 && !empty($transactions['transaction_id'])) {
+						$debit_update = [
 							'debit' => $due_amount,
 							'credit' => 0,
-							'customer_id' => @$_REQUEST['customer_account'],
+							'customer_id' => $_REQUEST['customer_account'],
 							'transaction_from' => 'purchase',
 							'transaction_type' => $_REQUEST['payment_type'],
-							'transaction_remarks' => "purchased on  purchased id#" . $last_id,
+							'transaction_remarks' => "purchase id #" . $last_id,
 							'transaction_date' => $_REQUEST['purchase_date'],
 						];
-						insert_data($dbc, 'transactions', $debit);
-						$transaction_id = mysqli_insert_id($dbc);
+						update_data($dbc, 'transactions', $debit_update, 'transaction_id', $transactions['transaction_id']);
+						$transaction_id = $transactions['transaction_id'];
 					}
-				endif;
-				$paidAmount = @(float) $_REQUEST['paid_ammount'];
-				if ($paidAmount > 0) {
-					$credit = [
-						'debit' => @$_REQUEST['paid_ammount'],
+				}
+
+				// Update paid amount transaction
+				$paidAmount = (float) $_REQUEST['paid_ammount'];
+				if ($paidAmount > 0 && !empty($transactions['transaction_paid_id'])) {
+					$credit_update = [
+						'debit' => $paidAmount,
 						'credit' => 0,
-						'customer_id' => @$_REQUEST['payment_account'],
+						'customer_id' => $_REQUEST['payment_account'],
 						'transaction_from' => 'purchase',
 						'transaction_type' => $_REQUEST['payment_type'],
-						'transaction_remarks' => "purchased by purchased id#" . $last_id,
+						'transaction_remarks' => "purchase id #" . $last_id,
 						'transaction_date' => $_REQUEST['purchase_date'],
 					];
-					insert_data($dbc, 'transactions', $credit);
-					$transaction_paid_id = mysqli_insert_id($dbc);
+					update_data($dbc, 'transactions', $credit_update, 'transaction_id', $transactions['transaction_paid_id']);
+					$transaction_paid_id = $transactions['transaction_paid_id'];
 				}
+
 
 				$newOrder = [
 
