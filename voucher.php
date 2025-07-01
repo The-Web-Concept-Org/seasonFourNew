@@ -166,8 +166,8 @@ if (isset($_REQUEST['id'])) {
                       </div>
 
                       <div class="col-sm-4">
-                        <input type="number" onkeyup="sameValue(this.value,'#voucher_credit1')" min="0" required
-                          name="voucher_debit" value="<?= @$voucher['voucher_amount'] ?>" class="form-control">
+                        <input type="number" step="0.001" onkeyup="sameValue(this.value,'#voucher_credit1')" min="0"
+                          required name="voucher_debit" value="<?= @$voucher['voucher_amount'] ?>" class="form-control">
                       </div>
                     </div> <!-- end of formgr0up -->
 
@@ -447,7 +447,7 @@ if (isset($_REQUEST['id'])) {
                       </div>
 
                       <div class="col-sm-4">
-                        <input type="number" onkeyup="sameValue(this.value,'#voucher_credit')" min="0"
+                        <input type="number" step="0.001" onkeyup="sameValue(this.value,'#voucher_credit')" min="0"
                           name="voucher_debit" class="form-control" value="<?= @$voucher['voucher_amount'] ?>" required>
                       </div>
                     </div> <!-- end of formgr0up -->
@@ -660,7 +660,7 @@ if (isset($_REQUEST['id'])) {
                       </div>
 
                       <div class="col-sm-4">
-                        <input type="number" onkeyup="readonlyIt(this.value,'voucher_sin_debit')"
+                        <input type="number" step="0.001" onkeyup="readonlyIt(this.value,'voucher_sin_debit')"
                           value="<?= @$transactions['credit'] ?>" id="voucher_sin_credit" name="voucher_credit"
                           class="form-control">
                       </div>
@@ -669,7 +669,7 @@ if (isset($_REQUEST['id'])) {
                       </div>
 
                       <div class="col-sm-4">
-                        <input type="number" onkeyup="readonlyIt(this.value,'voucher_sin_credit')" min="0"
+                        <input type="number" step="0.001" onkeyup="readonlyIt(this.value,'voucher_sin_credit')" min="0"
                           name="voucher_debit" id="voucher_sin_debit" class="form-control"
                           value="<?= @$transactions['debit'] ?>">
                       </div>
@@ -787,8 +787,11 @@ if (isset($_REQUEST['id'])) {
 
 
                             <?php endif ?>
-                            <a onclick="getVoucherPrint(`<?= base64_encode($r['voucher_id']) ?>`)" href="#"
-                              class="btn btn-primary btn-sm m-1">Print</a>
+                            <a target="_blank"
+                              href="print_voucher_custom.php?voucher_id= <?= base64_encode($r['voucher_id']) ?>"
+                              class=" btn btn-primary btn-sm m-1">Print</a>
+                            <!-- <a onclick="getVoucherPrint(`<?= base64_encode($r['voucher_id']) ?>`)" href="#"
+                              class="btn btn-primary btn-sm m-1">Print</a> -->
                             <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
 
                               <a href="#"
