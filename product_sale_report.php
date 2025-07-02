@@ -111,45 +111,91 @@
 								</thead>
 								<tbody>
 									<?php
-									$branch_id = $_POST['branch_id'];
-									if (!empty($_REQUEST['productName'])) {
-										$product_id = $_POST['productName'];
-										$q = mysqli_query($dbc, "SELECT * FROM order_item WHERE product_id = '$product_id' AND branch_id = '$branch_id' ORDER BY order_item_id DESC");
-									} else {
-										$q = mysqli_query($dbc, "SELECT * FROM order_item WHERE branch_id = '$branch_id' ORDER BY order_item_id DESC");
-									}
-									$c = 0;
-									while ($r = mysqli_fetch_assoc($q)):
-										$purchase__fetch_id = $r['order_id'];
-										$c++;
-										$q2 = mysqli_query($dbc, "SELECT * FROM orders WHERE order_id = '$purchase__fetch_id'");
-										while ($r2 = mysqli_fetch_assoc($q2)) {
+$branch_id = $_POST['branch_id'];
+$product_id_filter = !empty($_POST['productName']) ? "AND product_id = '{$_POST['productName']}'" : '';
+$c = 1;
 
+// --- ORDERS ---
+$q = mysqli_query($dbc, "SELECT oi.*, o.order_date, o.client_name, 'Sale' as source FROM order_item oi
+    JOIN orders o ON oi.order_id = o.order_id
+    WHERE oi.branch_id = '$branch_id' $product_id_filter");
 
-											?>
+while ($r = mysqli_fetch_assoc($q)) {
+    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
+    echo "<tr>
+        <td>{$c}</td>
+        <td>Order #{$r['order_id']}</td>
+        <td>{$r['order_date']}</td>
+        <td>{$r['client_name']}</td>
+        <td>{$product['product_name']}</td>
+        <td>{$r['quantity']}</td>
+        <td>{$r['rate']}</td>
+        <td>{$r['total']}</td>
+    </tr>";
+    $c++;
+}
 
-											<?php
-											$purchase_id = $r['order_id'];
-											$fetchCustomer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_id='$r2[customer_account]'"));
-											$fetchProductName = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM product WHERE product_id='$r[product_id]'"));
+// --- ORDER RETURNS ---
+$q = mysqli_query($dbc, "SELECT ori.*, orr.order_date, orr.client_name, 'Return' as source FROM order_return_item ori
+    JOIN orders_return orr ON ori.order_id = orr.order_id
+    WHERE ori.branch_id = '$branch_id' $product_id_filter");
 
-											?>
-											<tr>
-												<td><?= $c ?></td>
-												<td><?= $r2['order_id'] ?></td>
-												<td><?= $r2['order_date'] ?></td>
-												<td><?= @$r2['client_name']; ?></td>
-												<td><?= $fetchProductName['product_name'] ?></td>
-												<td><?= $r['quantity'] ?></td>
-												<td><?= $r['rate'] ?></td>
-												<td><?= $r['total'] ?></td>
+while ($r = mysqli_fetch_assoc($q)) {
+    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
+    echo "<tr>
+        <td>{$c}</td>
+        <td>Return #{$r['order_id']}</td>
+        <td>{$r['order_date']}</td>
+        <td>{$r['client_name']}</td>
+        <td>{$product['product_name']}</td>
+        <td>{$r['quantity']}</td>
+        <td>{$r['rate']}</td>
+        <td>{$r['total']}</td>
+    </tr>";
+    $c++;
+}
 
-											</tr>
+// --- GATEPASS ---
+$q = mysqli_query($dbc, "SELECT gi.*, g.gatepass_date, 'Gatepass' as source FROM gatepass_item gi
+    JOIN gatepass g ON gi.gatepass_id = g.gatepass_id
+    WHERE gi.from_branch = '$branch_id' $product_id_filter");
 
+while ($r = mysqli_fetch_assoc($q)) {
+    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
+    echo "<tr>
+        <td>{$c}</td>
+        <td>Gatepass #{$r['gatepass_id']}</td>
+        <td>{$r['gatepass_date']}</td>
+        <td>—</td>
+        <td>{$product['product_name']}</td>
+        <td>{$r['quantity']}</td>
+        <td>{$r['rate']}</td>
+        <td>{$r['total']}</td>
+    </tr>";
+    $c++;
+}
 
-											<?php
-										}
-									endwhile; ?>
+// --- QUOTATIONS with is_delivery_note = 1 ---
+$q = mysqli_query($dbc, "SELECT qi.*, q.quotation_date, q.client_name FROM quotation_item qi
+    JOIN quotations q ON qi.quotation_id = q.quotation_id
+    WHERE q.is_delivery_note = '1' AND q.branch_id = '$branch_id' $product_id_filter");
+
+while ($r = mysqli_fetch_assoc($q)) {
+    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
+    echo "<tr>
+        <td>{$c}</td>
+        <td>DeliveryNote #{$r['quotation_id']}</td>
+        <td>{$r['quotation_date']}</td>
+        <td>{$r['client_name']}</td>
+        <td>{$product['product_name']}</td>
+        <td>{$r['quantity']}</td>
+        <td>{$r['rate']}</td>
+        <td>{$r['total']}</td>
+    </tr>";
+    $c++;
+}
+?>
+
 								</tbody>
 							</table>
 
