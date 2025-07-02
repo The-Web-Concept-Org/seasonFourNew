@@ -7,13 +7,8 @@
     <title>Receipt Voucher</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @page {
-            size: A4;
-            margin: 15mm;
-        }
-
         body {
-            margin: 20px 20px;
+            margin: 50px 20px;
             padding: 0;
             background: #f4f6f9;
             font-family: 'Roboto', 'Arial', sans-serif;
@@ -32,8 +27,6 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 20px;
-            /* border-bottom: 3px solid #1a5f3a; */
-            background: linear-gradient(180deg, #f7fff7, #ffffff);
         }
 
         .company-header div {
@@ -81,33 +74,16 @@
             font-weight: 700;
         }
 
-        /* Label Bar */
-        .label-bar {
-            background: rgb(17, 179, 85);
-            color: white;
-            padding: 12px 20px 0px;
-            border-radius: 50px;
-            margin: 0 0 25px 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 15px;
-            font-weight: 500;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-        }
-
-
         .receipt {
             background: #ffffff;
-            /* padding: 40px; */
+            margin-top: 10px;
         }
-
 
         .receipt .header {
             text-align: center;
             font-size: 28px;
             font-weight: 700;
-            color: #1a5f3a;
-            border-bottom: 3px solid #1a5f3a;
+            color: black;
             padding-bottom: 15px;
             margin-bottom: 30px;
             letter-spacing: 1.5px;
@@ -116,29 +92,27 @@
 
         .sub-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             font-size: 16px;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             color: #444;
-            background: #f7fff7;
             padding: 10px;
-            border-radius: 8px;
         }
 
         .row {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
             align-items: center;
-            margin: 18px 0;
-            padding: 10px;
-            border-radius: 6px;
-            transition: background 0.2s ease;
+
+
+
         }
 
         .row .label {
             font-weight: 600;
-            min-width: 180px;
-            color: #1a5f3a;
+            min-width: 140px;
+            color: black;
             font-size: 16px;
         }
 
@@ -152,28 +126,23 @@
         }
 
         .boxed {
-            border: 2px solid #1a5f3a;
-            background-color: #e6f3e6;
+            border: 2px solid black;
             font-weight: 600;
             padding: 10px 20px;
             border-radius: 10px;
             min-width: 120px;
             text-align: center;
             font-size: 18px;
-            color: #1a5f3a;
-            transition: background 0.3s ease;
+            color: black;
         }
 
         .amount-row {
-            margin: 40px 0;
             text-align: center;
             font-size: 20px;
             font-weight: 600;
-            color: #1a5f3a;
-            background: #f7fff7;
+            color: black;
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-top: 10px;
         }
 
         .payment-box {
@@ -188,18 +157,18 @@
         }
 
         .reference-row {
-            text-align: center;
-            margin: 30px 0;
-            font-size: 16px;
-            color: #444;
+            display: flex;
+            margin: 20px 0;
+            font-size: 17px;
+            color: black;
             font-weight: 500;
         }
 
-        .signature {
+        .footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 70px;
+            margin-top: 30px;
             border-top: 2px solid #d4e4d4;
             padding-top: 25px;
             font-weight: 600;
@@ -207,44 +176,24 @@
             color: #333;
         }
 
-        .signature .line {
-            flex: 1;
-            border-bottom: 2px dashed #1a5f3a;
-            margin: 0 15px;
-            height: 2px;
+        .footer div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+
 
         @media print {
             body {
                 background: white;
+                max-height: 1708px;
             }
 
-            .invoice-container {
-                box-shadow: none;
-                margin: 20px auto;
-                padding-left: 30px;
+            @page {
+                size: A4;
+                margin: 15mm;
             }
 
-            .receipt {
-                box-shadow: none;
-                padding: 0;
-            }
-
-            .boxed,
-            .payment-box {
-                background-color: white !important;
-                border-color: #000 !important;
-                color: #000 !important;
-            }
-
-            .sub-header,
-            .amount-row {
-                background: white !important;
-            }
-
-            .row:hover {
-                background: white !important;
-            }
         }
     </style>
 </head>
@@ -264,16 +213,10 @@
     $typeCode = strtoupper(substr($parts[0], 0, 1) . substr($parts[1] ?? '', 0, 1));
 
 
-
-
-    // Assume voucher_id is numeric (e.g., 1, 25, 345)
     $prefix = "SF25";
-    // You can dynamically generate this from the voucher_type if needed
     $numericId = str_pad($vouchers['voucher_id'], 7, '0', STR_PAD_LEFT); // Pads to 7 digits
     
     $formattedVoucherId = "$prefix-$typeCode-$numericId";
-
-// $vouchert = $vouchers['voucher_group'] === "general_voucher";    
     ?>
     <?php
     $voucher = [
@@ -286,8 +229,6 @@
         'invoice_ref' => ucfirst($vouchers['voucher_hint'])
     ];
 
-
-    // Helper functions
     function numberToWords($number)
     {
         $words = [
@@ -368,68 +309,90 @@
                     ٩٩٤٢٨٦٤٠ <i class="fa-brands fa-whatsapp"></i> ٦٦٩٤٥٢١٢
                 </p>
                 <p class="contact-info_arabic"> ت: ٢٤٧٦٤٣٠٦ </p>
-                <!-- <p class="contact-info"><i class="fa-solid fa-envelope"></i> season4-kw@hotmail.com</p>
-                <p class="contact-info"><i class="fa-brands fa-instagram"></i> seasonfourkwt</p> -->
             </div>
-        </div>
-
-        <!-- Label Strip -->
-        <div class="label-bar">
-            <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
-            <p>جميع أنواع قطع غيار المكيفات والثلاجات والغسالات</p>
         </div>
 
         <!-- Receipt Block -->
         <div class="receipt">
-            <div class="header"><?= strtoupper(
-    $vouchers['voucher_group'] === "general_voucher" ? $vouchers['voucher_type'] :
-    ($vouchers['voucher_group'] === "expense_voucher" ? 'expense' :
-    ($vouchers['voucher_group'] === "single_voucher" ? 'single' :
-    $vouchers['voucher_group']))
-) ?>
- Voucher</div>
+            <div
+                style="position: relative;display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                <div class="font-weight-bold"
+                    style="position:absolute ; top: -20px;left:30px; font-weight: 500;font-size: 16px;color: #333;">
+                    Amount</div>
+                <div class="value" style="display:flex; gap:10px; margin-top: 5px;">
+                    <div class="boxed"><?= $kd ?> KD</div>
+                    <div class="boxed"><?= $fils ?> Fils</div>
+                </div>
 
-            <div class="sub-header">
+                <div class="boxed" style="margin-top: 5px;">
+                    <?= strtoupper(
+                        $vouchers['voucher_group'] === "general_voucher" ? $vouchers['voucher_type'] :
+                        ($vouchers['voucher_group'] === "expense_voucher" ? 'expense' :
+                            ($vouchers['voucher_group'] === "single_voucher" ? 'single' :
+                                $vouchers['voucher_group']))
+                    ) ?> VOUCHER
+                </div>
 
-                <div><strong>Voucher ID:</strong><span class="font-weight-bold"><?= $voucher['id'] ?> </span></div>
-                <div><strong>Date:</strong> <span class="font-weight-bold"><?= $voucher['date'] ?> </span>
+                <div class="boxed" style="margin-top: 5px;">
+                    <strong>ID:</strong> <span><?= $voucher['id'] ?></span>
                 </div>
             </div>
 
-            <div class="row">
+            <!-- Date Row Aligned Right -->
+            <div class="sub-header" style="justify-content: flex-end; margin-top: 10px;">
+                <div><strong>Date:</strong> <span class="font-weight-bold"><?= $voucher['date'] ?></span></div>
+            </div>
+
+            <!-- Received From -->
+            <div class="row" style="margin-left: 1px;">
                 <div class="label">Received From</div>
                 <div class="value font-weight-bold"><?= $voucher['customer_name'] ?></div>
             </div>
 
-            <div class="row">
-                <div class="label">Amount</div>
-                <div class="value" style="display:flex; gap:15px;">
-                    <div class="boxed"><?= $kd ?> KD</div>
-                    <div class="boxed"><?= $fils ?> Fils</div>
+            <!-- Amount in Words -->
+            <div class="row" style="margin-left: 1px;">
+                <div class="label">Amount In Words</div>
+                <div class="value font-weight-bold"><?= ucwords(strtolower(amountToWordsKD($voucher['amount']))) ?> Only
                 </div>
             </div>
 
-            <div class="amount-row">
-                The Sum of KD <?= ucwords(strtolower(amountToWordsKD($voucher['amount']))) ?> Only
+            <!-- Bank Info and Check No in One Row -->
+            <div class="" style="display: flex; gap: 40px; margin-left: 15px;">
+                <div class="row" style="display: flex; flex: 1;">
+                    <div class="label" style="min-width: 100px;">Bank</div>
+                    <div class="value font-weight-bold"><?= $voucher['payment_mode'] ?></div>
+                </div>
+                <div class="row" style="display: flex; flex: 1;">
+                    <div class="label" style="min-width: 140px;">Cash / Check No</div>
+                    <div class="value font-weight-bold"><?= @$vouchers['td_check_no'] ?></div>
+                </div>
             </div>
 
-            <div class="row">
-                <div class="label">Payment Mode</div>
-                <div class="value"><?= $voucher['payment_mode'] ?> </div>
+
+            <!-- Invoice Reference -->
+            <div class="reference-row" style="display: flex; align-items: center;">
+                <span style="font-weight: 600; min-width: 180px; color: black; font-size: 16px;">Invoice
+                    References:</span>
+                <span style="margin-left: 35px"><?= $voucher['invoice_ref'] ?></span>
             </div>
 
-            <div class="reference-row">
-                <strong>Invoice References:</strong> <?= $voucher['invoice_ref'] ?>
-            </div>
-
-            <div class="signature">
-                <span>Received By: </span>
-                <span class="line"></span>
-                <!-- <span>Authorized Signature</span> -->
+            <!-- Footer Signatures -->
+            <div class="footer">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>Signature:</span>
+                    <span style="border-bottom: 2px dashed #000; width: 120px;"></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>Received By:</span>
+                    <span style="border-bottom: 2px dashed #000; width: 120px;"></span>
+                </div>
             </div>
         </div>
-    </div>
 
+        <div style="text-align: center; margin-top: 40px;">Software Developed By <br>
+            <strong> The Web Concept (+965 6699 0815) </strong>
+        </div>
+    </div>
     <script>
         window.print();
     </script>

@@ -481,8 +481,7 @@ $("#get_product_name").on("change", function () {
   var delivery_note = $("#delivery_note").val();
   var gatepass = $("#gatepass").val();
   var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
-  console.log(delivery_note);
-
+ 
   $.ajax({
     type: "POST",
     url: "php_action/custom_action.php",
@@ -513,7 +512,7 @@ $("#get_product_name").on("change", function () {
         $("#get_product_detail").val(response.description);
         $("#get_final_rate").val(response.final_rate);
         $("#instockQty").html("instock :" + response.qty);
-        console.log(response);
+        // console.log(response);
         if (
           (!isSaleReturn &&
             (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
@@ -534,7 +533,7 @@ $("#get_product_name").on("change", function () {
 
   // Call the function for both purchase and sale prices
   fetchProductPrice(price_type);
-  // fetchProductPrice(price_type);
+ 
 });
 $("#product_code").on("change", function () {
   //var code=  $('#get_product_code').val();
