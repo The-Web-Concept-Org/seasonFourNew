@@ -73,7 +73,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <div class="w-100 pe-1 pl-1">
                                     <label>Date</label>
                                     <input type="text" name="order_date" id="order_date"
-                                        value="<?= empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['timestamp'] ?>"
+                                        value="<?= empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : date('Y-m-d', strtotime($fetchOrder['timestamp'])) ?>"
                                         class="form-control">
                                 </div>
                             </div>
@@ -112,9 +112,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-sm-2">
                                 <label>Type</label>
                                 <select name="type" class="form-control" id="type">
-                                    <!-- <option <?= isset($_REQUEST['edit_order_id']) ? "" : "selected" ?>
-                                            value="Sale_Invoice" <?= @$fetchOrder['type'] == "Manual Bill" ? "selected" : "" ?>>
-                                            Manual Bill</option> -->
                                     <option value="Sale_Invoice" <?= (!isset($_REQUEST['edit_order_id']) || @$fetchOrder['type'] == "Manual Bill") ? "selected" : "" ?>>
                                         Manual Bill
                                     </option>
