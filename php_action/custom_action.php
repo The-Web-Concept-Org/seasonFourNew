@@ -3365,7 +3365,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POS
 	header('Content-Type: application/json');
 
 
-	$timestamp = mysqli_real_escape_string($dbc, $_POST['order_date']);
+	// $timestamp = mysqli_real_escape_string($dbc, $_POST['order_date']);
+	$user_date = $_POST['order_date']; // expected format: 2025-07-02
+	$current_time = date('H:i:s');     // e.g., 15:45:30
+	$timestamp = $user_date . ' ' . $current_time; // "2025-07-02 15:45:30"
 	$customer_name = mysqli_real_escape_string($dbc, $_POST['client_name']);
 	$customer_phone = mysqli_real_escape_string($dbc, $_POST['client_contact']);
 	$order_narration = mysqli_real_escape_string($dbc, $_POST['order_narration']);
