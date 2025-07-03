@@ -184,7 +184,7 @@
                                                         JOIN brands ON product.brand_id = brands.brand_id
                                                         JOIN categories ON product.category_id = categories.categories_id
                                                         $where
-                                                        ORDER BY product.product_id DESC
+                                                        ORDER BY product.product_name DESC
                                                         ");
 
 

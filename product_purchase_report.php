@@ -10,8 +10,19 @@
 
 	tr td {
 		font-size: 18px !important;
-		font-weight: bolder !important;
+		/* font-weight: bolder !important; */
 		color: #000 !important;
+	}
+
+	@media print {
+
+		.print_hide {
+			display: none !important;
+		}
+
+		.form_sec {
+			display: none !important;
+		}
 	}
 </style>
 
@@ -33,7 +44,7 @@
 
 					</div>
 
-					<div class="card-body">
+					<div class="card-body form_sec">
 						<form method="post">
 							<div class="form-row align-items-end">
 
@@ -93,13 +104,15 @@
 						?>
 						<div class="card">
 							<div class="card-body">
-
+								<button onclick="window.print();"
+									class="btn btn-admin btn-sm float-right print_btn print_hide ml-2">Print
+									Report</button>
 								<table class="table myTable" id="" class="table-responsive">
 
 									<thead>
 										<tr>
 											<th>Sr#</th>
-											<th>Purchase No#</th>
+											<th>Invoice#</th>
 											<th>Date</th>
 											<th>Supplier</th>
 											<th>Product Name</th>
@@ -112,46 +125,73 @@
 									</thead>
 									<tbody>
 										<?php
-
 										$branch_id = $_POST['branch_id'];
-										if (!empty($_REQUEST['productName'])) {
-											$product_id = $_POST['productName'];
-											$q = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE product_id = '$product_id' AND branch_id = '$branch_id' ORDER BY purchase_item_id DESC");
-										} else {
-											$q = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE branch_id = '$branch_id' ORDER BY purchase_item_id DESC");
-										}
+										$product_id_filter = !empty($_POST['productName']) ? "AND product_id = '{$_POST['productName']}'" : '';
 										$c = 0;
-										while ($r = mysqli_fetch_assoc($q)):
-											$purchase__fetch_id = $r['purchase_id'];
-											$c++;
-											$q2 = mysqli_query($dbc, "SELECT * FROM purchase WHERE purchase_id = '$purchase__fetch_id'");
-											while ($r2 = mysqli_fetch_assoc($q2)) {
+										$totalQtyp = 0;
+										$totalAmountp = 0;
+										$totalQtypr = 0;
+										$totalAmountpr = 0;
+										// --- ORDERS ---
+										$q = mysqli_query($dbc, "SELECT pi.*, p.purchase_date, p.client_name, 'Purchase' as source FROM purchase_item pi
+																				JOIN purchase p ON pi.purchase_id = p.purchase_id
+																				WHERE pi.branch_id = '$branch_id' $product_id_filter ORDER BY purchase_id DESC");
 
+										while ($r = mysqli_fetch_assoc($q)) {
+											$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name,brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+											$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+											$totalQtyp += $r['quantity'];
+											$totalAmountp += $r['total'];
+											$c++; ?>
+											<tr>
+												<td><?= $c ?></td>
+												<td>Purchase #<?= $r['purchase_id'] ?></td>
+												<td><?= $r['purchase_date'] ?></td>
+												<td><?= $r['client_name'] ?></td>
+												<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+												</td>
+												<td><?= $r['quantity'] ?></td>
+												<td><?= $r['rate'] ?></td>
+												<td><?= $r['total'] ?></td>
+											</tr>
 
-												?>
-												<tr>
-													<?php
-													$purchase_id = $r['purchase_id'];
-													$fetchCustomer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_id='$r2[customer_account]'"));
-													$fetchProductName = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM product WHERE product_id='$r[product_id]'"));
+										<?php }
 
-													?>
-													<td><?= $c ?></td>
-													<td><?= $r2['purchase_id'] ?></td>
-													<td><?= $r2['purchase_date'] ?></td>
-													<td><?= @$r2['client_name']; ?></td>
-													<td><?= $fetchProductName['product_name'] ?></td>
-													<td><?= $r['quantity'] ?></td>
-													<td><?= $r['rate'] ?></td>
-													<td><?= $r['total'] ?></td>
+										// --- ORDER RETURNS ---
+										$q = mysqli_query($dbc, "SELECT pri.*, prr.purchase_date, prr.client_name, 'Return' as source FROM purchase_return_item pri
+																			   JOIN purchase_return prr ON pri.purchase_id = prr.purchase_id
+																			   WHERE pri.branch_id = '$branch_id' $product_id_filter ORDER BY purchase_id DESC");
 
-												</tr>
-
-
-												<?php
-											}
-										endwhile; ?>
+										while ($r = mysqli_fetch_assoc($q)) {
+											$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name,brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+											$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+											$totalQtypr += $r['quantity'];
+											$totalAmountpr += $r['total'];
+											$c++; ?>
+											<tr>
+												<td><?= $c ?></td>
+												<td>Pur Return #<?= $r['purchase_id'] ?></td>
+												<td><?= $r['purchase_date'] ?></td>
+												<td><?= $r['client_name'] ?></td>
+												<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+												</td>
+												<td><?= $r['quantity'] ?></td>
+												<td><?= $r['rate'] ?></td>
+												<td><?= $r['total'] ?></td>
+											</tr>
+											<?php
+										}
+										?>
 									</tbody>
+									<tfoot>
+										<tr style="font-weight: bold;">
+											<td colspan="5" align="right">Total</td>
+											<td><?= $totalQtyp - $totalQtypr ?></td>
+											<td></td>
+											<td><?= number_format($totalAmountp - $totalAmountpr) ?></td>
+										</tr>
+									</tfoot>
+
 								</table>
 
 

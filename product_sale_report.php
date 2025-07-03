@@ -10,8 +10,19 @@
 
 	tr td {
 		font-size: 18px !important;
-		font-weight: bolder !important;
+		/* font-weight: bolder !important; */
 		color: #000 !important;
+	}
+
+	@media print {
+
+		.print_hide {
+			display: none !important;
+		}
+
+		.form_sec {
+			display: none !important;
+		}
 	}
 </style>
 
@@ -30,7 +41,7 @@
 						</div>
 
 					</div>
-					<div class="card-body">
+					<div class="card-body form_sec">
 						<form method="post">
 							<div class="form-row align-items-end">
 
@@ -92,13 +103,15 @@
 
 					<div class="card">
 						<div class="card-body">
-
+							<button onclick="window.print();"
+								class="btn btn-admin btn-sm float-right print_btn print_hide ml-2">Print
+								Report</button>
 							<table class="table">
 
 								<thead>
 									<tr>
 										<th>sr#</th>
-										<th>Order No#</th>
+										<th>Invoice#</th>
 										<th>Date</th>
 										<th>Customer</th>
 										<th>Product Name</th>
@@ -111,92 +124,132 @@
 								</thead>
 								<tbody>
 									<?php
-$branch_id = $_POST['branch_id'];
-$product_id_filter = !empty($_POST['productName']) ? "AND product_id = '{$_POST['productName']}'" : '';
-$c = 1;
+									$branch_id = $_POST['branch_id'];
+									$product_id_filter = !empty($_POST['productName']) ? "AND product_id = '{$_POST['productName']}'" : '';
+									$c = 0;
+									$totalQtyS = 0;
+									$totalAmountS = 0;
+									$totalQtySr = 0;
+									$totalAmountSr = 0;
+									$totalQtyG = 0;
+									$totalAmountG = 0;
+									$totalQtyDn = 0;
+									$totalAmountDn = 0;
 
-// --- ORDERS ---
-$q = mysqli_query($dbc, "SELECT oi.*, o.order_date, o.client_name, 'Sale' as source FROM order_item oi
-    JOIN orders o ON oi.order_id = o.order_id
-    WHERE oi.branch_id = '$branch_id' $product_id_filter");
+									// --- ORDERS ---
+									$q = mysqli_query($dbc, "SELECT oi.*, o.order_date, o.client_name, 'Sale' as source FROM order_item oi
+                                                                           JOIN orders o ON oi.order_id = o.order_id
+                                                                           WHERE oi.branch_id = '$branch_id' $product_id_filter ORDER BY order_id DESC");
 
-while ($r = mysqli_fetch_assoc($q)) {
-    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
-    echo "<tr>
-        <td>{$c}</td>
-        <td>Order #{$r['order_id']}</td>
-        <td>{$r['order_date']}</td>
-        <td>{$r['client_name']}</td>
-        <td>{$product['product_name']}</td>
-        <td>{$r['quantity']}</td>
-        <td>{$r['rate']}</td>
-        <td>{$r['total']}</td>
-    </tr>";
-    $c++;
-}
+									while ($r = mysqli_fetch_assoc($q)) {
+										$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name,brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+										$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+										$totalQtyS += $r['quantity'];
+										$totalAmountS += $r['total'];
+										$c++;
+										?>
+										<tr>
+											<td><?= $c ?></td>
+											<td>Sale #<?= $r['order_id'] ?></td>
+											<td><?= $r['order_date'] ?></td>
+											<td><?= $r['client_name'] ?></td>
+											<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+											</td>
+											<td><?= $r['quantity'] ?></td>
+											<td><?= $r['rate'] ?></td>
+											<td><?= $r['total'] ?></td>
+										</tr>
 
-// --- ORDER RETURNS ---
-$q = mysqli_query($dbc, "SELECT ori.*, orr.order_date, orr.client_name, 'Return' as source FROM order_return_item ori
-    JOIN orders_return orr ON ori.order_id = orr.order_id
-    WHERE ori.branch_id = '$branch_id' $product_id_filter");
+									<?php }
 
-while ($r = mysqli_fetch_assoc($q)) {
-    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
-    echo "<tr>
-        <td>{$c}</td>
-        <td>Return #{$r['order_id']}</td>
-        <td>{$r['order_date']}</td>
-        <td>{$r['client_name']}</td>
-        <td>{$product['product_name']}</td>
-        <td>{$r['quantity']}</td>
-        <td>{$r['rate']}</td>
-        <td>{$r['total']}</td>
-    </tr>";
-    $c++;
-}
+									// --- ORDER RETURNS ---
+									$q = mysqli_query($dbc, "SELECT ori.*, orr.order_date, orr.client_name, 'Return' as source FROM order_return_item ori
+                                                                           JOIN orders_return orr ON ori.order_id = orr.order_id
+                                                                           WHERE ori.branch_id = '$branch_id' $product_id_filter ORDER BY order_id DESC");
 
-// --- GATEPASS ---
-$q = mysqli_query($dbc, "SELECT gi.*, g.gatepass_date, 'Gatepass' as source FROM gatepass_item gi
-    JOIN gatepass g ON gi.gatepass_id = g.gatepass_id
-    WHERE gi.from_branch = '$branch_id' $product_id_filter");
+									while ($r = mysqli_fetch_assoc($q)) {
+										$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name,brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+										$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+										$totalQtySr += $r['quantity'];
+										$totalAmountSr += $r['total'];
+										$c++; ?>
+										<tr>
+											<td><?= $c ?></td>
+											<td>Sale Return #<?= $r['order_id'] ?></td>
+											<td><?= $r['order_date'] ?></td>
+											<td><?= $r['client_name'] ?></td>
+											<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+											</td>
+											<td><?= $r['quantity'] ?></td>
+											<td><?= $r['rate'] ?></td>
+											<td><?= $r['total'] ?></td>
+										</tr>
 
-while ($r = mysqli_fetch_assoc($q)) {
-    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
-    echo "<tr>
-        <td>{$c}</td>
-        <td>Gatepass #{$r['gatepass_id']}</td>
-        <td>{$r['gatepass_date']}</td>
-        <td>—</td>
-        <td>{$product['product_name']}</td>
-        <td>{$r['quantity']}</td>
-        <td>{$r['rate']}</td>
-        <td>{$r['total']}</td>
-    </tr>";
-    $c++;
-}
+									<?php }
 
-// --- QUOTATIONS with is_delivery_note = 1 ---
-$q = mysqli_query($dbc, "SELECT qi.*, q.quotation_date, q.client_name FROM quotation_item qi
-    JOIN quotations q ON qi.quotation_id = q.quotation_id
-    WHERE q.is_delivery_note = '1' AND q.branch_id = '$branch_id' $product_id_filter");
+									// --- GATEPASS ---
+									$q = mysqli_query($dbc, "SELECT gi.*, g.gatepass_date,g.to_branch, 'Gatepass' as source FROM gatepass_item gi
+																		   JOIN gatepass g ON gi.gatepass_id = g.gatepass_id
+																		   WHERE gi.from_branch = '$branch_id' $product_id_filter ORDER BY gatepass_id DESC");
 
-while ($r = mysqli_fetch_assoc($q)) {
-    $product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name FROM product WHERE product_id='{$r['product_id']}'"));
-    echo "<tr>
-        <td>{$c}</td>
-        <td>DeliveryNote #{$r['quotation_id']}</td>
-        <td>{$r['quotation_date']}</td>
-        <td>{$r['client_name']}</td>
-        <td>{$product['product_name']}</td>
-        <td>{$r['quantity']}</td>
-        <td>{$r['rate']}</td>
-        <td>{$r['total']}</td>
-    </tr>";
-    $c++;
-}
-?>
+									while ($r = mysqli_fetch_assoc($q)) {
+										$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name,brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+										$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+										$branch = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT branch_name FROM branch WHERE branch_id='{$r['to_branch']}'"));
+										$totalQtyG += $r['quantity'];
+										$totalAmountG += $r['total'];
+										$c++; ?>
+										<tr>
+											<td><?= $c ?></td>
+											<td>Gatepass #<?= $r['gatepass_id'] ?></td>
+											<td><?= $r['gatepass_date'] ?></td>
+											<td><?= $branch['branch_name'] ?> Branch</td>
+											<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+											</td>
+											<td><?= $r['quantity'] ?></td>
+											<td><?= $r['rate'] ?></td>
+											<td><?= $r['total'] ?></td>
+										</tr>
+
+									<?php }
+
+									// --- QUOTATIONS with is_delivery_note = 1 ---
+									$q = mysqli_query($dbc, "SELECT qi.*, q.quotation_date, q.client_name FROM quotation_item qi
+																		   JOIN quotations q ON qi.quotation_id = q.quotation_id
+																		   WHERE q.is_delivery_note = '1' AND q.branch_id = '$branch_id' $product_id_filter ORDER BY quotation_id DESC");
+
+									while ($r = mysqli_fetch_assoc($q)) {
+										$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name,brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+										$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+										$totalQtyDn += $r['quantity'];
+										$totalAmountDn += $r['total'];
+										$c++; ?>
+										<tr>
+											<td><?= $c ?></td>
+											<td>DeliveryNote #<?= $r['quotation_id'] ?></td>
+											<td><?= $r['quotation_date'] ?></td>
+											<td><?= $r['client_name'] ?></td>
+											<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+											</td>
+											<td><?= $r['quantity'] ?></td>
+											<td><?= $r['rate'] ?></td>
+											<td><?= $r['total'] ?></td>
+										</tr>
+
+									<?php }
+									?>
 
 								</tbody>
+								<tfoot>
+									<tr style="font-weight: bold;">
+										<td colspan="5" align="right">Total</td>
+										<td><?= $totalQtyS - $totalQtySr + $totalQtyG + $totalQtyDn ?></td>
+										<td></td>
+										<td><?= number_format($totalAmountS - $totalAmountSr + $totalAmountG + $totalAmountDn) ?>
+										</td>
+									</tr>
+									<tr> <?php ?></tr>
+								</tfoot>
 							</table>
 
 
