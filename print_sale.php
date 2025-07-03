@@ -873,9 +873,9 @@
                 </div>
 
             <?php } ?>
-            <div style="text-align: center; margin-top: 5px;">Software Developed By <br>
-                <strong> The Web Concept (+965 6699 0815) </strong>
-            </div>
+            <!-- <div style="text-align: center; margin-top: 5px;">Software Developed By <br> -->
+                <!-- <strong> The Web Concept (+965 6699 0815) </strong> -->
+            <!-- </div> -->
             <!-- <div>
                 <div class="return">
                     <p>
