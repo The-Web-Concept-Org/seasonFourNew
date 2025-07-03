@@ -81,7 +81,8 @@
 
                   <tr>
                     <td><?= $r['order_id'] ?></td>
-                    <td><?= $r['timestamp'] ?></td>
+                   <td><?= date('Y-m-d', strtotime($r['timestamp'])) ?></td>
+
                     <td><?= ucfirst($r['customer_name']) ?></td>
                     <td><?= $r['grand_total'] ?></td>
                     <td class="text-capitalize"><?= $r['order_narration'] ?></td>
