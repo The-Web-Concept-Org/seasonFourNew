@@ -112,9 +112,6 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="col-sm-2">
                                 <label>Type</label>
                                 <select name="type" class="form-control" id="type">
-                                    <!-- <option <?= isset($_REQUEST['edit_order_id']) ? "" : "selected" ?>
-                                            value="Sale_Invoice" <?= @$fetchOrder['type'] == "Manual Bill" ? "selected" : "" ?>>
-                                            Manual Bill</option> -->
                                     <option value="Sale_Invoice" <?= (!isset($_REQUEST['edit_order_id']) || @$fetchOrder['type'] == "Manual Bill") ? "selected" : "" ?>>
                                         Manual Bill
                                     </option>
