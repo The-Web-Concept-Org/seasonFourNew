@@ -181,7 +181,34 @@
 											</tr>
 											<?php
 										}
-										?>
+
+										// --- GATEPASS (from_branch as Supplier) ---
+										$q = mysqli_query($dbc, "SELECT gi.*, g.gatepass_date, g.from_branch, 'Gatepass Out' as source 
+																				FROM gatepass_item gi
+																				JOIN gatepass g ON gi.gatepass_id = g.gatepass_id
+																				WHERE gi.to_branch = '$branch_id' $product_id_filter 
+																				ORDER BY gi.gatepass_id DESC");
+
+										while ($r = mysqli_fetch_assoc($q)) {
+											$product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT product_name, brand_id FROM product WHERE product_id='{$r['product_id']}'"));
+											$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT brand_name FROM brands WHERE brand_id='{$product['brand_id']}'"));
+											$fromBranchName = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT branch_name FROM branch WHERE branch_id = '{$r['from_branch']}'"))['branch_name'];
+
+											$totalQtyp += $r['quantity']; // You can keep separate total if needed
+											$c++; ?>
+											<tr>
+												<td><?= $c ?></td>
+												<td>Gatepass #<?= $r['gatepass_id'] ?></td>
+												<td><?= $r['gatepass_date'] ?></td>
+												<td><?= $fromBranchName ?> Branch</td>
+												<td><?= $product['product_name'] ?><?= ($brand['brand_name'] ? '(' . $brand['brand_name'] . ')' : '') ?>
+												</td>
+												<td><?= $r['quantity'] ?></td>
+												<td>-</td>
+												<td>-</td>
+											</tr>
+										<?php } ?>
+
 									</tbody>
 									<tfoot>
 										<tr style="font-weight: bold;">
