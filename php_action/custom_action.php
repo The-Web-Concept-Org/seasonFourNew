@@ -1423,7 +1423,7 @@ if (isset($_REQUEST['cash_purchase_supplier']) && empty($_REQUEST['lpo_form']) &
 							$insert_inventory = [
 								'product_id' => $_REQUEST['product_ids'][$x],
 								'quantity_instock' => $product_quantites,
-								'branch_id' => $_SESSION['branch_id'],
+								'branch_id' => $_REQUEST['branch_id'],
 								'user_id' => $_SESSION['user_id'],
 							];
 							insert_data($dbc, 'inventory', $insert_inventory);

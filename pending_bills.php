@@ -158,12 +158,12 @@
     <tbody>
 <?php
     if (!empty($_REQUEST['from_date']) AND !empty($_REQUEST['to_date'])) {
-      $sql = "SELECT * FROM orders WHERE  payment_type='cash_in_hand' AND payment_status=0 AND order_date BETWEEN '".$_REQUEST['from_date']."' AND '".$_REQUEST['to_date']."' ";
+      $sql = "SELECT * FROM orders WHERE  payment_type='cash' AND payment_status=0 AND order_date BETWEEN '".$_REQUEST['from_date']."' AND '".$_REQUEST['to_date']."' ";
     }else if (!empty($_REQUEST['from_date']) AND empty($_REQUEST['to_date'])) {
-      $sql = "SELECT * FROM orders WHERE  payment_type='cash_in_hand' AND payment_status=0 AND order_date = '".$_REQUEST['from_date']."' ";
+      $sql = "SELECT * FROM orders WHERE  payment_type='cash' AND payment_status=0 AND order_date = '".$_REQUEST['from_date']."' ";
     }else{
-    
-      $sql = "SELECT * FROM orders WHERE  payment_type='cash_in_hand' AND payment_status=0 ";
+
+      $sql = "SELECT * FROM orders WHERE  payment_type='cash' AND payment_status=0 ";
 
     }
 

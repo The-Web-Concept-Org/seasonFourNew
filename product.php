@@ -1108,6 +1108,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
 </script>
 <script>
   $(document).ready(function () {
+    // Load brands based on selected category
     $('#tableData1').on('change', function () {
       const categoryIdForBrand = $(this).val();
 
@@ -1121,6 +1122,11 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
           success: function (response) {
             console.log('Received:', response);
             $('#brandSelect').html(response).prop('disabled', false);
+
+            <?php if (isset($_REQUEST['edit_product_id'])): ?>
+              // Pre-select brand in edit mode
+              $('#brandSelect').val('<?= $fetchproduct['brand_id'] ?>');
+            <?php endif; ?>
           },
           error: function () {
             $('#brandSelect').html('<option>Error loading brands</option>');
@@ -1130,9 +1136,14 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
         $('#brandSelect').html('<option value="">Select Brand</option>').prop('disabled', true);
       }
     });
-  
-  // loader 
-  $('#loader').hide();
+
+    // Only trigger change if in edit mode
+    <?php if (isset($_REQUEST['edit_product_id'])): ?>
+      $('#tableData1').trigger('change');
+    <?php endif; ?>
+
+    // loader
+    $('#loader').hide();
     $('#productTableWrapper').show();
   });
 </script>
