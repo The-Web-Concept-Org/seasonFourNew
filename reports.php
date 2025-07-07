@@ -45,58 +45,6 @@
 
               <div class="row d-print-none ">
 
-                <!-- <div class="col-sm-2">
-                  <?php if ($_SESSION['user_role'] == 'admin') { ?>
-                    <div class="ml-auto ">
-                      <label for="">Branch</label>
-                      <select name="branch_id" id="branch_id" class="form-control text-capitalize" required>
-                        <option selected disabled value="">Select Branch</option>
-                        <?php
-                        $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                        while ($row = mysqli_fetch_array($branch)) {
-                          ?>
-                          <option <?= (@$fetchOrder['branch_id'] == $row['branch_id']) ? "selected" : "" ?>
-                            class="text-capitalize" value="<?= $row['branch_id'] ?>">
-                            <?= $row['branch_name'] ?>
-                          </option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  <?php } else { ?>
-                    <input type="hidden" name="branch_id" id="branch_id" value="<?= $_SESSION['branch_id'] ?>">
-                  <?php } ?>
-
-                </div>
-
-
-                <div class="form-group col-sm-2">
-
-
-
-                  <label for=""><?= ucfirst($_REQUEST['type']) ?> Account</label>
-
-
-
-                  <select required class="form-control" id="ledger_customer_id" name="customer_id" autofocus="true">
-                    <option value="">Select Account</option>
-                    <?php
-                    $branch_id = $_SESSION['branch_id'];
-                    $user_role = $_SESSION['user_role'];
-
-                    if ($user_role === 'admin') {
-                      $sql = "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' ";
-                    } else {
-                      $sql = "customers WHERE customer_status = 1 AND customer_type='" . $_REQUEST['type'] . "' AND branch_id = '$branch_id'";
-                    }
-                    $sql = get($dbc, $sql);
-                    while ($row = $sql->fetch_array()) {
-
-                      echo "<option value='" . $row['customer_id'] . "'>" . $row['customer_name'] . "</option>";
-                    } // while
-                    ?>
-                  </select>
-                </div> -->
-                <!-- group -->
                 <div class="col-sm-2">
                   <?php if ($_SESSION['user_role'] == 'admin') { ?>
                     <div class="ml-auto">

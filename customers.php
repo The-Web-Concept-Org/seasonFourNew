@@ -3,9 +3,9 @@
 <?php include_once 'includes/head.php';
 $getCustomer = @$_REQUEST['id'];
 if (@$getCustomer) {
-
 	$Getdata = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_id = '$getCustomer'"));
 }
+
 
 ?>
 <style>
@@ -193,6 +193,29 @@ if (@$getCustomer) {
 									Management system</h5>
 							</div>
 							<div class="card-body">
+								<?php
+								$branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status= 1");
+								$selected_branch_id = $_GET['branch_id'] ?? $_SESSION['branch_id'];
+								if ($_SESSION['user_role'] == 'admin') {
+									?>
+
+									<form method="GET" action="#tableData" class="form-inline my-3 ml-1">
+										<input type="hidden" name="type"
+											value="<?= htmlspecialchars($_GET['type'] ?? '') ?>">
+										<label for="branch_id" class="mr-2">Filter by Branch:</label>
+										<select name="branch_id" id="branch_id" class="form-control text-capitalize mr-2"
+											onchange="this.form.submit()">
+											<option value="">All Branches</option>
+											<?php
+											$branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+											while ($b = mysqli_fetch_assoc($branches)) {
+												$selected = ($_GET['branch_id'] ?? '') == $b['branch_id'] ? 'selected' : '';
+												echo "<option value='{$b['branch_id']}' class='text-capitalize' $selected>{$b['branch_name']}</option>";
+											}
+											?>
+										</select>
+									</form>
+								<?php } ?>
 
 								<table id="tableData" class=" table dataTable ">
 
@@ -230,7 +253,28 @@ if (@$getCustomer) {
 										</tr>
 									</thead>
 									<tbody>
-										<?php $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND customer_type='" . $_REQUEST['type'] . "'");
+
+										<?php
+										$branch_filter = "";
+
+										// Check role and apply branch filter
+										if ($_SESSION['user_role'] != 'admin') {
+											$session_branch_id = $_SESSION['branch_id'];
+											$branch_filter = "branch_id = '$session_branch_id'";
+										} elseif ($_SESSION['user_role'] == 'admin' && !isset($_GET['branch_id'])) {
+											$branch_filter = "";
+										} elseif (!empty($selected_branch_id)) {
+											$branch_filter = "branch_id = '$selected_branch_id'";
+										}
+
+										// $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status =1 AND $branch_filter AND customer_type='" . $_REQUEST['type'] . "'");
+										$customer_type = mysqli_real_escape_string($dbc, $_REQUEST['type']);
+										$sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = '$customer_type'";
+										if (!empty($branch_filter)) {
+											$sql .= " AND $branch_filter";
+										}
+										$q = mysqli_query($dbc, $sql);
+
 										while ($r = mysqli_fetch_assoc($q)):
 											$customer_id = $r['customer_id'];
 											?>

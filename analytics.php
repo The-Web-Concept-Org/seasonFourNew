@@ -28,6 +28,23 @@
           <div class="card-body">
 
 
+            <?php
+            $selected_branch_id = null;
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['branch_id'])) {
+              // Admin selected a branch via form
+              $selected_branch_id = (int) $_POST['branch_id'];
+            } elseif ($_SESSION['user_role'] === 'admin') {
+              // First page load for admin → get first active branch
+              $branch_query = mysqli_query($dbc, "SELECT branch_id FROM branch WHERE branch_status = 1 ORDER BY branch_id ASC LIMIT 1");
+              if ($branch_row = mysqli_fetch_assoc($branch_query)) {
+                $selected_branch_id = (int) $branch_row['branch_id'];
+              }
+            } else {
+              // Non-admin user → use their assigned branch
+              $selected_branch_id = (int) $_SESSION['branch_id'];
+            }
+            ?>
 
 
 
@@ -36,12 +53,24 @@
             <form action="" method="post" class="">
 
 
-
               <div class="row d-print-none ">
-
-
-
-                <div class="form-group col-sm-2"></div><!-- group -->
+                <?php if ($_SESSION['user_role'] == 'admin') { ?>
+                  <div class="form-group col-sm-3">
+                    <label for="">Branch</label>
+                    <select name="branch_id" id="branch_id" onchange="fetchAccounts(this.value)"
+                      class="form-control text-capitalize" required>
+                      <?php
+                      $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                      while ($row = mysqli_fetch_array($branch)) { ?>
+                        <option class="text-capitalize" value="<?= $row['branch_id'] ?>"
+                          <?= ($row['branch_id'] == $selected_branch_id ? 'selected' : '') ?>>
+                          <?= $row['branch_name'] ?>
+                        </option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                <?php } ?>
+                <!-- <div class="form-group col-sm-2"></div>group -->
                 <div class="form-group col-sm-3 ">
 
 
@@ -109,16 +138,25 @@
 
             <?php
             // Get branch filter if available
-            $branch_filter_orders = '';
-            $branch_filter_purchase = '';
-            $branch_filter_vouchers = '';
+            // $branch_filter_orders = '';
+            // $branch_filter_purchase = '';
+            // $branch_filter_vouchers = '';
+            
+            // if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+            //   $branch_id = (int) $_SESSION['branch_id'];
+            //   $branch_filter_orders = " AND orders.branch_id = $branch_id";
+            //   $branch_filter_purchase = " AND purchase.branch_id = $branch_id";
+            //   $branch_filter_vouchers = " AND vouchers.branch_id = $branch_id";
+            // }
+            
+            $branch_filter_orders = " AND orders.branch_id = $selected_branch_id";
+            $branch_filter_orders_return = " AND orders_return.branch_id = $selected_branch_id";
+            $branch_filter_purchase = " AND purchase.branch_id = $selected_branch_id";
+            $branch_filter_purchase_return = " AND purchase_return.branch_id = $selected_branch_id";
+            $branch_filter_vouchers = " AND vouchers.branch_id = $selected_branch_id";
+            $branch_filter_inventory = "branch_id = $selected_branch_id";
 
-            if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-              $branch_id = (int) $_SESSION['branch_id'];
-              $branch_filter_orders = " AND orders.branch_id = $branch_id";
-              $branch_filter_purchase = " AND purchase.branch_id = $branch_id";
-              $branch_filter_vouchers = " AND vouchers.branch_id = $branch_id";
-            }
+
 
             // From date and to date both present
             if (!empty($_REQUEST['from_date']) && !empty($_REQUEST['to_date'])) {
@@ -265,93 +303,174 @@
               $sales = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS total_order, order_id, SUM(grand_total) AS total_sales 
-         FROM orders 
-         WHERE 1 $branch_filter_orders"
+                        FROM orders 
+                        WHERE 1 $branch_filter_orders"
               ));
-
+              $sales_return = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS total_order_return, order_id, SUM(grand_total) AS total_sales_return 
+                        FROM orders_return 
+                        WHERE 1 $branch_filter_orders_return"
+              ));
               $salesGet = mysqli_query(
                 $dbc,
                 "SELECT * FROM orders 
-         WHERE 1 $branch_filter_orders"
+                        WHERE 1 $branch_filter_orders"
               );
 
               $purchases = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS total_purchase, SUM(grand_total) AS total_amount 
-         FROM purchase 
-         WHERE 1 $branch_filter_purchase"
+                        FROM purchase 
+                        WHERE 1 $branch_filter_purchase"
+              ));
+              $purchases_return = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS total_purchase_return, SUM(grand_total) AS total_amount_return
+                        FROM purchase_return
+                        WHERE 1 $branch_filter_purchase_return"
               ));
 
               $purchases_items = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, purchase.*, purchase_item.* 
-         FROM purchase_item 
-         INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
-         WHERE 1 $branch_filter_purchase"
+                        FROM purchase_item 
+                        INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
+                        WHERE 1 $branch_filter_purchase"
               ));
 
               $sales_items = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, orders.*, order_item.* 
-         FROM order_item 
-         INNER JOIN orders ON orders.order_id = order_item.order_id 
-         WHERE 1 $branch_filter_orders"
+                        FROM order_item 
+                        INNER JOIN orders ON orders.order_id = order_item.order_id 
+                        WHERE 1 $branch_filter_orders"
               ));
 
-              $instock = $purchases_items['total_items'] - $sales_items['total_items'];
-              $total_rate = $purchases_items['total_rate'] - $sales_items['total_rate'];
-
+              $instock = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(quantity_instock) AS total_stock FROM inventory
+                        WHERE 1 AND $branch_filter_inventory"
+              ));
+              // $instock = $purchases_items['total_items'] - $sales_items['total_items'];
+              // $total_rate = $purchases_items['total_rate'] - $sales_items['total_rate'];
+            
               $expense = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT SUM(voucher_amount) AS total_amount 
-         FROM vouchers  
-         WHERE voucher_group='expense_voucher' $branch_filter_vouchers"
+                        FROM vouchers  
+                        WHERE voucher_group='expense_voucher' $branch_filter_vouchers"
               ));
 
               $cash_in_hand_sale = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS cash_in_hand, SUM(grand_total) AS cash_in_hand_amount 
-         FROM orders 
-         WHERE payment_type='cash_in_hand' $branch_filter_orders"
+                        FROM orders 
+                        WHERE payment_type='cash' $branch_filter_orders"
               ));
 
               $credit_sale = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS credit_sale, SUM(grand_total) AS credit_sale_amount 
-         FROM orders 
-         WHERE payment_type='credit_sale' $branch_filter_orders"
+                        FROM orders 
+                        WHERE payment_type='credit' $branch_filter_orders"
               ));
             }
-
+            $total_revenue = $sales['total_sales'] - $sales_return['total_sales_return'];
             // Final computed value
             $total_expense = !empty($expense['total_amount']) ? abs($expense['total_amount']) : 0;
             ?>
 
 
             <?php
+            $total_stock_value = 0;
+
+            // Fetch all inventory rows per product for the branch
+            $inventory_query = mysqli_query($dbc, "SELECT product_id, SUM(quantity_instock) as total_instock 
+                                                                  FROM inventory 
+                                                                  WHERE  $branch_filter_inventory 
+                                                                  GROUP BY product_id
+                                                                   ");
+
+            while ($inventory = mysqli_fetch_assoc($inventory_query)) {
+              $product_id = $inventory['product_id'];
+              $quantity = $inventory['total_instock'];
+
+              // Now get the latest purchase rate for this product
+              $rate_query = mysqli_query($dbc, "SELECT rate 
+                                                              FROM purchase_item 
+                                                              WHERE product_id = '$product_id' 
+                                                              AND $branch_filter_inventory 
+                                                              ORDER BY purchase_item_id DESC 
+                                                              LIMIT 1
+                                                          ");
+
+              $rate_row = mysqli_fetch_assoc($rate_query);
+              $purchase_rate = $rate_row['rate'] ?? 0;
+
+              $total_stock_value += $quantity * $purchase_rate;
+            }
+
             $net_profit = 0;
-            while ($fetchOrder = mysqli_fetch_assoc($salesGet)): ?>
-              <?php
-              $sql = "SELECT * FROM order_item WHERE order_id = '$fetchOrder[order_id]' AND order_item_status=1";
+
+            // 1. Calculate profit from actual sales
+            while ($fetchOrder = mysqli_fetch_assoc($salesGet)) {
+              $order_id = $fetchOrder['order_id'];
+              $sql = "SELECT * FROM order_item WHERE order_id = '$order_id' AND order_item_status = 1";
               $query = $dbc->query($sql);
+
               while ($result = $query->fetch_assoc()) {
                 $product_id = $result['product_id'];
                 $sold_quantity = $result['quantity'];
                 $sold_rate = $result['rate'];
-                //$purchases_items ="SELECT * FROM purchase_item WHERE purchase_id=  ";
-                $sql_item = "SELECT * FROM purchase_item WHERE product_id = '$product_id'";
-                $query_item = $dbc->query($sql_item);
-                while ($result_item = $query_item->fetch_assoc()) {
-                  $product_purchase = $result_item['rate'];
-                  $sold_income = $sold_quantity * $sold_rate;
-                  $purchase_income = $product_purchase * $sold_quantity;
-                }
-                $net_profit += @$sold_income - @$purchase_income;
 
-              }//while
-              //echo $net_profit;
-              ?>
-            <?php endwhile; ?>
+                // Get latest purchase rate for the product
+                $purchase_sql = "SELECT rate FROM purchase_item WHERE product_id = '$product_id' ORDER BY purchase_item_id DESC LIMIT 1";
+                $purchase_result = mysqli_fetch_assoc(mysqli_query($dbc, $purchase_sql));
+                $purchase_rate = $purchase_result['rate'] ?? 0;
+
+                $sold_income = $sold_quantity * $sold_rate;
+                $purchase_cost = $sold_quantity * $purchase_rate;
+
+                $net_profit += ($sold_income - $purchase_cost);
+              }
+            }
+
+            // 2. Subtract losses from returned orders
+            $return_loss = 0;
+
+            $return_orders = mysqli_query(
+              $dbc,
+              "SELECT * FROM orders_return WHERE 1 $branch_filter_orders_return"
+            );
+
+            while ($return = mysqli_fetch_assoc($return_orders)) {
+              $return_order_id = $return['order_id'];
+              $return_items = mysqli_query($dbc, "SELECT * FROM order_return_item WHERE order_id = '$return_order_id' AND order_item_status = 1");
+
+              while ($item = mysqli_fetch_assoc($return_items)) {
+                $product_id = $item['product_id'];
+                $return_qty = $item['quantity'];
+                $return_rate = $item['rate'];
+
+                // Get latest purchase rate again
+                $purchase_sql = "SELECT rate FROM purchase_item WHERE product_id = '$product_id' ORDER BY purchase_item_id DESC LIMIT 1";
+                $purchase_result = mysqli_fetch_assoc(mysqli_query($dbc, $purchase_sql));
+                $purchase_rate = $purchase_result['rate'] ?? 0;
+
+                $return_income = $return_qty * $return_rate;
+                $return_cost = $return_qty * $purchase_rate;
+
+                $return_loss += ($return_income - $return_cost);
+              }
+            }
+
+            // 3. Final Net Profit
+            $final_net_profit = $net_profit - $return_loss;
+            ?>
+
+
+
             <div class="row">
               <div class="col-md-6 col-xl-3 mb-4">
                 <div class="card shadow bg-primary text-white border-0">
@@ -439,6 +558,92 @@
               </div>
               <!---------------------------end of box------------------------------------------------------>
               <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow bg-secondary text-white border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-white">
+                          <i class="fe fe-16 fe-shopping-cart text-default mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col pr-0">
+                        <p class="small text-white mb-0">Total Orders Return</p>
+                        <span class="h3 mb-0 text-white">
+                          <?= isset($sales_return['total_order_return']) ? abs($sales_return['total_order_return']) : "0"; ?>
+                        </span>
+                        <!--   <span class="small text-white">+5.5%</span> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!---------------------------end of box------------------------------------------------------>
+              <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow bg-primary text-white border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-white">
+                          <i class="fe fe-16 fe-shopping-bag text-default mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col pr-0">
+                        <p class="small text-white mb-0">Total Purchase Return</p>
+                        <span class="h3 mb-0 text-white">
+                          <?= isset($purchases_return['total_purchase_return']) ? abs($purchases_return['total_purchase_return']) : "0"; ?>
+                        </span>
+                        <!--   <span class="small text-white">+5.5%</span> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!---------------------------end of box------------------------------------------------------>
+              <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow bg-secondary text-white border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-white">
+                          <i class="fe fe-16 fe-dollar-sign text-default mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col pr-0">
+                        <p class="small text-white mb-0">Total Sales Return</p>
+                        <span class="h3 mb-0 text-white">
+                          <?= isset($sales_return['total_sales_return']) ? abs($sales_return['total_sales_return']) : "0"; ?>
+                        </span>
+                        <!--   <span class="small text-white">+5.5%</span> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!---------------------------end of box------------------------------------------------------>
+              <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow bg-primary text-white border-0">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3 text-center">
+                        <span class="circle circle-sm bg-white">
+                          <i class="fe fe-16 fe-dollar-sign text-default mb-0"></i>
+                        </span>
+                      </div>
+                      <div class="col pr-0">
+                        <p class="small text-white mb-0">Total Purchase Return</p>
+                        <span class="h3 mb-0 text-white">
+                          <?= $pur = isset($purchases_return['total_amount_return']) ? abs($purchases_return['total_amount_return']) : "0";
+                          ?>
+                        </span>
+                        <!--   <span class="small text-white">+5.5%</span> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!---------------------------end of box------------------------------------------------------>
+
+              <div class="col-md-6 col-xl-3 mb-4">
                 <div class="card shadow bg-success text-white border-0">
                   <div class="card-body">
                     <div class="row align-items-center">
@@ -448,7 +653,7 @@
                         </span>
                       </div>
                       <div class="col pr-0">
-                        <p class="small text-white mb-0">Puchased Quantity</p>
+                        <p class="small text-white mb-0">Purchased Quantity</p>
                         <span class="h3 mb-0 text-white">
 
                           <?= $pur = isset($purchases_items['total_items']) ? abs($purchases_items['total_items']) : "0";
@@ -492,10 +697,10 @@
                         </span>
                       </div>
                       <div class="col pr-0">
-                        <p class="small text-white mb-0">inStock Quatity</p>
+                        <p class="small text-white mb-0">inStock Quantity</p>
                         <span class="h3 mb-0 text-white">
                           <?php
-                          echo abs($instock);
+                          echo abs(@$instock['total_stock']);
                           ?>
                         </span>
                         <!--   <span class="small text-white">+5.5%</span> -->
@@ -519,7 +724,7 @@
                         <span class="h3 mb-0 text-white">
                           <?php
 
-                          echo $total_rate = isset($total_rate) ? abs($total_rate) : "0";
+                          echo $total_rate = isset($total_stock_value) ? abs(@$total_stock_value) : "0";
                           ?>
                         </span>
                         <!--   <span class="small text-white">+5.5%</span> -->
@@ -541,7 +746,8 @@
                       <div class="col pr-0">
                         <p class="small text-white mb-0">Total Revenue</p>
                         <span class="h3 mb-0 text-white">
-                          <?= isset($sales['total_sales']) ? abs($sales['total_sales']) : "0";
+                          <?php
+                          echo $revenue = isset($total_revenue) ? abs($total_revenue) : "0";
                           ?>
                         </span>
                         <!--   <span class="small text-white">+5.5%</span> -->
@@ -563,8 +769,7 @@
                       <div class="col pr-0">
                         <p class="small text-white mb-0">Total Income</p>
                         <span class="h3 mb-0 text-white">
-                          <?= $net_profit;
-                          ?>
+                          <?= number_format($final_net_profit) ?>
                         </span>
                         <!--   <span class="small text-white">+5.5%</span> -->
                       </div>
@@ -605,9 +810,9 @@
                         </span>
                       </div>
                       <div class="col pr-0">
-                        <p class="small text-white mb-0">Profit</p>
+                        <p class="small text-white mb-0">Total Profit</p>
                         <span class="h3 mb-0 text-white">
-                          <?= $net_profit - $total_expense;
+                          <?= $final_net_profit - $total_expense;
                           ?>
                         </span>
                         <!--   <span class="small text-white">+5.5%</span> -->
@@ -715,8 +920,7 @@
                   </thead>
                   <tbody>
                     <?php
-                    $branch_id = isset($_SESSION['branch_id']) ? (int) $_SESSION['branch_id'] : 0;
-                    $branch_filter = $branch_id ? " AND branch_id = $branch_id" : "";
+                    $branch_filter = $selected_branch_id ? " AND branch_id = $selected_branch_id" : "";
 
                     $q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_type='bank' AND customer_status=1 $branch_filter");
                     $c = 0;
@@ -730,6 +934,7 @@
                         <td><?= getcustomerBlance($dbc, $r['customer_id']) ?></td>
                       </tr>
                     <?php endwhile; ?>
+
 
                   </tbody>
                 </table>
