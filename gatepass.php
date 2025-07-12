@@ -116,7 +116,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                         </a>
                                     <?php endif; ?>
                                 </label>
-                                <input type="file" autocomplete="off" class="form-control" name="purchase_file">
+                                <input type="file" autocomplete="off" class="form-control" name="gatepass_file">
                             </div>
                         </div> <!-- end of form-group -->
 

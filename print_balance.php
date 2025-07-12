@@ -74,7 +74,7 @@ input{
                         <div class="address d-none"><?=@$customers['customer_address']?></div>
                     </div>
                     <div class="col invoice-details">
-                        <h1 class="invoice-id">Balance # <?=$customer_blance_remain?></h1>
+                        <h1 class="invoice-id">Balance # <?= @$customer_blance_remain?></h1>
                         <!-- <div class="date">Order Type: Delivery</div>
                         <div class="date">Order Date/Time: <?=$order['timestamp']?></div> -->
                     </div>

@@ -1984,7 +1984,7 @@ if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 	echo json_encode(['msg' => $msg, 'sts' => $sts, 'order_id' => @$last_id, 'type' => "lpo", 'subtype' => $_REQUEST['payment_type']]);
 }
 
-// cuotation
+// ---------------------  quotation ------------------------------------
 
 if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 	$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
