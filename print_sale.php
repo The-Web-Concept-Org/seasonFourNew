@@ -138,7 +138,7 @@
         margin-top: 20px;
     }
 
-    table th {
+    .heder {
         border: 1px dotted darkgreen;
         padding: 6px 8px;
         text-align: center;
@@ -624,9 +624,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 5%;">S.No</th>
-                                <th style="width: 25%;" class="text-left pl-3">Description</th>
-                                <th style="width: 5%;">Qty</th>
+                                <th class="heder" style="width: 5%;">S.No</th>
+                                <th style="width: 25%;" class="text-left pl-3 heder">Description</th>
+                                <th class="heder" style="width: 5%;">Qty</th>
                                 <?php $shouldShow = true; // Default to showing content
                                 
                                     // Hide if it's a gatepass
@@ -645,8 +645,8 @@
                                     }
 
                                     if ($shouldShow) { ?>
-                                    <th style="width: 5%;">Unit Price</th>
-                                    <th style="width: 5%;">Amount</th>
+                                    <th class="heder" style="width: 5%;">Unit Price</th>
+                                    <th class="heder" style="width: 5%;">Amount</th>
                                 <?php } ?>
                             </tr>
                         </thead>
@@ -874,7 +874,7 @@
 
             <?php } ?>
             <!-- <div style="text-align: center; margin-top: 5px;">Software Developed By <br> -->
-                <!-- <strong> The Web Concept (+965 6699 0815) </strong> -->
+            <!-- <strong> The Web Concept (+965 6699 0815) </strong> -->
             <!-- </div> -->
             <!-- <div>
                 <div class="return">
@@ -902,7 +902,7 @@
                     </div>
                     <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
                 </div> -->
-        </div> -->
+        </div>
         </div><!-- end of container -->
     <?php endfor; ?>
 
