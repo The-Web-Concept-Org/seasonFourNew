@@ -1416,3 +1416,22 @@ $(document).ready(function () {
     });
   });
 });
+
+ function getdata(orderId) {
+    const url = 'print_sale.php?type=order&id=' + orderId;
+
+    $('#stock_detail_content').html('<div class="text-center">Loading...</div>');
+
+    $.ajax({
+      url: url,
+      method: 'GET',
+      success: function (data) {
+        // Remove window.print() if present
+        const cleaned = data.replace(/window\.print\s*\(\s*\)\s*;?/gi, '');
+        $('#stock_detail_content').html(cleaned);
+      },
+      error: function () {
+        $('#stock_detail_content').html('<div class="text-danger">Failed to load stock details.</div>');
+      }
+    });
+  }
