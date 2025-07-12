@@ -160,220 +160,221 @@
 
             // From date and to date both present
             if (!empty($_REQUEST['from_date']) && !empty($_REQUEST['to_date'])) {
-
               $from = $_REQUEST['from_date'];
               $to = $_REQUEST['to_date'];
 
               $sales = mysqli_fetch_array(mysqli_query(
                 $dbc,
-                "SELECT COUNT(*) AS total_order, order_id, SUM(grand_total) AS total_sales 
-         FROM orders 
-         WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders"
+                "SELECT COUNT(*) AS total_order, SUM(grand_total) AS total_sales 
+     FROM orders 
+     WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders"
               ));
 
-              $salesGet = mysqli_query(
-                $dbc,
-                "SELECT * FROM orders 
-         WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders"
-              );
-
-              $purchases = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS total_purchase, SUM(grand_total) AS total_amount 
-         FROM purchase 
-         WHERE purchase_date BETWEEN '$from' AND '$to' $branch_filter_purchase"
-              ));
-
-              $purchases_items = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, purchase.*, purchase_item.* 
-         FROM purchase_item 
-         INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
-         WHERE purchase_date BETWEEN '$from' AND '$to' $branch_filter_purchase"
-              ));
-
-              $sales_items = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, orders.*, order_item.* 
-         FROM order_item 
-         INNER JOIN orders ON orders.order_id = order_item.order_id 
-         WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders"
-              ));
-
-              $instock = $purchases_items['total_items'] - $sales_items['total_items'];
-              $total_rate = $purchases_items['total_rate'] - $sales_items['total_rate'];
-
-              $expense = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT SUM(voucher_amount) AS total_amount 
-         FROM vouchers  
-         WHERE voucher_group='expense_voucher' 
-         AND voucher_date BETWEEN '$from' AND '$to' $branch_filter_vouchers"
-              ));
-
-              $cash_in_hand_sale = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS cash_in_hand, SUM(grand_total) AS cash_in_hand_amount 
-         FROM orders 
-         WHERE order_date BETWEEN '$from' AND '$to' 
-         AND payment_type='cash_in_hand' $branch_filter_orders"
-              ));
-
-              $credit_sale = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS credit_sale, SUM(grand_total) AS credit_sale_amount 
-         FROM orders 
-         WHERE order_date BETWEEN '$from' AND '$to' 
-         AND payment_type='credit_sale' $branch_filter_orders"
-              ));
-
-            }
-            // Only from_date present
-            else if (!empty($_REQUEST['from_date']) && empty($_REQUEST['to_date'])) {
-
-              $from = $_REQUEST['from_date'];
-
-              $sales = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS total_order, order_id, SUM(grand_total) AS total_sales 
-         FROM orders 
-         WHERE order_date = '$from' $branch_filter_orders"
-              ));
-
-              $salesGet = mysqli_query(
-                $dbc,
-                "SELECT * FROM orders 
-         WHERE order_date = '$from' $branch_filter_orders"
-              );
-
-              $purchases = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS total_purchase, SUM(grand_total) AS total_amount 
-         FROM purchase 
-         WHERE purchase_date = '$from' $branch_filter_purchase"
-              ));
-
-              $purchases_items = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, purchase.*, purchase_item.* 
-         FROM purchase_item 
-         INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
-         WHERE purchase_date = '$from' $branch_filter_purchase"
-              ));
-
-              $sales_items = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, orders.*, order_item.* 
-         FROM order_item 
-         INNER JOIN orders ON orders.order_id = order_item.order_id 
-         WHERE order_date = '$from' $branch_filter_orders"
-              ));
-
-              $instock = $purchases_items['total_items'] - $sales_items['total_items'];
-              $total_rate = $purchases_items['total_rate'] - $sales_items['total_rate'];
-
-              $expense = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT SUM(voucher_amount) AS total_amount 
-         FROM vouchers  
-         WHERE voucher_group='expense_voucher' 
-         AND voucher_date = '$from' $branch_filter_vouchers"
-              ));
-
-              $cash_in_hand_sale = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS cash_in_hand, SUM(grand_total) AS cash_in_hand_amount 
-         FROM orders 
-         WHERE order_date = '$from' 
-         AND payment_type='cash_in_hand' $branch_filter_orders"
-              ));
-
-              $credit_sale = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS credit_sale, SUM(grand_total) AS credit_sale_amount 
-         FROM orders 
-         WHERE order_date = '$from' 
-         AND payment_type='credit_sale' $branch_filter_orders"
-              ));
-
-            }
-            // No date filters
-            else {
-
-              $sales = mysqli_fetch_array(mysqli_query(
-                $dbc,
-                "SELECT COUNT(*) AS total_order, order_id, SUM(grand_total) AS total_sales 
-                        FROM orders 
-                        WHERE 1 $branch_filter_orders"
-              ));
               $sales_return = mysqli_fetch_array(mysqli_query(
                 $dbc,
-                "SELECT COUNT(*) AS total_order_return, order_id, SUM(grand_total) AS total_sales_return 
-                        FROM orders_return 
-                        WHERE 1 $branch_filter_orders_return"
+                "SELECT COUNT(*) AS total_order_return, SUM(grand_total) AS total_sales_return 
+     FROM orders_return 
+     WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders_return"
               ));
+
               $salesGet = mysqli_query(
                 $dbc,
                 "SELECT * FROM orders 
-                        WHERE 1 $branch_filter_orders"
+     WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders"
               );
 
               $purchases = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS total_purchase, SUM(grand_total) AS total_amount 
-                        FROM purchase 
-                        WHERE 1 $branch_filter_purchase"
+     FROM purchase 
+     WHERE purchase_date BETWEEN '$from' AND '$to' $branch_filter_purchase"
               ));
+
               $purchases_return = mysqli_fetch_array(mysqli_query(
                 $dbc,
-                "SELECT COUNT(*) AS total_purchase_return, SUM(grand_total) AS total_amount_return
-                        FROM purchase_return
-                        WHERE 1 $branch_filter_purchase_return"
+                "SELECT COUNT(*) AS total_purchase_return, SUM(grand_total) AS total_amount_return 
+     FROM purchase_return 
+     WHERE purchase_date BETWEEN '$from' AND '$to' $branch_filter_purchase_return"
               ));
 
               $purchases_items = mysqli_fetch_array(mysqli_query(
                 $dbc,
-                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, purchase.*, purchase_item.* 
-                        FROM purchase_item 
-                        INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
-                        WHERE 1 $branch_filter_purchase"
+                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate 
+     FROM purchase_item 
+     INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
+     WHERE purchase_date BETWEEN '$from' AND '$to' $branch_filter_purchase"
               ));
 
               $sales_items = mysqli_fetch_array(mysqli_query(
                 $dbc,
-                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, orders.*, order_item.* 
-                        FROM order_item 
-                        INNER JOIN orders ON orders.order_id = order_item.order_id 
-                        WHERE 1 $branch_filter_orders"
+                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate 
+     FROM order_item 
+     INNER JOIN orders ON orders.order_id = order_item.order_id 
+     WHERE order_date BETWEEN '$from' AND '$to' $branch_filter_orders"
               ));
 
               $instock = mysqli_fetch_array(mysqli_query(
                 $dbc,
-                "SELECT SUM(quantity_instock) AS total_stock FROM inventory
-                        WHERE 1 AND $branch_filter_inventory"
+                "SELECT SUM(quantity_instock) AS total_stock 
+     FROM inventory 
+     WHERE 1 AND $branch_filter_inventory"
               ));
-              // $instock = $purchases_items['total_items'] - $sales_items['total_items'];
-              // $total_rate = $purchases_items['total_rate'] - $sales_items['total_rate'];
-            
+
               $expense = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT SUM(voucher_amount) AS total_amount 
-                        FROM vouchers  
-                        WHERE voucher_group='expense_voucher' $branch_filter_vouchers"
+     FROM vouchers  
+     WHERE voucher_group='expense_voucher' 
+     AND voucher_date BETWEEN '$from' AND '$to' $branch_filter_vouchers"
               ));
 
               $cash_in_hand_sale = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS cash_in_hand, SUM(grand_total) AS cash_in_hand_amount 
-                        FROM orders 
-                        WHERE payment_type='cash' $branch_filter_orders"
+     FROM orders 
+     WHERE order_date BETWEEN '$from' AND '$to' 
+     AND payment_type='cash' $branch_filter_orders"
               ));
 
               $credit_sale = mysqli_fetch_array(mysqli_query(
                 $dbc,
                 "SELECT COUNT(*) AS credit_sale, SUM(grand_total) AS credit_sale_amount 
-                        FROM orders 
-                        WHERE payment_type='credit' $branch_filter_orders"
+     FROM orders 
+     WHERE order_date BETWEEN '$from' AND '$to' 
+     AND payment_type='credit' $branch_filter_orders"
+              ));
+            }
+
+            // Only from_date present
+            else if (!empty($_REQUEST['from_date']) && empty($_REQUEST['to_date'])) {
+              $from = $_REQUEST['from_date'];
+
+              $sales = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS total_order, SUM(grand_total) AS total_sales 
+     FROM orders 
+     WHERE order_date = '$from' $branch_filter_orders"
+              ));
+
+              $sales_return = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS total_order_return, SUM(grand_total) AS total_sales_return 
+     FROM orders_return 
+     WHERE order_date = '$from' $branch_filter_orders_return"
+              ));
+
+              $salesGet = mysqli_query(
+                $dbc,
+                "SELECT * FROM orders 
+     WHERE order_date = '$from' $branch_filter_orders"
+              );
+
+              $purchases = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS total_purchase, SUM(grand_total) AS total_amount 
+     FROM purchase 
+     WHERE purchase_date = '$from' $branch_filter_purchase"
+              ));
+
+              $purchases_return = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS total_purchase_return, SUM(grand_total) AS total_amount_return 
+     FROM purchase_return 
+     WHERE purchase_date = '$from' $branch_filter_purchase_return"
+              ));
+
+              $purchases_items = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate 
+     FROM purchase_item 
+     INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
+     WHERE purchase_date = '$from' $branch_filter_purchase"
+              ));
+
+              $sales_items = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate 
+     FROM order_item 
+     INNER JOIN orders ON orders.order_id = order_item.order_id 
+     WHERE order_date = '$from' $branch_filter_orders"
+              ));
+
+              $instock = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(quantity_instock) AS total_stock 
+     FROM inventory 
+     WHERE 1 AND $branch_filter_inventory"
+              ));
+
+              $expense = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(voucher_amount) AS total_amount 
+     FROM vouchers  
+     WHERE voucher_group='expense_voucher' 
+     AND voucher_date = '$from' $branch_filter_vouchers"
+              ));
+
+              $cash_in_hand_sale = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS cash_in_hand, SUM(grand_total) AS cash_in_hand_amount 
+     FROM orders 
+     WHERE order_date = '$from' 
+     AND payment_type='cash' $branch_filter_orders"
+              ));
+
+              $credit_sale = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS credit_sale, SUM(grand_total) AS credit_sale_amount 
+     FROM orders 
+     WHERE order_date = '$from' 
+     AND payment_type='credit' $branch_filter_orders"
+              ));
+            }
+
+            // No date filters
+            else {
+
+              $sales = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) AS total_order, order_id, SUM(grand_total) AS total_sales FROM orders WHERE 1 $branch_filter_orders"));
+              $sales_return = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) AS total_order_return, order_id, SUM(grand_total) AS total_sales_return FROM orders_return WHERE 1 $branch_filter_orders_return"));
+              $salesGet = mysqli_query($dbc, "SELECT * FROM orders WHERE 1 $branch_filter_orders");
+
+              $purchases = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) AS total_purchase, SUM(grand_total) AS total_amount FROM purchase WHERE 1 $branch_filter_purchase"));
+              $purchases_return = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) AS total_purchase_return, SUM(grand_total) AS total_amount_return FROM purchase_return WHERE 1 $branch_filter_purchase_return"));
+
+              $purchases_items = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, purchase.*, purchase_item.* 
+                                  FROM purchase_item 
+                                  INNER JOIN purchase ON purchase.purchase_id = purchase_item.purchase_id 
+                                  WHERE 1 $branch_filter_purchase"
+              ));
+
+              $sales_items = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT SUM(quantity) AS total_items, SUM(quantity*rate) AS total_rate, orders.*, order_item.* 
+                              FROM order_item 
+                              INNER JOIN orders ON orders.order_id = order_item.order_id 
+                              WHERE 1 $branch_filter_orders"
+              ));
+
+              $instock = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(quantity_instock) AS total_stock FROM inventory WHERE 1 AND $branch_filter_inventory"));
+              // $instock = $purchases_items['total_items'] - $sales_items['total_items'];
+              // $total_rate = $purchases_items['total_rate'] - $sales_items['total_rate'];
+            
+              $expense = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(voucher_amount) AS total_amount FROM vouchers WHERE voucher_group='expense_voucher' $branch_filter_vouchers"));
+
+              $cash_in_hand_sale = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS cash_in_hand, SUM(grand_total) AS cash_in_hand_amount 
+                                    FROM orders 
+                                    WHERE payment_type='cash' $branch_filter_orders"
+              ));
+
+              $credit_sale = mysqli_fetch_array(mysqli_query(
+                $dbc,
+                "SELECT COUNT(*) AS credit_sale, SUM(grand_total) AS credit_sale_amount 
+                              FROM orders 
+                              WHERE payment_type='credit' $branch_filter_orders"
               ));
             }
             $total_revenue = $sales['total_sales'] - $sales_return['total_sales_return'];
@@ -397,17 +398,9 @@
               $quantity = $inventory['total_instock'];
 
               // Now get the latest purchase rate for this product
-              $rate_query = mysqli_query($dbc, "SELECT rate 
-                                                              FROM purchase_item 
-                                                              WHERE product_id = '$product_id' 
-                                                              AND $branch_filter_inventory 
-                                                              ORDER BY purchase_item_id DESC 
-                                                              LIMIT 1
-                                                          ");
-
+              $rate_query = mysqli_query($dbc, "SELECT rate FROM purchase_item WHERE product_id = '$product_id' AND $branch_filter_inventory ORDER BY purchase_item_id DESC LIMIT 1");
               $rate_row = mysqli_fetch_assoc($rate_query);
               $purchase_rate = $rate_row['rate'] ?? 0;
-
               $total_stock_value += $quantity * $purchase_rate;
             }
 
@@ -911,12 +904,12 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-12" align="center">
-                <table class="table" width="100%" align="center">
+              <div class="table col-sm-12 text-center">
+                <table width="100%">
                   <thead>
-                    <th class="text-dark">Sr No.</th>
-                    <th class="text-dark">Account Details</th>
-                    <th class="text-dark">Balance</th>
+                    <th class="text-dark" width="33.3%">Sr No.</th>
+                    <th class="text-dark" width="33.3%">Account Details</th>
+                    <th class="text-dark" width="33.3%">Balance</th>
                   </thead>
                   <tbody>
                     <?php
@@ -1098,7 +1091,7 @@
     .table {
       font-size: 30px !important;
       text-align: center !important;
-      width: 95% !important;
+      width: 100% !important;
     }
 
   }
