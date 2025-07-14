@@ -99,7 +99,8 @@
 
                     <td class="d-flex">
                       <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
-                        onclick="getdata(<?= $r['order_id'] ?>)" data-toggle="modal" data-target="#view_print_modal">
+                        onclick="getdata(<?= $r['order_id'] ?>, 'order')" data-toggle="modal"
+                        data-target="#view_print_modal">
                         Detail
                       </button>
                       <?php if (@$get_company['sale_interface'] == "barcode") {
@@ -181,5 +182,6 @@
     </div>
   </div>
 </body>
+
 </html>
 <?php include_once 'includes/foot.php'; ?>

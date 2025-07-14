@@ -93,6 +93,10 @@
                     </td>
 
                     <td class="d-flex">
+                      <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
+                        onclick="getdata(<?= $r['order_id'] ?> , 'order_return')" data-toggle="modal" data-target="#view_print_modal">
+                        Detail
+                      </button>
                       <?php if (@$get_company['sale_interface'] == "barcode") {
                         $cash_sale_url = "cash_salebarcode.php";
                         $credit_sale_url = "credit_sale.php";
@@ -144,7 +148,29 @@
 
     </main> <!-- main -->
   </div> <!-- .wrapper -->
+<div class="modal fade" id="view_print_modal" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="defaultModalLabel">Detail</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
 
+        <div class="modal-body">
+          <div id="stock_detail_content">Loading...</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-dark float-right"
+            id="formData_btn">Close</button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

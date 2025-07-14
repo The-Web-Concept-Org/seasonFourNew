@@ -1417,8 +1417,8 @@ $(document).ready(function () {
   });
 });
 
- function getdata(orderId) {
-    const url = 'print_sale.php?type=order&id=' + orderId;
+ function getdata(orderId,type) {
+   const url = 'print_sale.php?type=' + type + '&id=' + orderId;
 
     $('#stock_detail_content').html('<div class="text-center">Loading...</div>');
 

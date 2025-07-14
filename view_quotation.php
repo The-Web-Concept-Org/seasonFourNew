@@ -97,6 +97,10 @@
 
                     </td>
                     <td class="d-flex">
+                      <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
+                        onclick="getdata(<?= $r['quotation_id'] ?> , 'quotation')" data-toggle="modal" data-target="#view_print_modal">
+                        Detail
+                      </button>
                       <?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin" and $r['payment_type'] == "quotation"): ?>
                         <form action="quotation.php" method="POST">
 
@@ -127,7 +131,29 @@
 
     </main> <!-- main -->
   </div> <!-- .wrapper -->
+<div class="modal fade" id="view_print_modal" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="defaultModalLabel">Detail</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
 
+        <div class="modal-body">
+          <div id="stock_detail_content">Loading...</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-dark float-right"
+            id="formData_btn">Close</button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

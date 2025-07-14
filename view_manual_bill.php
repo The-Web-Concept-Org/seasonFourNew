@@ -81,7 +81,7 @@
 
                   <tr>
                     <td><?= $r['order_id'] ?></td>
-                   <td><?= date('Y-m-d', strtotime($r['timestamp'])) ?></td>
+                    <td><?= date('Y-m-d', strtotime($r['timestamp'])) ?></td>
 
                     <td><?= ucfirst($r['customer_name']) ?></td>
                     <td><?= $r['grand_total'] ?></td>
@@ -91,16 +91,22 @@
 
 
                     <td class="d-flex">
+                      <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
+                        onclick="getdata(<?= $r['order_id'] ?> , 'manualbill')" data-toggle="modal" data-target="#view_print_modal">
+                        Detail
+                      </button>
+                       <?php if (@$userPrivileges['nav_edit'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
 
-                      <form action="manual_bill.php" method="POST">
-                        <input type="hidden" name="edit_order_id" value="<?= base64_encode($r['order_id']) ?>">
-                        <button type="submit" class="btn btn-admin btn-sm m-1">Edit</button>
-                      </form>
-
-                      <form class="delete-form" data-id="<?= $r['order_id'] ?>">
-                        <button type="button" class="btn btn-admin btn-sm m-1 delete-btn">Delete</button>
-                      </form>
-
+                        <form action="manual_bill.php" method="POST">
+                          <input type="hidden" name="edit_order_id" value="<?= base64_encode($r['order_id']) ?>">
+                          <button type="submit" class="btn btn-admin btn-sm m-1">Edit</button>
+                        </form>
+                      <?php endif; ?>
+                       <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
+                        <form class="delete-form" data-id="<?= $r['order_id'] ?>">
+                          <button type="button" class="btn btn-admin btn-sm m-1 delete-btn">Delete</button>
+                        </form>
+                      <?php endif; ?>
                       <a target="_blank" href="print_sale.php?type=manualbill&id=<?= $r['order_id'] ?>"
                         class="btn btn-admin2 btn-sm m-1">Print</a>
                     </td>
@@ -114,7 +120,29 @@
 
     </main> <!-- main -->
   </div> <!-- .wrapper -->
+<div class="modal fade" id="view_print_modal" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="defaultModalLabel">Detail</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
 
+        <div class="modal-body">
+          <div id="stock_detail_content">Loading...</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-dark float-right"
+            id="formData_btn">Close</button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
