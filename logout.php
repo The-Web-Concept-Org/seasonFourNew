@@ -1,25 +1,18 @@
-<?php 
+<?php
+session_start();
 
+// Remove all session variables
+session_unset();
 
+// Destroy the session
+session_destroy();
 
-//require_once 'php_action/core.php';
+// Delete the remember_me cookie if exists
+if (isset($_COOKIE['remember_user'])) {
+    setcookie('remember_user', '', time() - 3600, "/"); // expire the cookie
+}
 
-session_start(); 
-
-// remove all session variables
-
-session_unset(); 
-
-
-
-// destroy the session 
-
-session_destroy(); 
-
-
-
+// Redirect to login page
 header('location: index.php');
-
-
-
+exit;
 ?>
