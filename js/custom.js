@@ -1417,21 +1417,48 @@ $(document).ready(function () {
   });
 });
 
- function getdata(orderId,type) {
-   const url = 'print_sale.php?type=' + type + '&id=' + orderId;
+//  function getdata(orderId,type) {
+//    const url = 'print_sale.php?type=' + type + '&id=' + orderId;
 
-    $('#stock_detail_content').html('<div class="text-center">Loading...</div>');
+//     $('#stock_detail_content').html('<div class="text-center">Loading...</div>');
 
-    $.ajax({
-      url: url,
-      method: 'GET',
-      success: function (data) {
-        // Remove window.print() if present
-        const cleaned = data.replace(/window\.print\s*\(\s*\)\s*;?/gi, '');
-        $('#stock_detail_content').html(cleaned);
-      },
-      error: function () {
-        $('#stock_detail_content').html('<div class="text-danger">Failed to load stock details.</div>');
-      }
-    });
-  }
+//     $.ajax({
+//       url: url,
+//       method: 'GET',
+//       success: function (data) {
+//         // Remove window.print() if present
+//         const cleaned = data.replace(/window\.print\s*\(\s*\)\s*;?/gi, '');
+//         $('#stock_detail_content').html(cleaned);
+//       },
+//       error: function () {
+//         $('#stock_detail_content').html('<div class="text-danger">Failed to load stock details.</div>');
+//       }
+//     });
+//   }
+function getdata(orderId, type) {
+  const url = 'print_sale.php?type=' + type + '&id=' + orderId;
+
+  $('#stock_detail_content').html('<div class="text-center">Loading...</div>');
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (data) {
+      // Remove window.print() if present
+      let cleaned = data.replace(/window\.print\s*\(\s*\)\s*;?/gi, '');
+
+      // Load into DOM
+      $('#stock_detail_content').html(cleaned);
+
+      // Remove the print and save as PDF buttons by ID or class
+      $('#stock_detail_content #printBtn').remove();
+      $('#stock_detail_content #saveAsPdfBtn').remove();
+      // If buttons use classes:
+      $('.print-button').remove();
+      $('.save-pdf-button').remove();
+    },
+    error: function () {
+      $('#stock_detail_content').html('<div class="text-danger">Failed to load stock details.</div>');
+    }
+  });
+}

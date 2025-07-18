@@ -213,7 +213,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <input type="text" class="form-control" id="get_product_detail">
               </div> -->
               <div class="col-6 col-sm-1 col-md-1">
-                <label>Final Price</label>
+                <label>Unit Price</label>
                 <input type="number" class="form-control" id="get_product_price">
               </div>
               <div class="col-6 col-sm-2 col-md-1">

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <?php include_once 'includes/head.php';
-
-
 ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
     @page {
         size: A4;
         margin: 10mm;
-        /* Adjust margins as needed */
     }
 
     body {
         margin: 0;
         padding: 0;
         background: white;
+        font-family: 'Roboto', 'Arial', sans-serif;
     }
 
     td {
@@ -22,67 +22,112 @@
     }
 
     .invoice-container {
+        position: relative;
         width: 100%;
-        /* A4 width */
         min-height: 297mm;
-        /* A4 height */
         background: white;
         padding: 10mm;
         box-shadow: none;
+    }
+
+    .company-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10px;
+        background-color: #fff;
+        font-family: Arial, sans-serif;
+    }
+
+    .company-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #006400;
+        margin: 0;
+    }
+
+    .company-sub {
+        font-size: 14px;
+        color: #006400;
+        margin: 5px 0;
+    }
+
+    .contact-info,
+    .contact-info_arabic {
+        font-size: 12px;
+        margin: 2px 0;
+        color: #000;
+    }
+
+    .contact-info i {
+        color: #1a5f3a;
+    }
+
+    .logo {
+        width: 180px;
+        height: 160px;
+        object-fit: contain;
+    }
+
+    .rtl {
+        text-align: right;
+    }
+
+    /* Add perforated edge effect with pseudo-elements */
+    .company-header {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .company-header::before,
+    .company-header::after {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 100%;
+        background: repeating-linear-gradient(90deg,
+                #fff 0,
+                #fff 4px,
+                #000 4px,
+                #000 6px);
+    }
+
+    .company-header::before {
+        left: -10px;
+    }
+
+    .company-header::after {
+        right: -10px;
     }
 
     @media print {
         body {
             margin: 0;
             padding: 0;
+            font-family: 'Roboto', 'Arial', sans-serif;
         }
 
         .invoice-container {
             width: 100%;
-            min-height: 297mm;
-            padding: 10mm;
-            box-shadow: none;
+            margin: 40px auto;
+            background: white;
+            padding: 0 30px;
         }
+
 
         .bg-img img {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
-    }
 
-    .seasonh {
-        font-size: 22px;
-    }
+        .pdf-only-header {
+            display: none;
+        }
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .header p {
-        font-size: 16px;
-    }
-
-    .image {
-        width: 150px;
-        height: 150px;
-    }
-
-    .fright {
-        text-align: end;
-    }
-
-    .heding {
-        color: darkgreen;
-    }
-
-    .heding h2 {
-        font-size: 18px;
-    }
-
-    .heding p {
-        font-size: 16px;
+        #saveAsPdfBtn,
+        #printBtn {
+            display: none !important;
+        }
     }
 
     .invo {
@@ -105,8 +150,6 @@
         margin: 0;
     }
 
-    .invoice-bg {}
-
     .content {
         position: relative;
         width: 100%;
@@ -117,7 +160,6 @@
         display: flex;
         justify-content: center;
         width: 80%;
-        ;
     }
 
     .bg-image {
@@ -153,14 +195,11 @@
     table td {
         text-align: center;
         padding: 5px 0px;
-        /* border-bottom: 1px solid #e9ecef; */
     }
 
     .table-border {
         border: 1px solid #e9ecef;
     }
-
-
 
     table .descri {
         text-align: left;
@@ -172,12 +211,10 @@
     }
 
     .tablefooter {
-        /* border-top: 1px dotted darkgreen; */
         margin-top: 20px;
         font-size: 18px;
         font-weight: bold;
         text-align: center;
-
     }
 
     .netamount {
@@ -216,21 +253,27 @@
         width: 100px;
     }
 
-
-
     p {
         font-size: 16px;
     }
 
-    @media print {
-        @page {
-            margin: 1in;
-            size: auto;
-        }
+    .pdf-only-header {
+        display: none;
+    }
 
-        body {
-            margin: 0;
-        }
+    #saveAsPdfBtn,
+    #printBtn {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .pdf_footer {
+        position: absolute;
+        bottom: 0px;
     }
 </style>
 
@@ -506,216 +549,238 @@
         ?>
 
         <div class="invoice-container">
-            <!-- <div class="header">
-                <div>
-                    <div class="heding">
-                        <h2><span class="seasonh">season</span> FOUR</h2>
-                        <p>A/C & REFRIGERATION CONTRACTING EST</p>
-                    </div>
+            <div class="pdf-only-header">
+                <div class="company-header">
                     <div>
-                        <p>
-                            Farwaniyah Branch Block 4,5t 45-55529970
+                        <h2 class="company-name">Season Four</h2>
+                        <p class="company-sub">A/C & Refrigeration Contracting Est</p>
+                        <p class="contact-info"><i class="fa-solid fa-map-marker-alt"></i> Farwaniyah Branch-Block 4, St 45
+                            -
+                            55529978
                             <i class="fa-brands fa-whatsapp"></i> 66944871
                         </p>
-                        <p>
-                            Shuwaikh Branch Block 3,5t 53-66945212
-                            <i class="fa-brands fa-whatsapp"></i> 99408640
+                        <p class="contact-info"><i class="fa-solid fa-map-marker-alt"></i> Shuwaikh Branch-Block 3, St 53 -
+                            66945212 <i class="fa-brands fa-whatsapp"></i> 99408640</p>
+                        <p class="contact-info"><i class="fa-solid fa-fax"></i> Telefax: 24734306</p>
+                        <p class="contact-info"><i class="fa-solid fa-envelope"></i> season4-kw@hotmail.com</p>
+                        <p class="contact-info"><i class="fa-brands fa-instagram"></i> seasonfourkwt</p>
+                    </div>
+                    <div><img class="logo" src="img/logo/<?= $get_company['logo'] ?>" alt="Logo"></div>
+                    <div class="rtl">
+                        <h2 class="company-name">مؤسسة الفصول الأربعة</h2>
+                        <p class="company-sub">للأجهزه التكييف واللتبريد ومقاولاتها</p>
+                        <p class="contact-info_arabic"> المعرض الفروانية - قطعة ٤ - شارع ٤٥ -
+                            ٦٦٩٤٤٨٧١<i class="fa-brands fa-whatsapp"></i> ٥٥٥٢٩٩٧٨</p>
+                        <p class="contact-info_arabic"> المعرض الشويخ - قطعة ٣ - شارع ٥٣ -
+                            ٩٩٤٢٨٦٤٠ <i class="fa-brands fa-whatsapp"></i> ٦٦٩٤٥٢١٢
                         </p>
-                        <p>Telefex : 24734306</p>
-                        <p><i class="fa-solid fa-envelope"></i> season4-kw@hotmail.com</p>
-                        <p><i class="fa-brands fa-instagram"></i> seasonfourkwt</p>
+                        <p class="contact-info_arabic"> ت: ٢٤٧٦٤٣٠٦ </p>
                     </div>
                 </div>
-                <div class="image"><img class="image" src="img/logo/<?= $get_company['logo'] ?>" alt="" /></div>
-                <div class="fright">
-                    <div class="heding">
-                        <h2>الموسم الرابع</h2>
-                        <p>مؤسسة المقاولات لتكييف الهواء والتبريد</p>
-                    </div>
-                    <div>
-                        <p>
-                            فرع الفروانية قطعة 4.5 45-55529970
-                            <i class="fa-brands fa-whatsapp"></i> 66944871
-                        </p>
-                        <p>
-                            فرع الشويخ قطعة 3.5 53-66945212
-                            <i class="fa-brands fa-whatsapp"></i> 99408640
-                        </p>
-                        <p>تليفليكس : 24734306</p>
-                        <p><i class="fa-solid fa-envelope"></i> season4-kw@hotmail.com</p>
-                        <p><i class="fa-brands fa-instagram"></i> seasonfourkwt</p>
-                    </div>
+                <div class="label">
+                    <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
+                    <p>قطع غيار ، غسالات - ثلاجات - مكيفا وجميع انواع تبرید و تکییف</p>
                 </div>
-            </div> -->
-
-            <!-- <div class="label">
-                <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
-                <p>جميع أنواع قطع غيار المكيفات والثلاجات والغسالات</p>
-            </div> -->
+            </div>
             <!-- <div style="margin-top: 226.772px;"></div> -->
             <div class="invo">
                 <h2 class="text-uppercase"><?= $invoice_name ?></h2>
-            </div>
+                <!-- Manual PDF Button -->
+                <div style="margin-top: 20px; text-align: end;">
+                    <button id="saveAsPdfBtn">Save as PDF</button>
+                    <button onclick="window.print();" id="printBtn">Print</button>
+                </div>
 
-            <div class="invoice-bg">
-                <!-- <div class="bg-img">
+                <div class="invoice-bg">
+                    <!-- <div class="bg-img">
                     <img class="bg-image" src="img/logo/<?= $get_company['logo'] ?>" alt="" />
                 </div> -->
-                <div class="content">
-                    <div class="invoice-details">
-                        <div class="m-0 p-0">
-                            <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id ?></p>
+                    <div class="content">
+                        <div class="invoice-details">
+                            <div class="m-0 p-0">
+                                <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id ?></p>
+                            </div>
+
+
+                            <div class="m-0 p-0">
+                                <p><strong>DATE:</strong> <?= $date ?> </p>
+                            </div>
                         </div>
+                        <div class="invoice-details">
+                            <div class="m-0 p-0">
+                                <?php
+                                if ($_REQUEST['type'] == 'gatepass') {
+                                    $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
+                                    $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
+                                    ?>
+                                    <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
+                                <?php } else { ?>
 
+                                    <p class="text-uppercase"><strong>Customer Name :</strong>
+                                        <?= @$order['client_name'] ?: @$order['customer_name'] ?>
+                                    </p>
 
-                        <div class="m-0 p-0">
-                            <p><strong>DATE:</strong> <?= $date ?> </p>
-                        </div>
-                    </div>
-                    <div class="invoice-details">
-                        <div class="m-0 p-0">
-                            <?php
-                            if ($_REQUEST['type'] == 'gatepass') {
-                                $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
-                                $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
-                                ?>
-                                <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
-                            <?php } else { ?>
+                                <?php } ?>
 
-                                <p class="text-uppercase"><strong>Customer Name :</strong>
-                                    <?= @$order['client_name'] ?: @$order['customer_name'] ?>
-                                </p>
-
-                            <?php } ?>
-
-                            <!-- <p><strong>DATE:</strong> <?= $date ?> </p> -->
-                            <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?>
+                                <!-- <p><strong>DATE:</strong> <?= $date ?> </p> -->
+                                <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?>
                             </p> -->
-                        </div>
-                        <div class="m-0 p-0">
-                            <?php
-                            if ($_REQUEST['type'] == 'gatepass') {
-                                $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
-                                $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
-                                ?>
-                                <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
-                            <?php } else { ?>
-                                <div>
-                                    <?php if ($_REQUEST['type'] == 'gatepass') {
-                                        $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
-                                        $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
-                                        ?>
-                                    <?php } else {
-                                        $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
-                                        if (isset($branch['branch_name'])) {
+                            </div>
+                            <div class="m-0 p-0">
+                                <?php
+                                if ($_REQUEST['type'] == 'gatepass') {
+                                    $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
+                                    $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
+                                    ?>
+                                    <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
+                                <?php } else { ?>
+                                    <div>
+                                        <?php if ($_REQUEST['type'] == 'gatepass') {
+                                            $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
+                                            $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
                                             ?>
-                                            <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
-                                        <?php }
-                                    } ?>
-                                </div>
-                            <?php } ?>
+                                        <?php } else {
+                                            $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
+                                            if (isset($branch['branch_name'])) {
+                                                ?>
+                                                <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
+                                            <?php }
+                                        } ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+
+
                         </div>
+                        <div class="invoice-details">
 
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="heder" style="width: 5%;">S.No</th>
+                                    <th style="width: 25%;" class="text-left pl-3 heder">Description</th>
+                                    <th class="heder" style="width: 5%;">Qty</th>
+                                    <?php $shouldShow = true; // Default to showing content
+                                    
+                                        // Hide if it's a gatepass
+                                        if (($_REQUEST['type'] ?? '') === 'gatepass') {
+                                            $shouldShow = false;
+                                        }
 
-                    </div>
-                    <div class="invoice-details">
+                                        // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
+                                        if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
+                                            $shouldShow = false;
+                                        }
 
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="heder" style="width: 5%;">S.No</th>
-                                <th style="width: 25%;" class="text-left pl-3 heder">Description</th>
-                                <th class="heder" style="width: 5%;">Qty</th>
-                                <?php $shouldShow = true; // Default to showing content
-                                
-                                    // Hide if it's a gatepass
-                                    if (($_REQUEST['type'] ?? '') === 'gatepass') {
-                                        $shouldShow = false;
-                                    }
-
-                                    // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
-                                    if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
-                                        $shouldShow = false;
-                                    }
-
-                                    // Special case: Show if it's manualbill AND NOT delivery_note
-                                    if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
-                                        $shouldShow = true;
-                                    }
-
-                                    if ($shouldShow) { ?>
-                                    <th class="heder" style="width: 5%;">Unit Price</th>
-                                    <th class="heder" style="width: 5%;">Amount</th>
-                                <?php } ?>
-                            </tr>
-                        </thead>
-                        <?php if (!empty($order['product_details'])): ?>
-                            <!-- Show JSON-decoded product_details -->
-                            <tbody>
-                                <?php
-                                $json_items = json_decode($order['product_details'], true);
-                                $jc = 0;
-                                foreach ($json_items as $item) {
-                                    $jc++;
-                                    ?>
-                                    <tr class="border">
-                                        <td class="text-center border"><?= $jc ?></td>
-                                        <td class="text-left border pl-3"><?= strtoupper($item['product_name']) ?></td>
-                                        <td class="text-center border"><?= $item['quantity'] ?></td>
-                                        <?php
                                         // Special case: Show if it's manualbill AND NOT delivery_note
-                                        if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note')
-                                        : ?>
-                                            <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
-                                            <td class="text-center border">
-                                                <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
-                                            </td>
-                                        <?php endif; ?>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
+                                        if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
+                                            $shouldShow = true;
+                                        }
 
-                        <?php elseif (!empty($order_item) && gettype($order_item) === 'object'): ?>
-                            <!-- Show MySQL Fetched Products -->
-                            <tbody>
-                                <?php
-                                $c = 0;
-                                $totalAm = 0;
-                                $totalQTY = 0;
-                                while ($r = mysqli_fetch_assoc($order_item)) {
-                                    $c++;
-                                    $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
-                                    $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-                                    ?>
-                                    <tr class="w-100">
-                                        <td class="text-center border"><?= $c ?></td>
-                                        <td class="text-left border pl-3">
-                                            <?php if (!empty($cat['categories_name'])): ?>
-                                                <?= strtoupper($cat['categories_name']) ?> |
-                                            <?php endif; ?>
-                                            <?= strtoupper($r['product_name']) ?>
-                                            <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_name']) !== 'china'): ?>
-                                                | <?= strtoupper($brand['brand_name']) ?>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-center border"><?= $r['quantity'] ?></td>
-                                        <?php if (@$_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)): ?>
-                                            <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
-                                            <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
-                                            </td>
-                                        <?php endif; ?>
-                                    </tr>
+                                        if ($shouldShow) { ?>
+                                        <th class="heder" style="width: 5%;">Unit Price</th>
+                                        <th class="heder" style="width: 5%;">Amount</th>
+                                    <?php } ?>
+                                </tr>
+                            </thead>
+                            <?php if (!empty($order['product_details'])): ?>
+                                <!-- Show JSON-decoded product_details -->
+                                <tbody>
                                     <?php
-                                    $totalQTY += $r['quantity'];
-                                    $totalAm += $r['rate'] * $r['quantity'];
-                                } ?>
-                            </tbody>
-                        <?php endif; ?>
+                                    $json_items = json_decode($order['product_details'], true);
+                                    $jc = 0;
+                                    foreach ($json_items as $item) {
+                                        $jc++;
+                                        ?>
+                                        <tr class="border">
+                                            <td class="text-center border"><?= $jc ?></td>
+                                            <td class="text-left border pl-3"><?= strtoupper($item['product_name']) ?></td>
+                                            <td class="text-center border"><?= $item['quantity'] ?></td>
+                                            <?php
+                                            // Special case: Show if it's manualbill AND NOT delivery_note
+                                            if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note')
+                                            : ?>
+                                                <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
+                                                <td class="text-center border">
+                                                    <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
+                                                </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
 
-                        <tfoot>
-                            <tr class="tablefooter" style="font-size: 14px;">
-                                <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span></td>
+                            <?php elseif (!empty($order_item) && gettype($order_item) === 'object'): ?>
+                                <!-- Show MySQL Fetched Products -->
+                                <tbody>
+                                    <?php
+                                    $c = 0;
+                                    $totalAm = 0;
+                                    $totalQTY = 0;
+                                    while ($r = mysqli_fetch_assoc($order_item)) {
+                                        $c++;
+                                        $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
+                                        $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
+                                        ?>
+                                        <tr class="w-100">
+                                            <td class="text-center border"><?= $c ?></td>
+                                            <td class="text-left border pl-3">
+                                                <?php if (!empty($cat['categories_name'])): ?>
+                                                    <?= strtoupper($cat['categories_name']) ?> |
+                                                <?php endif; ?>
+                                                <?= strtoupper($r['product_name']) ?>
+                                                <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_name']) !== 'china'): ?>
+                                                    | <?= strtoupper($brand['brand_name']) ?>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center border"><?= $r['quantity'] ?></td>
+                                            <?php if (@$_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)): ?>
+                                                <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
+                                                <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
+                                                </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                        <?php
+                                        $totalQTY += $r['quantity'];
+                                        $totalAm += $r['rate'] * $r['quantity'];
+                                    } ?>
+                                </tbody>
+                            <?php endif; ?>
+
+                            <tfoot>
+                                <tr class="tablefooter" style="font-size: 14px;">
+                                    <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span>
+                                    </td>
+
+                                    <?php $shouldShow = true; // Default to showing content
+                                    
+                                        // Hide if it's a gatepass
+                                        if (($_REQUEST['type'] ?? '') === 'gatepass') {
+                                            $shouldShow = false;
+                                        }
+
+                                        // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
+                                        if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
+                                            $shouldShow = false;
+                                        }
+
+                                        // Special case: Show if it's manualbill AND NOT delivery_note
+                                        if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
+                                            $shouldShow = true;
+                                        }
+
+                                        if ($shouldShow): ?>
+                                        <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
+                                            <td class="border">Total Amount:</td>
+                                            <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
+                                        </tr>
+                                        <tr class="tablefooter" style="font-size: 14px;">
+                                            <td colspan="3"></td>
+                                            <td class="border">Discount:</td>
+                                            <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
+                                        </tr>
+                                    <?php endif; ?>
+                                <?php endif; ?>
 
                                 <?php $shouldShow = true; // Default to showing content
                                 
@@ -735,182 +800,194 @@
                                     }
 
                                     if ($shouldShow): ?>
-                                    <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
-                                        <td class="border">Total Amount:</td>
-                                        <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
-                                    </tr>
-                                    <tr class="tablefooter" style="font-size: 14px;">
-                                        <td colspan="3"></td>
-                                        <td class="border">Discount:</td>
-                                        <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
-                                    </tr>
-                                <?php endif; ?>
-                            <?php endif; ?>
-
-                            <?php $shouldShow = true; // Default to showing content
-                            
-                                // Hide if it's a gatepass
-                                if (($_REQUEST['type'] ?? '') === 'gatepass') {
-                                    $shouldShow = false;
-                                }
-
-                                // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
-                                if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
-                                    $shouldShow = false;
-                                }
-
-                                // Special case: Show if it's manualbill AND NOT delivery_note
-                                if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
-                                    $shouldShow = true;
-                                }
-
-                                if ($shouldShow): ?>
-                                <tr class="tablefooter" style="font-size: 14px; border: none !important;">
-                                    <td colspan="3" class="text-left border-none"><?= amountToWordsKD($order['grand_total']) ?>
-                                        ONLY</td>
-                                    <td class="text-sm border">Net Amount:</td>
-                                    <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
-                                </tr>
-                            <?php endif; ?>
-
-                            <?php if (
-                                $_REQUEST['type'] !== 'lpo' &&
-                                $_REQUEST['type'] !== 'quotation' &&
-                                $_REQUEST['type'] !== 'gatepass' &&
-                                ($_REQUEST['type'] !== 'manualbill' || $order['type'] === 'Sale_Invoice')
-                            ): ?>
-                                <?php if ($order['grand_total'] !== ""): ?>
-                                    <tr class="tablefooter" style="font-size: 14px;">
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td class="text-sm border">Paid:</td>
-                                        <?php if ($_REQUEST['type'] == "manualbill"): ?>
-                                            <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
-                                        <?php else: ?>
-                                            <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
-                                        <?php endif; ?>
-                                    </tr>
-                                    <tr class="tablefooter" style="font-size: 14px;">
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td class="text-sm border">Remaining:</td>
-                                        <td class="border">
-                                            <?php if (!empty($order['product_details'])): ?>
-                                                <?= formatAmountWithoutKD(0) ?>
-                                            <?php else: ?>
-                                                <?= formatAmountWithoutKD($order['due']) ?>
-                                            <?php endif; ?>
+                                    <tr class="tablefooter" style="font-size: 14px; border: none !important;">
+                                        <td colspan="3" class="text-left border-none">
+                                            <?= amountToWordsKD($order['grand_total']) ?>
+                                            ONLY
                                         </td>
+                                        <td class="text-sm border">Net Amount:</td>
+                                        <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
                                     </tr>
                                 <?php endif; ?>
-                            <?php endif; ?>
-                        </tfoot>
+
+                                <?php if (
+                                    $_REQUEST['type'] !== 'lpo' &&
+                                    $_REQUEST['type'] !== 'quotation' &&
+                                    $_REQUEST['type'] !== 'gatepass' &&
+                                    ($_REQUEST['type'] !== 'manualbill' || $order['type'] === 'Sale_Invoice')
+                                ): ?>
+                                    <?php if ($order['grand_total'] !== ""): ?>
+                                        <tr class="tablefooter" style="font-size: 14px;">
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-sm border">Paid:</td>
+                                            <?php if ($_REQUEST['type'] == "manualbill"): ?>
+                                                <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
+                                            <?php else: ?>
+                                                <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
+                                            <?php endif; ?>
+                                        </tr>
+                                        <tr class="tablefooter" style="font-size: 14px;">
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-sm border">Remaining:</td>
+                                            <td class="border">
+                                                <?php if (!empty($order['product_details'])): ?>
+                                                    <?= formatAmountWithoutKD(0) ?>
+                                                <?php else: ?>
+                                                    <?= formatAmountWithoutKD($order['due']) ?>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </tfoot>
 
 
-                    </table>
-                </div>
-            </div>
-            <?php
-            if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')) { ?>
-                <div class="pt-5 mt-3 mb-5">
-                    <div class="row">
-                        <div class="col-2">
-
-                            <p><strong>Payment Mode:</strong> </p>
-                        </div>
-                        <div class="col-1">
-                            <p>______________________ </p>
-                        </div>
-                        <div class="col-9"></div>
+                        </table>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-2">
+                </div>
+                <?php
+                if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')) { ?>
+                    <div class="pt-5 mt-3 mb-5">
+                        <div class="row">
+                            <div class="col-2">
 
-                            <p><strong>Price Validity:</strong> </p>
+                                <p><strong>Payment Mode:</strong> </p>
+                            </div>
+                            <div class="col-1">
+                                <p>______________________ </p>
+                            </div>
+                            <div class="col-9"></div>
                         </div>
-                        <div class="col-1">
-                            <p>______________________ </p>
-                        </div>
-                        <div class="col-9 w-100 ">
-                            <div class="row w-100 text-right ml-auto mr-3">
-                                <div class="col-12 text-right d-flex justify-content-end">
-                                    <p><strong>Prepared By:</strong> </p>
-                                    <p class="text-capitalize pr-">
-                                        <?php
-                                        $user = fetchRecord($dbc, "users", "user_id", $_SESSION['user_id']);
-                                        if (isset($user['fullname'])) {
-                                            echo $user['fullname'];
-                                        } else {
-                                            echo "______________________";
-                                        }
-                                        ?>
-                                    </p>
+                        <div class="row mt-3">
+                            <div class="col-2">
+
+                                <p><strong>Price Validity:</strong> </p>
+                            </div>
+                            <div class="col-1">
+                                <p>______________________ </p>
+                            </div>
+                            <div class="col-9 w-100 ">
+                                <div class="row w-100 text-right ml-auto mr-3">
+                                    <div class="col-12 text-right d-flex justify-content-end">
+                                        <p><strong>Prepared By:</strong> </p>
+                                        <p class="text-capitalize pr-">
+                                            <?php
+                                            $user = fetchRecord($dbc, "users", "user_id", $_SESSION['user_id']);
+                                            if (isset($user['fullname'])) {
+                                                echo $user['fullname'];
+                                            } else {
+                                                echo "______________________";
+                                            }
+                                            ?>
+                                        </p>
+
+                                    </div>
 
                                 </div>
+                            </div>
+                        </div>
 
+
+                    </div>
+                <?php } else { ?>
+
+                    <div class="row mt-5 pt-5 m-0 pl-5">
+                        <div class="col-12 d-flex justify-content-end align-items-center">
+                            <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
+                            <div style="white-space: nowrap;">
+                                <?php
+                                $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+                                $user = fetchRecord($dbc, "users", "user_id", $userId);
+                                $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
+                                ?>
+                                <span><?= $fullName ?></span>
                             </div>
                         </div>
                     </div>
 
+                <?php } ?>
 
-                </div>
-            <?php } else { ?>
+                <div class="pdf_footer">
+                    <div class="pdf-only-header ">
+                        <div class="return">
+                            <p>
+                                Goods can be returned within 14 days original packaging & Invoice
+                            </p>
+                            <p>يمكن إرجاع البضائع فصول ١٤ يوما مع العبوة الأصلية والفاتورة</p>
+                        </div>
 
-                <div class="row mt-5 pt-5 m-0 pl-5">
-                    <div class="col-12 d-flex justify-content-end align-items-center">
-                        <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
-                        <div style="white-space: nowrap;">
-                            <?php
-                            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-                            $user = fetchRecord($dbc, "users", "user_id", $userId);
-                            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
-                            ?>
-                            <span><?= $fullName ?></span>
+                        <div class="footer">
+                            <div>
+                                <img class="qr" src="img/logo/frame.svg" alt="" />
+                            </div>
+                            <div class="centerdiv text-center">
+                                <p>
+                                    "Please issue The cheque In the name of "Season Four Electronic &
+                                    Repairing"
+                                </p>
+                                <p>
+                                    "يرجى إصدار الشيك باسم "مؤسسة فصول الاربعة للأجهزة الكهربائية والالكترونية وتصليحها"</p>
+                                <div class="center">
+                                    <div><span>Receiver's Sign </span><span>توقيع المستلم</span></div>
+                                    <div><span>Salesman's Sign </span><span>توقيع البائع</span></div>
+                                </div>
+                            </div>
+                            <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
                         </div>
                     </div>
                 </div>
-
-            <?php } ?>
-            <!-- <div style="text-align: center; margin-top: 5px;">Software Developed By <br> -->
-            <!-- <strong> The Web Concept (+965 6699 0815) </strong> -->
-            <!-- </div> -->
-            <!-- <div>
-                <div class="return">
-                    <p>
-                        Goods can be returned within 14 days original packaging & Invoice
-                    </p>
-                    <p>يمكن إرجاع البضائع خلال 14 يومًا مع العبوة الأصلية والفاتورة</p>
-                </div>
-
-                <!-- <div class="footer">
-                    <div>
-                        <img class="qr" src="img/logo/frame.svg" alt="" />
-                    </div>
-                    <div class="centerdiv text-center">
-                        <p>
-                            Please issue The cheque In the name of "Season Four Electronic &
-                            Repairing"
-                        </p>
-                        <p>
-                            "يرجى إصدار الشيك باسم "مؤسسة فصول الاربعة للاجهزة الكهربائية والالكترونية وتصليحها""</p>
-                        <div class="center">
-                            <div><span>Receiver's Sign </span><span> علامة المستقبل</span></div>
-                            <div><span>Salesman's Sign </span><span> علامة البائع</span></div>
-                        </div>
-                    </div>
-                    <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
-                </div> -->
-        </div>
-        </div><!-- end of container -->
-    <?php endfor; ?>
+            </div><!-- end of container -->
+        <?php endfor; ?>
 
 
 </body>
 
 </html>
 <script type="text/javascript">
-    window.print();
-    //   window.close();
+    // Check if the URL contains ?pdf=true
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPdf = urlParams.get('pdf') === 'true';
+    console.log('PDF mode:', isPdf); // Debug: Check if pdf=true is detected
+
+    // Function to handle PDF generation
+    function generatePdf() {
+        const headers = document.querySelectorAll('.pdf-only-header');
+        if (headers.length > 0) {
+            headers.forEach(header => {
+                header.style.display = 'block';
+            });
+            console.log('Headers made visible for PDF'); // Debug: Confirm header visibility
+            // Delay to ensure DOM update is rendered
+            setTimeout(() => {
+                window.print();
+                // Hide headers after printing to reset state
+                setTimeout(() => {
+                    headers.forEach(header => {
+                        header.style.display = 'none';
+                    });
+                }, 100);
+            }, 1000); // Increased delay to 1000ms for reliability
+        } else {
+            console.error('Header elements not found');
+        }
+    }
+
+    // Automatic PDF generation if ?pdf=true
+    if (isPdf) {
+        generatePdf();
+    }
+
+    // Show manual button and handle click for fallback
+    const saveAsPdfBtn = document.getElementById('saveAsPdfBtn');
+    if (saveAsPdfBtn) {
+        saveAsPdfBtn.addEventListener('click', () => {
+            // Append ?pdf=true to URL and trigger PDF generation
+            window.history.pushState({}, document.title, window.location.pathname + '?pdf=true');
+            generatePdf();
+        });
+    }
 </script>

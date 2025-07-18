@@ -70,7 +70,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                             <!-- From Branch -->
                             <div class="col-sm-2">
                                 <label for="from_branch" class="control-label">From Branch</label>
-                                <select class="form-control searchableSelect" name="from_branch" id="branch_id"
+                                <!-- <select class="form-control searchableSelect" name="from_branch" id="branch_id"
                                     required>
                                     <option selected disabled value="">Select Branch</option>
                                     <?php
@@ -80,7 +80,30 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                         echo '<option ' . $selected . ' value="' . htmlspecialchars($row['branch_id']) . '">' . htmlspecialchars($row['branch_name']) . '</option>';
                                     }
                                     ?>
+                                </select> -->
+                                <select class="form-control searchableSelect" name="from_branch" id="branch_id"
+                                    required>
+                                    <option selected disabled value="">Select Branch</option>
+                                    <?php
+                                    $userRole = $_SESSION['user_role'];
+                                    $userBranchId = $_SESSION['branch_id'];
+
+                                    // If admin, show all branches
+                                    if ($userRole === 'admin') {
+                                        $branchQuery = "SELECT * FROM branch WHERE branch_status = 1";
+                                    } else {
+                                        // Non-admin users: show only their own branch
+                                        $branchQuery = "SELECT * FROM branch WHERE branch_status = 1 AND branch_id = " . $userBranchId;
+                                    }
+
+                                    $branch = mysqli_query($dbc, $branchQuery);
+                                    while ($row = mysqli_fetch_array($branch)) {
+                                        $selected = ($fetchGatepass['from_branch'] == $row['branch_id']) ? "selected" : "";
+                                        echo '<option ' . $selected . ' value="' . htmlspecialchars($row['branch_id']) . '">' . htmlspecialchars($row['branch_name']) . '</option>';
+                                    }
+                                    ?>
                                 </select>
+
                             </div>
 
                             <!-- To Branch -->
@@ -89,13 +112,24 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                 <select class="form-control searchableSelect" name="to_branch" id="to_branch" required>
                                     <option selected disabled value="">Select Branch</option>
                                     <?php
-                                    $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
+                                    $userRole = $_SESSION['user_role'];     
+                                    $userBranchId = $_SESSION['branch_id']; 
+                                    
+                                    // Admins see all branches; others see all EXCEPT their own
+                                    if ($userRole === 'admin') {
+                                        $branchQuery = "SELECT * FROM branch WHERE branch_status = 1";
+                                    } else {
+                                        $branchQuery = "SELECT * FROM branch WHERE branch_status = 1 AND branch_id != " . $userBranchId;
+                                    }
+
+                                    $branch = mysqli_query($dbc, $branchQuery);
                                     while ($row = mysqli_fetch_array($branch)) {
                                         $selected = ($fetchGatepass['to_branch'] == $row['branch_id']) ? "selected" : "";
                                         echo '<option ' . $selected . ' value="' . htmlspecialchars($row['branch_id']) . '">' . htmlspecialchars($row['branch_name']) . '</option>';
                                     }
                                     ?>
                                 </select>
+
                             </div>
 
                             <!-- Narration -->
