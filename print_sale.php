@@ -101,6 +101,7 @@
 
     @media print {
         body {
+            position: relative;
             margin: 0;
             padding: 0;
             font-family: 'Roboto', 'Arial', sans-serif;
@@ -130,15 +131,13 @@
 
         .pdf_footer {
             position: absolute;
-            bottom: 0px;
-            margin-bottom: 5%;
-            margin-left: 40px;
+            margin-left: 50px;
         }
     }
 
     .invo {
         text-align: center;
-
+        /* margin-bottom: 20% */
     }
 
     .label {
@@ -235,7 +234,7 @@
         font-size: 16px;
         font-weight: bold;
         border-bottom: 3px solid black;
-        margin-top: 200px;
+        /* margin-top: 200px; */
     }
 
     .footer {
@@ -913,35 +912,37 @@
 
                 <?php } ?>
 
-                <div class="pdf_footer">
-                    <div class="pdf-only-header ">
-                        <div class="return">
-                            <p>
-                                Goods can be returned within 14 days original packaging & Invoice
-                            </p>
-                            <p>يمكن إرجاع البضائع فصول ١٤ يوما مع العبوة الأصلية والفاتورة</p>
-                        </div>
-                        <div class="footer">
-                            <div>
-                                <img class="qr" src="img/logo/frame.svg" alt="" />
-                            </div>
-                            <div class="centerdiv text-center">
-                                <p>
-                                    "Please issue The cheque In the name of "Season Four Electronic &
-                                    Repairing"
-                                </p>
-                                <p>
-                                    "يرجى إصدار الشيك باسم "مؤسسة فصول الاربعة للأجهزة الكهربائية والالكترونية وتصليحها"</p>
-                                <div class="center">
-                                    <div><span>Receiver's Sign </span><span>توقيع المستلم</span></div>
-                                    <div><span>Salesman's Sign </span><span>توقيع البائع</span></div>
-                                </div>
-                            </div>
-                            <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
+
+            </div><!-- end of container -->
+
+        </div>
+        <div class="pdf_footer">
+            <div class="pdf-only-header ">
+                <div class="return">
+                    <p>
+                        Goods can be returned within 14 days original packaging & Invoice
+                    </p>
+                    <p>يمكن إرجاع البضائع فصول ١٤ يوما مع العبوة الأصلية والفاتورة</p>
+                </div>
+                <div class="footer">
+                    <div>
+                        <img class="qr" src="img/logo/frame.svg" alt="" />
+                    </div>
+                    <div class="centerdiv text-center">
+                        <p>
+                            "Please issue The cheque In the name of "Season Four Electronic &
+                            Repairing"
+                        </p>
+                        <p>
+                            "يرجى إصدار الشيك باسم "مؤسسة فصول الاربعة للأجهزة الكهربائية والالكترونية وتصليحها"</p>
+                        <div class="center">
+                            <div><span>Receiver's Sign </span><span>توقيع المستلم</span></div>
+                            <div><span>Salesman's Sign </span><span>توقيع البائع</span></div>
                         </div>
                     </div>
+                    <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
                 </div>
-            </div><!-- end of container -->
+            </div>
         </div>
     <?php endfor; ?>
 
