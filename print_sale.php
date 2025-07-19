@@ -22,7 +22,6 @@
     }
 
     .invoice-container {
-        position: relative;
         width: 100%;
         min-height: 297mm;
         background: white;
@@ -128,10 +127,18 @@
         #printBtn {
             display: none !important;
         }
+
+        .pdf_footer {
+            position: absolute;
+            bottom: 0px;
+            margin-bottom: 5%;
+            margin-left: 40px;
+        }
     }
 
     .invo {
         text-align: center;
+
     }
 
     .label {
@@ -269,11 +276,6 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
-    }
-
-    .pdf_footer {
-        position: absolute;
-        bottom: 0px;
     }
 </style>
 
@@ -699,8 +701,8 @@
                                             <td class="text-center border"><?= $item['quantity'] ?></td>
                                             <?php
                                             // Special case: Show if it's manualbill AND NOT delivery_note
-                                            if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note')
-                                            : ?>
+                                            if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note'):
+                                                ?>
                                                 <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
                                                 <td class="text-center border">
                                                     <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
@@ -919,7 +921,6 @@
                             </p>
                             <p>يمكن إرجاع البضائع فصول ١٤ يوما مع العبوة الأصلية والفاتورة</p>
                         </div>
-
                         <div class="footer">
                             <div>
                                 <img class="qr" src="img/logo/frame.svg" alt="" />
@@ -941,7 +942,8 @@
                     </div>
                 </div>
             </div><!-- end of container -->
-        <?php endfor; ?>
+        </div>
+    <?php endfor; ?>
 
 
 </body>
