@@ -106,7 +106,7 @@
 
 		          <div class="form-group"><input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required></div><br>
 
-		          <button class="btn btn-admin2 d-none" type="submit" id="formData1_btn">UPDATE PASSWORD</button>
+		          <button class="btn btn-admin2" type="submit" id="formData1_btn">UPDATE PASSWORD</button>
 	    </form>
 
 	</div>

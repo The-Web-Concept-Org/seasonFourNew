@@ -5,7 +5,7 @@ $branch_id_current = $_SESSION['branch_id'];
 
   $get_company_user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM users WHERE branch_id = '$branch_id_current' AND user_id = '$user_id_current'"));
   $get_company_br = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM branch WHERE branch_id = '$branch_id_current' "));
-  $userPrivileges = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM privileges WHERE user_id = '$user_id_current'"));
+  // $userPrivileges = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM privileges WHERE user_id = '$user_id_current'"));
   
   $UserData = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM users WHERE user_id = '$user_id_current'"));
   $_SESSION['user_role'] = $UserData['user_role'];
