@@ -100,93 +100,74 @@
 </body>
 
 </html>
-<?php include_once 'includes/foot.php';
-if (isset($_REQUEST['save'])) {
+<?php
+include_once 'includes/foot.php';
 
+if (isset($_POST['save'])) {
+    // Decode user ID
+    $new_user_id = base64_decode($_POST['new_user_id']);
+    
+    // Validate user ID
+    if (empty($new_user_id)) {
+        $msg = "Invalid user ID";
+        $sts = "danger";
+    } else {
+        // Log submitted data for debugging
+        error_log("Submitted data: " . print_r($_POST, true));
 
+        // Initialize arrays with defaults
+        $name = isset($_POST['name']) && is_array($_POST['name']) ? $_POST['name'] : [];
+        $url = isset($_POST['url']) && is_array($_POST['url']) ? $_POST['url'] : [];
+        $nav_edit = isset($_POST['nav_edit']) && is_array($_POST['nav_edit']) ? $_POST['nav_edit'] : [];
+        $nav_add = isset($_POST['nav_add']) && is_array($_POST['nav_add']) ? $_POST['nav_add'] : [];
+        $nav_delete = isset($_POST['nav_delete']) && is_array($_POST['nav_delete']) ? $_POST['nav_delete'] : [];
 
+        // Delete existing privileges in a single query
+        $delete_query = "DELETE FROM privileges WHERE user_id = ?";
+        $stmt = $dbc->prepare($delete_query);
+        $stmt->bind_param("s", $new_user_id);
+        $stmt->execute();
+        $stmt->close();
 
+        // Prepare insertion query
+        $insert_query = "INSERT INTO privileges (user_id, nav_id, addby, nav_delete, nav_add, nav_edit, nav_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $dbc->prepare($insert_query);
 
-	$name = $_REQUEST['name'];
+        // Iterate through submitted menu IDs
+        $success = true;
+        foreach ($name as $i => $nav_id) {
+            // Validate nav_id and url
+            if (!empty($nav_id) && isset($url[$i]) && !empty($url[$i])) {
+                $edit = isset($nav_edit[$i]) && $nav_edit[$i] == 1 ? 1 : 0;
+                $add = isset($nav_add[$i]) && $nav_add[$i] == 1 ? 1 : 0;
+                $delete = isset($nav_delete[$i]) && $nav_delete[$i] == 1 ? 1 : 0;
+                $nav_url = $url[$i];
+                $addby = "Added By: admin";
 
+                // Log the data being inserted
+                error_log("Inserting: user_id=$new_user_id, nav_id=$nav_id, edit=$edit, add=$add, delete=$delete, url=$nav_url");
 
+                // Bind and execute
+                $stmt->bind_param("sssssss", $new_user_id, $nav_id, $addby, $delete, $add, $edit, $nav_url);
+                if (!$stmt->execute()) {
+                    $msg = "Error assigning role: " . $stmt->error;
+                    $sts = "danger";
+                    $success = false;
+                    break;
+                }
+            } else {
+                error_log("Skipping invalid entry: nav_id=" . ($nav_id ?? 'null') . ", url=" . ($url[$i] ?? 'null'));
+            }
+        }
+        $stmt->close();
 
-	$now_user_id = base64_decode($_REQUEST['new_user_id']);
-
-	// echo json_encode($_REQUEST['name']);
-
-	// echo json_encode($_REQUEST['url']);
-
-
-
-	$delte = mysqli_query($dbc, "SELECT * FROM privileges WHERE user_id = '$new_user_id'");
-
-	while ($row = mysqli_fetch_assoc($delte)) {
-
-
-
-
-
-		$q = mysqli_query($dbc, "DELETE FROM privileges WHERE user_id = '" . $row['user_id'] . "'");
-
-
-
-
-
-
-
-	}
-
-
-
-
-
-
-
-	for ($i = 0; $i <= count($name); $i++) {
-
-		$nav_edit = @$_REQUEST['nav_edit'][$i];
-		$nav_add = @$_REQUEST['nav_add'][$i];
-		$nav_delete = @$_REQUEST['nav_delete'][$i];
-		$url = @$_REQUEST['url'][$i];
-
-
-		//$FetchURL = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM menus WHERE id ='".$name[$i]."' "));
-
-		if ($name != '') {
-
-
-			$test = mysqli_query($dbc, "INSERT INTO privileges(user_id,nav_id,addby,nav_delete,nav_add,nav_edit,nav_url) VALUES('" . @$new_user_id . "','" . @$name[$i] . "','Added By: admin','$nav_delete','$nav_add','$nav_edit','$url')");
-
-			if ($test) {
-
-
-				$msg = "Role Assigned successfully ";
-
-				$sts = "success";
-
-				redirect("users.php", 1200);
-
-			}
-
-
-
-
-
-		} else {
-
-
-
-		}
-
-	}
-
-
-
+        if ($success) {
+            $msg = "Role assigned successfully";
+            $sts = "success";
+            redirect("users.php", 1200);
+        }
+    }
 }
-
-
-
 ?>
 
 
