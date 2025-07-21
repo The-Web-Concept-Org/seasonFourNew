@@ -223,7 +223,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   </div>
                   <div class="col-sm-2 mt-3 mb-sm-0">
                     <label for="">Sale Rate</label>
-                    <input type="text" class="form-control" id="current_rate" placeholder=" Rate" name="current_rate"
+                    <input type="text" class="form-control" id="" placeholder=" Rate" name="current_rate"
                       required value="<?= @$fetchproduct['current_rate'] ?>">
                   </div>
                   <div class="col-sm-2 mt-3 mb-sm-0">

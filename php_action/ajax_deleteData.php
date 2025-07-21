@@ -209,23 +209,23 @@ if (isset($_REQUEST['delete_bymanually'])) {
 
 			$proQ = mysqli_query($dbc, "SELECT * FROM gatepass_item WHERE gatepass_id='" . $id . "'");
 
-			while ($proR = mysqli_fetch_assoc($proQ)) {
-				$product_id = $proR['product_id'];
-				$quantity = (int) $proR['quantity'];
+			// while ($proR = mysqli_fetch_assoc($proQ)) {
+			// 	$product_id = $proR['product_id'];
+			// 	$quantity = (int) $proR['quantity'];
 
-				$fromStockRes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch'"));
-				$toStockRes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch'"));
+			// 	$fromStockRes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch'"));
+			// 	$toStockRes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch'"));
 
-				$fromQty = isset($fromStockRes['quantity_instock']) ? (int) $fromStockRes['quantity_instock'] : 0;
-				$toQty = isset($toStockRes['quantity_instock']) ? (int) $toStockRes['quantity_instock'] : 0;
+			// 	$fromQty = isset($fromStockRes['quantity_instock']) ? (int) $fromStockRes['quantity_instock'] : 0;
+			// 	$toQty = isset($toStockRes['quantity_instock']) ? (int) $toStockRes['quantity_instock'] : 0;
 
-				$new_fromQty = $fromQty + $quantity;
-				$new_toQty = $toQty - $quantity;
+			// 	$new_fromQty = $fromQty + $quantity;
+			// 	$new_toQty = $toQty - $quantity;
 
-				mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_fromQty' WHERE product_id='$product_id' AND branch_id='$from_branch'");
+			// 	mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_fromQty' WHERE product_id='$product_id' AND branch_id='$from_branch'");
 
-				mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_toQty' WHERE product_id='$product_id' AND branch_id='$to_branch'");
-			}
+			// 	mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_toQty' WHERE product_id='$product_id' AND branch_id='$to_branch'");
+			// }
 		}
 
 		$vouchers = fetchRecord($dbc, 'gatepass', $row, $id);
