@@ -333,7 +333,7 @@ if (!empty($_REQUEST['action']) and $_REQUEST['action'] == "product_module") {
 	$purchase_rate = ($total * (float) @$category_price['category_purchase']) / 54;
 	$purchase_rate = round($purchase_rate);
 
-	$brand_id = $_REQUEST['brand_id'];
+	$brand_id = @$_REQUEST['brand_id'];
 	if (empty($brand_id) && isset($_REQUEST['new_brand_name'])) {
 		$newBrandName = $_REQUEST['new_brand_name'];
 		$newBrandStatus = 1;
@@ -350,7 +350,7 @@ if (!empty($_REQUEST['action']) and $_REQUEST['action'] == "product_module") {
 		}
 	}
 
-	$category_id = $_REQUEST['category_id'];
+	$category_id = @$_REQUEST['category_id'];
 	if (empty($category_id) && isset($_REQUEST['new_category_name'])) {
 		$newCategoryName = $_REQUEST['new_category_name'];
 		$newCategoryStatus = 1;
@@ -3119,6 +3119,7 @@ if (isset($_REQUEST['gatepass'])) {
 			'from_branch' => $_REQUEST['from_branch'],
 			'to_branch' => $_REQUEST['to_branch'],
 			'user_id' => $_SESSION['user_id'],
+			'stock_status' => 'pending',
 		];
 
 		// ---------------------- ADD --------------------------
@@ -3163,19 +3164,19 @@ if (isset($_REQUEST['gatepass'])) {
 					$from_branch = $_REQUEST['from_branch'];
 					$to_branch = $_REQUEST['to_branch'];
 
-					$check_from = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch' ");
-					if (mysqli_num_rows($check_from) > 0) {
-						mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock - $quantity WHERE product_id='$product_id' AND branch_id='$from_branch' ");
-					} else {
-						mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, user_id, quantity_instock) VALUES ('$product_id', '$from_branch','$user_id', -$quantity)");
-					}
+					// $check_from = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$from_branch' ");
+					// if (mysqli_num_rows($check_from) > 0) {
+					// 	mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock - $quantity WHERE product_id='$product_id' AND branch_id='$from_branch' ");
+					// } else {
+					// 	mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, user_id, quantity_instock) VALUES ('$product_id', '$from_branch','$user_id', -$quantity)");
+					// }
 
-					$check_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' ");
-					if (mysqli_num_rows($check_to) > 0) {
-						mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock + $quantity WHERE product_id='$product_id' AND branch_id='$to_branch' ");
-					} else {
-						mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, user_id, quantity_instock) VALUES ('$product_id', '$to_branch','$user_id', $quantity)");
-					}
+					// $check_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' ");
+					// if (mysqli_num_rows($check_to) > 0) {
+					// 	mysqli_query($dbc, "UPDATE inventory SET quantity_instock = quantity_instock + $quantity WHERE product_id='$product_id' AND branch_id='$to_branch' ");
+					// } else {
+					// 	mysqli_query($dbc, "INSERT INTO inventory (product_id, branch_id, user_id, quantity_instock) VALUES ('$product_id', '$to_branch','$user_id', $quantity)");
+					// }
 
 
 					insert_data($dbc, 'gatepass_item', $order_items);
@@ -3225,28 +3226,28 @@ if (isset($_REQUEST['gatepass'])) {
 					}
 				}
 
-				// Rollback old items
-				if ($get_company['stock_manage'] == 1) {
-					$proQ = get($dbc, "gatepass_item WHERE gatepass_id='$last_id'");
-					while ($proR = mysqli_fetch_assoc($proQ)) {
-						$product_id = $proR['product_id'];
-						$qty = $proR['quantity'];
+				// // Rollback old items
+				// if ($get_company['stock_manage'] == 1) {
+				// 	$proQ = get($dbc, "gatepass_item WHERE gatepass_id='$last_id'");
+				// 	while ($proR = mysqli_fetch_assoc($proQ)) {
+				// 		$product_id = $proR['product_id'];
+				// 		$qty = $proR['quantity'];
 
-						$from_branch = $proR['from_branch'];
-						$to_branch = $proR['to_branch'];
-						$user_id = $_SESSION['user_id'];
+				// 		$from_branch = $proR['from_branch'];
+				// 		$to_branch = $proR['to_branch'];
+				// 		$user_id = $_SESSION['user_id'];
 
-						// Revert from_branch
-						$inv_from = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id'  AND branch_id='$from_branch'"));
-						$new_qty = $inv_from['quantity_instock'] + $qty;
-						mysqli_query($dbc, "UPDATE inventory SET quantity_instock= $new_qty WHERE product_id='$product_id' AND branch_id='$from_branch' ");
+				// 		// Revert from_branch
+				// 		$inv_from = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id'  AND branch_id='$from_branch'"));
+				// 		$new_qty = $inv_from['quantity_instock'] + $qty;
+				// 		mysqli_query($dbc, "UPDATE inventory SET quantity_instock= $new_qty WHERE product_id='$product_id' AND branch_id='$from_branch' ");
 
-						// Revert to_branch
-						$inv_to = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' "));
-						$new_qty = $inv_to['quantity_instock'] - $qty;
-						mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$to_branch'");
-					}
-				}
+				// 		// Revert to_branch
+				// 		$inv_to = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='$to_branch' "));
+				// 		$new_qty = $inv_to['quantity_instock'] - $qty;
+				// 		mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='$to_branch'");
+				// 	}
+				// }
 
 				// Delete old items
 				deleteFromTable($dbc, "gatepass_item", "gatepass_id", $last_id);
@@ -3273,31 +3274,31 @@ if (isset($_REQUEST['gatepass'])) {
 					];
 					insert_data($dbc, 'gatepass_item', $order_items);
 
-					if ($get_company['stock_manage'] == 1) {
-						$product_id = $_REQUEST['product_ids'][$x];
-						$user_id = $_SESSION['user_id'];
+					// if ($get_company['stock_manage'] == 1) {
+					// 	$product_id = $_REQUEST['product_ids'][$x];
+					// 	$user_id = $_SESSION['user_id'];
 
-						// Decrease from_branch
-						$inv_from = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='{$_REQUEST['from_branch']}' "));
-						$new_qty = $inv_from['quantity_instock'] - $product_quantites;
-						mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='{$_REQUEST['from_branch']}' ");
+					// 	// Decrease from_branch
+					// 	$inv_from = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT quantity_instock FROM inventory WHERE product_id='$product_id' AND branch_id='{$_REQUEST['from_branch']}' "));
+					// 	$new_qty = $inv_from['quantity_instock'] - $product_quantites;
+					// 	mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='{$_REQUEST['from_branch']}' ");
 
-						// Increase to_branch
-						$inv_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='{$_REQUEST['to_branch']}' ");
-						if (mysqli_num_rows($inv_to) > 0) {
-							$inv_data = mysqli_fetch_assoc($inv_to);
-							$new_qty = $inv_data['quantity_instock'] + $product_quantites;
-							mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='{$_REQUEST['to_branch']}' ");
-						} else {
-							$insert_inventory = [
-								'product_id' => $product_id,
-								'quantity_instock' => $product_quantites,
-								'branch_id' => $_REQUEST['to_branch'],
-								'user_id' => $user_id,
-							];
-							insert_data($dbc, 'inventory', $insert_inventory);
-						}
-					}
+					// 	// Increase to_branch
+					// 	$inv_to = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id='$product_id' AND branch_id='{$_REQUEST['to_branch']}' ");
+					// 	if (mysqli_num_rows($inv_to) > 0) {
+					// 		$inv_data = mysqli_fetch_assoc($inv_to);
+					// 		$new_qty = $inv_data['quantity_instock'] + $product_quantites;
+					// 		mysqli_query($dbc, "UPDATE inventory SET quantity_instock='$new_qty' WHERE product_id='$product_id' AND branch_id='{$_REQUEST['to_branch']}' ");
+					// 	} else {
+					// 		$insert_inventory = [
+					// 			'product_id' => $product_id,
+					// 			'quantity_instock' => $product_quantites,
+					// 			'branch_id' => $_REQUEST['to_branch'],
+					// 			'user_id' => $user_id,
+					// 		];
+					// 		insert_data($dbc, 'inventory', $insert_inventory);
+					// 	}
+					// }
 				}
 				$total_ammount = isset($total_ammount) ? (float) $total_ammount : 0;
 
