@@ -52,6 +52,7 @@ if (!empty($_REQUEST['action']) and $_REQUEST['action'] == "update_profile") {
 		'fullname' => $_REQUEST['user_fullname'],
 		'address' => $_REQUEST['user_address'],
 		'phone' => $_REQUEST['user_phone'],
+		// 'email' => $_REQUEST['user_email'],
 	];
 	if (update_data($dbc, "users", $data_array, "user_id", $_REQUEST['user_id'])) {
 		# code...
