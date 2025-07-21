@@ -133,21 +133,22 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <input type="hidden" id="product_id" name="product_id">
                                 <datalist id="product_list">
                                     <?php
-                                    $result = mysqli_query($dbc, 'SELECT product.*, brands.brand_name, categories.categories_name 
-                                                                  FROM product 
-                                                                  INNER JOIN brands ON product.brand_id = brands.brand_id 
-                                                                  INNER JOIN categories ON product.category_id = categories.categories_id 
-                                                                  WHERE product.status = 1');
+                                    $result = mysqli_query($dbc, "SELECT * FROM product WHERE status=1 ");
                                     while ($row = mysqli_fetch_array($result)) {
+                                        $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
+                                        $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
+
+                                        // Combine product info into value string
+                                        $productLabel = $getCat["categories_name"] . " - " . $row["product_name"] . " - " . @$getBrand["brand_name"];
                                         ?>
-                                        <option
-                                            value="<?= $row['categories_name'] ?>-<?= $row['product_name'] ?>-<?= $row['brand_name'] ?>"
+                                        <option value="<?= htmlspecialchars($productLabel) ?>"
                                             data-id="<?= $row['product_id'] ?>" data-price="<?= $row['current_rate'] ?>"
-                                            data-category="<?= $row['categories_name'] ?>"
-                                            data-brand="<?= $row['brand_name'] ?>">
+                                            data-category="<?= $getCat["categories_name"] ?>"
+                                            data-brand="<?= @$getBrand["brand_name"] ?>">
                                         </option>
                                     <?php } ?>
                                 </datalist>
+
                                 <span class="text-center w-100" id="instockQty"></span>
                             </div>
                             <div class="col-6 col-sm-2 col-md-2">
@@ -199,11 +200,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                 $product_name_html = htmlspecialchars($r['product_name']); // for display
                                                 ?>
                                                 <tr id="product_idN_<?= $unique_id ?>">
-                                                     <input type="hidden" data-price="<?= $r['final_rate'] ?>"
+                                                        <input type="hidden" data-price="<?= $r['final_rate'] ?>"
                                                         data-quantity="<?= $r['quantity'] ?>"
                                                         id="product_ids_<?= $unique_id ?>" class="product_ids"
                                                         name="product_ids[]" value="<?= $r['product_id'] ?>">
-
                                                     <input type="hidden" id="product_quantites_<?= $unique_id ?>"
                                                         name="product_quantites[]" value="<?= $r['quantity'] ?>">
 

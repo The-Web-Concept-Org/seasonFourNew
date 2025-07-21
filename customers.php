@@ -325,6 +325,8 @@ if (@$getCustomer) {
 															<input type="hidden" name="id" value="<?= $r['customer_id'] ?>">
 															<button type="submit" class="btn btn-admin btn-sm">Edit</button>
 														</form>
+														<?php endif ?>
+														<?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
 														<a href="#"
 															onclick="deleteAlert('<?= $r['customer_id'] ?>','customers','customer_id','tableData')"
 															class="btn btn-danger btn-sm ml-1">Delete</a>
