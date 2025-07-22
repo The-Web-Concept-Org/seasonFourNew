@@ -150,15 +150,15 @@ function deleteAlert(id, table, row, reload_type) {
         data: { delete_bymanually: id, table: table, row: row },
         dataType: "json",
         success: function (response) {
-          //console.log(response);
+          console.log(response);
           if (response.sts == "success") {
-            if (reload_type != "pg") {
-              $("#" + reload_type).load(
-                location.href + " #" + reload_type + " > *"
-              );
-            } else {
+            // if (reload_type != "pg") {
+            //   $("#" + reload_type).load(
+            //     location.href + " #" + reload_type + " > *"
+            //   );
+            // } else {
               location.reload();
-            }
+            // }
           }
 
           Swal.fire("Deleted!", response.msg, response.sts);

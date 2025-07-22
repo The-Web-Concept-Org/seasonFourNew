@@ -326,14 +326,14 @@ if (isset($_REQUEST['delete_bymanually'])) {
 		$sts = "error";
 	}
     }else {
-		if (deleteFromTable($dbc, $table, $row, $id)) {
-			$msg = $table . " Has been deleted...";
-			$sts = "success";
-		} else {
-			$msg = mysqli_error($dbc);
-			$sts = "error";
-		}
-	}
+        if (deleteFromTable($dbc, $table, $row, $id)) {
+            $msg = ucfirst($table) . " has been deleted.";
+            $sts = "success";
+        } else {
+            $msg = mysqli_error($dbc);
+            $sts = "error";
+        }
+    }
 
 
 
