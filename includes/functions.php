@@ -1,134 +1,144 @@
-
-
-<?php 
+<?php
 
 //Debug Function 
 
-function debug_mode($array){
+function debug_mode($array)
+{
 
-echo "<pre>";
+  echo "<pre>";
 
-print_r($array);
+  print_r($array);
 
-exit;
+  exit;
 
 }
 
 ?>
 
- <?php function getYesNo($data){
+<?php function getYesNo($data)
+{
 
-  return ($data==1)?'Yes':'No';
-
- } ?>
-
-  
-
-<?php function getEnDis($data){
-
-  return ($data==1)?'<span class="text-success">Enabled</span>':'<span class="text-danger">Disabled</span>';
+  return ($data == 1) ? 'Yes' : 'No';
 
 } ?>
 
-<?php function isActive($data){
 
-  return ($data==1)?'<span class="label label-success">Activate</span>':'<span class="label label-danger">Deactivated</span>';
+
+<?php function getEnDis($data)
+{
+
+  return ($data == 1) ? '<span class="text-success">Enabled</span>' : '<span class="text-danger">Disabled</span>';
 
 } ?>
 
-<?php function getDateFormat($format,$data){
+<?php function isActive($data)
+{
 
-  return date($format,strtotime($data));
+  return ($data == 1) ? '<span class="label label-success">Activate</span>' : '<span class="label label-danger">Deactivated</span>';
 
-  } ?>
+} ?>
 
-<?php 
+<?php function getDateFormat($format, $data)
+{
+
+  return date($format, strtotime($data));
+
+} ?>
+
+<?php
 
 //Get Data from table 
 
-function get($dbc,$table){
+function get($dbc, $table)
+{
 
-return mysqli_query($dbc,"SELECT * FROM $table");
+  return mysqli_query($dbc, "SELECT * FROM $table");
 
 }
 
 ?>
 
-<?php 
+<?php
 
 //Get Data by criteria  
 
-function getWhere($dbc,$table,$fld,$id){
+function getWhere($dbc, $table, $fld, $id)
+{
 
-return mysqli_query($dbc,"SELECT * FROM $table WHERE $fld = '$id'");
+  return mysqli_query($dbc, "SELECT * FROM $table WHERE $fld = '$id'");
 
 }
 
 ?>
 
-<?php 
+<?php
 
 //Get Data from table 
 
-function getOrderBy($dbc,$table,$fld){
+function getOrderBy($dbc, $table, $fld)
+{
 
-return mysqli_query($dbc,"SELECT * FROM $table ORDER BY $fld ASC");
+  return mysqli_query($dbc, "SELECT * FROM $table ORDER BY $fld ASC");
 
 }
 
 ?>
 
-<?php 
+<?php
 
 //Get and Fetch Data from table
 
-function getFetch($dbc,$table){
+function getFetch($dbc, $table)
+{
 
-return mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM $table"));
-
-}
-
- ?>
-
-<?php 
-
-//Count Row
-
-function countIf($dbc,$arr){
-
-  echo (mysqli_num_rows($arr)==0)?"No Found":'';
+  return mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM $table"));
 
 }
 
 ?>
 
-<?php 
+<?php
 
- //Get Message 
+//Count Row
 
- function getMessage($msg,$sts){
+function countIf($dbc, $arr)
+{
+
+  echo (mysqli_num_rows($arr) == 0) ? "No Found" : '';
+
+}
+
+?>
+
+<?php
+
+//Get Message 
+
+function getMessage($msg, $sts)
+{
 
   global $sts;
 
   global $msg;
 
-if (!empty($msg)) {
+  if (!empty($msg)) {
 
-# code...
+    # code...
 
-echo "<div class='alert alert-".$sts."'>".$msg."</div>";
+    echo "<div class='alert alert-" . $sts . "'>" . $msg . "</div>";
+
+  }
 
 }
 
-}
+?>
 
-  ?>
+<?php
 
-  <?php 
+//Delete Data From Table
 
-  //Delete Data From Table
-
-  function deleteFromTable($dbc,$table,$fld="",$id){
+function deleteFromTable($dbc, $table, $fld = "", $id)
+{
 
   global $sts;
 
@@ -136,227 +146,234 @@ echo "<div class='alert alert-".$sts."'>".$msg."</div>";
 
   // $id = base64_decode($id);
 
-if (mysqli_query($dbc,"DELETE FROM $table WHERE $fld='$id'")) {
-
-# code...
-
-$msg =  "Deleted ....";
-
-$sts="warning";
-
-  // redirect('index.php?nav='.$_REQUEST['nav'],1500);
-
-}else{
-
-$msg= mysqli_error($dbc);
-
-$sts="danger";
-
-}
-
-  }
-
-   ?>
-
-   <?php 
-
-   //Redirect Function
-
-  function redirect($url,$time=0){
-
-  ?>
-
-<script>
-
-setTimeout(function(){
-
-window.location="<?=$url?>";
-
-},<?=$time?>);
-
-</script>
-
-
-
-  <?php
-
-  }
-
-    ?>
-
-     <?php 
-
-   //Redirect Function
-
-  function redirectURL($time=0){
-
-  ?>
-
-<script>
-
-setTimeout(function(){
-
-window.location=window.location.href;
-
-},<?=$time?>);
-
-</script>
-
-
-
-  <?php
-
-  }
-
-    ?>
-
-    <?php 
-
-    //Validate Function
-
-     function validate_data($dbc,$data)
-
-    {
+  if (mysqli_query($dbc, "DELETE FROM $table WHERE $fld='$id'")) {
 
     # code...
 
-    return mysqli_real_escape_string($dbc,strip_tags($data));
+    $msg = "Deleted ....";
 
-    } ?>
+    $sts = "warning";
+    return true;
+    // redirect('index.php?nav='.$_REQUEST['nav'],1500);
 
-<?php 
+  } else {
 
-// Delete All function
+    $msg = mysqli_error($dbc);
 
-function delete_all($dbc, $table, $array, $fld ){
-
-global $sts;
-
-  global $msg;
-
-  if(!empty($array)):
-
-foreach ($array as $data) {
-
-# code...
-
-$q = mysqli_query($dbc,"DELETE FROM $table WHERE $fld='$data'");
-
-}
-
-if ($q) {
-
-# code...
-
-$msg = "Data Deleted";
-
-$sts = "danger";
-
-}else{
-
-$msg = mysqli_error($dbc);
-
-$sts = "danger";
-
-}
-
-endif;
+    $sts = "danger";
+    return false;
+  }
 
 }
 
 ?>
 
-<?php 
+<?php
 
-//count unseen
+//Redirect Function
 
-function countUnseen($dbc,$table,$fld){
+function redirect($url, $time = 0)
+{
 
-return mysqli_num_rows(mysqli_query($dbc,"SELECT * FROM $table WHERE $fld=0"));
+  ?>
+
+  <script>
+
+    setTimeout(function () {
+
+      window.location = "<?= $url ?>";
+
+    }, <?= $time ?>);
+
+  </script>
+
+
+
+  <?php
 
 }
 
- ?>
+?>
 
-<?php 
+<?php
 
-  // Fetch by Criteria
+//Redirect Function
 
-function fetchRecord($dbc,$table,$fld,$data){
+function redirectURL($time = 0)
+{
 
-return  mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM $table WHERE $fld='$data'"));
+  ?>
+
+  <script>
+
+    setTimeout(function () {
+
+      window.location = window.location.href;
+
+    }, <?= $time ?>);
+
+  </script>
+
+
+
+  <?php
+
+}
+
+?>
+
+<?php
+
+//Validate Function
+
+function validate_data($dbc, $data)
+{
+
+  # code...
+
+  return mysqli_real_escape_string($dbc, strip_tags($data));
 
 } ?>
 
-<?php 
+<?php
 
-  // Count When
+// Delete All function
 
-function countWhen($dbc,$table,$fld,$data){
+function delete_all($dbc, $table, $array, $fld)
+{
 
-return  mysqli_num_rows(mysqli_query($dbc,"SELECT * FROM $table WHERE $fld='$data'"));
+  global $sts;
+
+  global $msg;
+
+  if (!empty($array)):
+
+    foreach ($array as $data) {
+
+      # code...
+
+      $q = mysqli_query($dbc, "DELETE FROM $table WHERE $fld='$data'");
+
+    }
+
+    if ($q) {
+
+      # code...
+
+      $msg = "Data Deleted";
+
+      $sts = "danger";
+
+    } else {
+
+      $msg = mysqli_error($dbc);
+
+      $sts = "danger";
+
+    }
+
+  endif;
+
+}
+
+?>
+
+<?php
+
+//count unseen
+
+function countUnseen($dbc, $table, $fld)
+{
+
+  return mysqli_num_rows(mysqli_query($dbc, "SELECT * FROM $table WHERE $fld=0"));
+
+}
+
+?>
+
+<?php
+
+// Fetch by Criteria
+
+function fetchRecord($dbc, $table, $fld, $data)
+{
+
+  return mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM $table WHERE $fld='$data'"));
 
 } ?>
 
-<?php 
+<?php
 
-  // Count When
+// Count When
 
-function countWhens($dbc,$table,$fld1,$data1,$fld2,$data2){
+function countWhen($dbc, $table, $fld, $data)
+{
 
-return  mysqli_num_rows(mysqli_query($dbc,"SELECT * FROM $table WHERE $fld1='$data1' AND $fld2='$data2'"));
+  return mysqli_num_rows(mysqli_query($dbc, "SELECT * FROM $table WHERE $fld='$data'"));
 
 } ?>
 
-<?php 
+<?php
+
+// Count When
+
+function countWhens($dbc, $table, $fld1, $data1, $fld2, $data2)
+{
+
+  return mysqli_num_rows(mysqli_query($dbc, "SELECT * FROM $table WHERE $fld1='$data1' AND $fld2='$data2'"));
+
+} ?>
+
+<?php
 
 //Insert Data Function
 
-function insert_data($dbc,$table,$data){
+function insert_data($dbc, $table, $data)
+{
 
   global $msg;
 
   global $sts;
 
-  $fld=$values="";
+  $fld = $values = "";
 
-  $i=0;
+  $i = 0;
 
-  $comma=",";
+  $comma = ",";
 
   $count = count($data);
 
   foreach ($data as $index => $value) {
 
-  # code...
+    # code...
 
-  if(($count-1)==$i){
+    if (($count - 1) == $i) {
 
-  $comma="";
+      $comma = "";
+
+    }
+
+    $fld = $fld . $index . $comma;
+
+    if ($index != "post_body") {
+
+      # code...
+
+      $val = strtolower(validate_data($dbc, $value));
+
+    } else {
+
+      $val = strtolower($value);
+
+    }
+
+    $values = $values . "'" . $val . "'" . $comma;
+
+    $i++;
 
   }
 
-  $fld=$fld.$index.$comma;
-
-  if ($index!="post_body") {
-
-  # code...
-
-  $val =strtolower(validate_data($dbc,$value));
-
-  }else{
-
-  $val =strtolower($value);
-
-  }
-
-  $values = $values."'".$val."'".$comma;
-
-  $i++;
-
-  }
-
-  return mysqli_query($dbc,"INSERT INTO $table($fld) VALUES($values)");
+  return mysqli_query($dbc, "INSERT INTO $table($fld) VALUES($values)");
 
 }
 
@@ -364,39 +381,40 @@ function insert_data($dbc,$table,$data){
 
 ?>
 
-<?php 
+<?php
 
 //Update Data Function
 
-function update_data($dbc,$table,$data,$col,$val){
+function update_data($dbc, $table, $data, $col, $val)
+{
 
-$set_data="";
+  $set_data = "";
 
-$i=0;
+  $i = 0;
 
-$comma=",";
+  $comma = ",";
 
-$count = count($data);
+  $count = count($data);
 
-//debug_mode($data);
+  //debug_mode($data);
 
-foreach ($data as $index => $value) {
+  foreach ($data as $index => $value) {
 
-# code...
+    # code...
 
-if(($count-1)==$i){
+    if (($count - 1) == $i) {
 
-$comma="";
+      $comma = "";
 
-}
+    }
 
-$set_data=$set_data.$index."='".validate_data($dbc,$value)."'".$comma;
+    $set_data = $set_data . $index . "='" . validate_data($dbc, $value) . "'" . $comma;
 
-$i++;
+    $i++;
 
-}
+  }
 
-return mysqli_query($dbc,"UPDATE $table SET $set_data WHERE $col='$val'");
+  return mysqli_query($dbc, "UPDATE $table SET $set_data WHERE $col='$val'");
 
 }
 
@@ -408,179 +426,176 @@ return mysqli_query($dbc,"UPDATE $table SET $set_data WHERE $col='$val'");
 
 //Count Rows  
 
-function countAll($dbc,$table){
+function countAll($dbc, $table)
+{
 
-return mysqli_num_rows(mysqli_query($dbc,"SELECT * FROM $table"));
+  return mysqli_num_rows(mysqli_query($dbc, "SELECT * FROM $table"));
 
 }
 
 ?>
 
-<?php 
+<?php
 
 // get User IP Address 
 
 if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 
-   $ip = $_SERVER['HTTP_CLIENT_IP'];
+  $ip = $_SERVER['HTTP_CLIENT_IP'];
 
 } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 
-   $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+  $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 
 } else {
 
-   $ip = $_SERVER['REMOTE_ADDR'];
+  $ip = $_SERVER['REMOTE_ADDR'];
 
 }
 
 ?>
 
-<?php 
+<?php
 
-function url(){
-
-    $pu = parse_url($_SERVER['REQUEST_URI']);
-
-    return $pu["scheme"] . "://" . $pu["host"];
-
-}
-
- ?>
-
- <?php 
-
-function url_origin( $s, $use_forwarded_host = false )
-
+function url()
 {
 
-    $ssl      = ( ! empty( $s['HTTPS'] ) && $s['HTTPS'] == 'on' );
+  $pu = parse_url($_SERVER['REQUEST_URI']);
 
-    $sp       = strtolower( $s['SERVER_PROTOCOL'] );
-
-    $protocol = substr( $sp, 0, strpos( $sp, '/' ) ) . ( ( $ssl ) ? 's' : '' );
-
-    $port     = $s['SERVER_PORT'];
-
-    $port     = ( ( ! $ssl && $port=='80' ) || ( $ssl && $port=='443' ) ) ? '' : ':'.$port;
-
-    $host     = ( $use_forwarded_host && isset( $s['HTTP_X_FORWARDED_HOST'] ) ) ? $s['HTTP_X_FORWARDED_HOST'] : ( isset( $s['HTTP_HOST'] ) ? $s['HTTP_HOST'] : null );
-
-    $host     = isset( $host ) ? $host : $s['SERVER_NAME'] . $port;
-
-    return $protocol . '://' . $host;
+  return $pu["scheme"] . "://" . $pu["host"];
 
 }
 
+?>
 
+<?php
 
-function full_url( $s, $use_forwarded_host = false )
-
+function url_origin($s, $use_forwarded_host = false)
 {
 
-    return url_origin( $s, $use_forwarded_host ) . $s['REQUEST_URI'];
+  $ssl = (!empty($s['HTTPS']) && $s['HTTPS'] == 'on');
+
+  $sp = strtolower($s['SERVER_PROTOCOL']);
+
+  $protocol = substr($sp, 0, strpos($sp, '/')) . (($ssl) ? 's' : '');
+
+  $port = $s['SERVER_PORT'];
+
+  $port = ((!$ssl && $port == '80') || ($ssl && $port == '443')) ? '' : ':' . $port;
+
+  $host = ($use_forwarded_host && isset($s['HTTP_X_FORWARDED_HOST'])) ? $s['HTTP_X_FORWARDED_HOST'] : (isset($s['HTTP_HOST']) ? $s['HTTP_HOST'] : null);
+
+  $host = isset($host) ? $host : $s['SERVER_NAME'] . $port;
+
+  return $protocol . '://' . $host;
 
 }
 
 
 
- ?>
+function full_url($s, $use_forwarded_host = false)
+{
+
+  return url_origin($s, $use_forwarded_host) . $s['REQUEST_URI'];
+
+}
+
+
+
+?>
 
 <?php
 
 // Pic upload
 
- function upload_pic($file,$url){
+function upload_pic($file, $url)
+{
 
-global $sts;
+  global $sts;
 
-global $msg;
+  global $msg;
 
-global $size;
+  global $size;
 
-global $pic;
+  global $pic;
 
-// @$file= $_FILES['f'];
+  // @$file= $_FILES['f'];
 
-$file_name = $file['name'];
+  $file_name = $file['name'];
 
-$temp_name = $file['tmp_name'];
+  $temp_name = $file['tmp_name'];
 
-$size = $file['size'];
+  $size = $file['size'];
 
-// $type = $file['type'];
+  // $type = $file['type'];
 
-$errors = $file['error'];
+  $errors = $file['error'];
 
-$type = explode('.', $file_name);
+  $type = explode('.', $file_name);
 
-$type = $type[count($type)-1];
+  $type = $type[count($type) - 1];
 
-$pic = uniqid(rand()).'.'.$type;
+  $pic = uniqid(rand()) . '.' . $type;
 
-$_SESSION['pic_name'] = $pic;
+  $_SESSION['pic_name'] = $pic;
 
-$url = $url.$pic;
+  $url = $url . $pic;
 
-if (!$temp_name) {
+  if (!$temp_name) {
 
-# code...
+    # code...
 
-$sts="info";
+    $sts = "info";
 
-$msg= "Please Choose a File Before Clicking";
+    $msg = "Please Choose a File Before Clicking";
 
-}elseif($size>500000){
+  } elseif ($size > 500000) {
 
-$sts="info";
+    $sts = "info";
 
-$msg= "Not Allowed more than 5 MB file size";
+    $msg = "Not Allowed more than 5 MB file size";
 
-unlink($temp_name);
+    unlink($temp_name);
 
-// exit();
+    // exit();
 
-}
+  } elseif (!preg_match("/\.(gif|jpg|png|jpeg)$/i", $file_name)) {
 
-elseif(!preg_match("/\.(gif|jpg|png|jpeg)$/i", $file_name)){
+    $sts = "info";
 
-$sts="info";
+    $msg = "Only .jpg , .png and .gif file types are allowed";
 
-$msg= "Only .jpg , .png and .gif file types are allowed";
+    unlink($temp_name);
 
-unlink($temp_name);
+    // exit();
 
-// exit();
+  } elseif ($errors == 1) {
 
-}elseif($errors==1){
+    $sts = "info";
 
-$sts="info";
+    $msg = "Error while uploading....";
 
-$msg= "Error while uploading....";
+    unlink($temp_name);
 
-unlink($temp_name);
+    // exit();
 
-// exit();
+  }
 
-}
+  if (move_uploaded_file($temp_name, $url)) {
 
-if(move_uploaded_file($temp_name, $url)){
+    return true;
 
-return true;
+  } else {
 
-}
+    $sts = "info";
 
-else{
+    $msg = "Not Uploaded...";
 
-$sts="info";
+    @unlink($temp_name);
 
-$msg= "Not Uploaded...";
+    //exit();
 
-@unlink($temp_name);
-
-//exit();
-
-}
+  }
 
 } ?>
 
@@ -590,285 +605,285 @@ $msg= "Not Uploaded...";
 
 // file upload
 
- function upload_files($file,$url){
+function upload_files($file, $url)
+{
 
-global $sts;
-
-global $msg;
-
-global $size;
-
-global $pic;
-
-// @$file= $_FILES['f'];
-
-$file_name = $file['name'];
-
-$temp_name = $file['tmp_name'];
-
-$size = $file['size'];
-
-// $type = $file['type'];
-
-$errors = $file['error'];
-
-$type = explode('.', $file_name);
-
-$type = $type[count($type)-1];
-
-$pic = uniqid(rand()).'.'.$type;
-
-$_SESSION['pic_name'] = $pic;
-
-$url = $url.$pic;
-
-if (!$temp_name) {
-
-# code...
-
-$sts="info";
-
-$msg[]= "Please Choose a File Before Clicking";
-
-}elseif($size>1000000){
-
-$sts="info";
-
-$msg[]= "Not Allowed more than 10 MB file size";
-
-unlink($temp_name);
-
-// exit();
-
-}
-
-elseif($errors==1){
-
-$sts="info";
-
-$msg[]= "Error while uploading....";
-
-unlink($temp_name);
-
-// exit();
-
-}
-
-if(move_uploaded_file($temp_name, $url)){
-
-return true;
-
-}
-
-else{
-
-$sts="info";
-
-$msg[]= "Not Uploaded...";
-
-@unlink($temp_name);
-
-//exit();
-
-}
-
- /* $txt="";
-
-  foreach ($msg as $value) {
-
-    # code...
-
-    $txt.=$value."<br>";
-
-  }
-
-  echo "<script>alert('".$txt."')</script>";*/
-
-} ?>
-
-
-
-<?php 
-
-  function getSelectTag($data,$text){
-
-    if (isset($data)) {
-
-      # code...
-
-      echo "<option value='".$data."'>".$data."</option>";
-
-    }else{
-
-      echo "<option value=''>".$text."</option>";
-
-
-
-    }
-
-  }
-
- ?>
-
-
-
-<?php 
-
-  function getSelectTagEnDis($data,$text){
-
-    if (isset($data)) {
-
-      # code...
-
-      echo "<option value='".$data."'>".getStatus($data)."</option>";
-
-    }else{
-
-      echo "<option value=''>".$text."</option>";
-
-
-
-    }
-
-  }
-
- ?>
-
-<?php 
-
-//Send Email
-
-function send_email($email_address,$email_body){
-
-global $sts;
+  global $sts;
 
   global $msg;
 
-$mail = new PHPMailer;
+  global $size;
 
-//Tell PHPMailer to use SMTP
+  global $pic;
 
-$mail->isSMTP();
+  // @$file= $_FILES['f'];
 
+  $file_name = $file['name'];
 
+  $temp_name = $file['tmp_name'];
 
-//Enable SMTP debugging
+  $size = $file['size'];
 
-// 0 = off (for production use)
+  // $type = $file['type'];
 
-// 1 = client messages
+  $errors = $file['error'];
 
-// 2 = client and server messages
+  $type = explode('.', $file_name);
 
-$mail->SMTPDebug = 0;
+  $type = $type[count($type) - 1];
 
+  $pic = uniqid(rand()) . '.' . $type;
 
+  $_SESSION['pic_name'] = $pic;
 
-//Ask for HTML-friendly debug output
+  $url = $url . $pic;
 
-$mail->Debugoutput = 'html';
+  if (!$temp_name) {
 
+    # code...
 
+    $sts = "info";
 
-//Set the hostname of the mail server
+    $msg[] = "Please Choose a File Before Clicking";
 
-$mail->Host = 'smtp.gmail.com';
+  } elseif ($size > 1000000) {
 
-//Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
+    $sts = "info";
 
-$mail->Port = 587;
+    $msg[] = "Not Allowed more than 10 MB file size";
 
+    unlink($temp_name);
 
+    // exit();
 
-//Set the encryption system to use - ssl (deprecated) or tls
+  } elseif ($errors == 1) {
 
-$mail->SMTPSecure = 'tls';
+    $sts = "info";
 
+    $msg[] = "Error while uploading....";
 
+    unlink($temp_name);
 
-//Whether to use SMTP authentication
+    // exit();
 
-$mail->SMTPAuth = true;
+  }
 
+  if (move_uploaded_file($temp_name, $url)) {
 
+    return true;
 
-//Username to use for SMTP authentication - use full email address for gmail
+  } else {
 
-$mail->Username = "moixx.ansari43@gmail.com";
+    $sts = "info";
 
+    $msg[] = "Not Uploaded...";
 
+    @unlink($temp_name);
 
-//Password to use for SMTP authentication
+    //exit();
 
-$mail->Password = "3593ab59";
+  }
 
+  /* $txt="";
 
+   foreach ($msg as $value) {
 
-//Set who the message is to be sent from
+     # code...
 
-$mail->setFrom('moixx.ansari43@email.com', 'Moixxweb Education Alert');
+     $txt.=$value."<br>";
 
+   }
 
+   echo "<script>alert('".$txt."')</script>";*/
 
-//Set an alternative reply-to address
+} ?>
 
-//$mail->addReplyTo('replyto@example.com', 'First Last');
 
 
+<?php
 
-//Set who the message is to be sent to
+function getSelectTag($data, $text)
+{
 
-$mail->addAddress($email_address, 'Moixxweb Education Alert');
+  if (isset($data)) {
 
+    # code...
 
+    echo "<option value='" . $data . "'>" . $data . "</option>";
 
-//Set the subject line
+  } else {
 
-$mail->Subject = 'Moixxweb Education Alert';
+    echo "<option value=''>" . $text . "</option>";
 
 
 
-//Read an HTML message body from an external file, convert referenced images to embedded,
-
-//convert HTML into a basic plain-text alternative body
-
-//$mail->msgHTML(file_get_contents('contents.html'), dirname(__FILE__));
-
- 
-
-$body =$email_body;
-
-$mail->Body =$body ;
-
-
-
-//Replace the plain text body with one created manually
-
-$mail->AltBody = 'This is a plain-text message body';
-
-$mail->isHTML(true);  
-
-//Attach an image file
-
-//$mail->addAttachment('images/phpmailer_mini.png');
-
-
-
-//send the message, check for errors
-
-if (!$mail->send()) {
-
-   $msg= "Mailer Error: " . $mail->ErrorInfo;
-
-   $sts="danger";
-
-} else{
-
-$msg="Email Sent Successfully...";
-
-$sts="success";
+  }
 
 }
+
+?>
+
+
+
+<?php
+
+function getSelectTagEnDis($data, $text)
+{
+
+  if (isset($data)) {
+
+    # code...
+
+    echo "<option value='" . $data . "'>" . getStatus($data) . "</option>";
+
+  } else {
+
+    echo "<option value=''>" . $text . "</option>";
+
+
+
+  }
+
+}
+
+?>
+
+<?php
+
+//Send Email
+
+function send_email($email_address, $email_body)
+{
+
+  global $sts;
+
+  global $msg;
+
+  $mail = new PHPMailer;
+
+  //Tell PHPMailer to use SMTP
+
+  $mail->isSMTP();
+
+
+
+  //Enable SMTP debugging
+
+  // 0 = off (for production use)
+
+  // 1 = client messages
+
+  // 2 = client and server messages
+
+  $mail->SMTPDebug = 0;
+
+
+
+  //Ask for HTML-friendly debug output
+
+  $mail->Debugoutput = 'html';
+
+
+
+  //Set the hostname of the mail server
+
+  $mail->Host = 'smtp.gmail.com';
+
+  //Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
+
+  $mail->Port = 587;
+
+
+
+  //Set the encryption system to use - ssl (deprecated) or tls
+
+  $mail->SMTPSecure = 'tls';
+
+
+
+  //Whether to use SMTP authentication
+
+  $mail->SMTPAuth = true;
+
+
+
+  //Username to use for SMTP authentication - use full email address for gmail
+
+  $mail->Username = "moixx.ansari43@gmail.com";
+
+
+
+  //Password to use for SMTP authentication
+
+  $mail->Password = "3593ab59";
+
+
+
+  //Set who the message is to be sent from
+
+  $mail->setFrom('moixx.ansari43@email.com', 'Moixxweb Education Alert');
+
+
+
+  //Set an alternative reply-to address
+
+  //$mail->addReplyTo('replyto@example.com', 'First Last');
+
+
+
+  //Set who the message is to be sent to
+
+  $mail->addAddress($email_address, 'Moixxweb Education Alert');
+
+
+
+  //Set the subject line
+
+  $mail->Subject = 'Moixxweb Education Alert';
+
+
+
+  //Read an HTML message body from an external file, convert referenced images to embedded,
+
+  //convert HTML into a basic plain-text alternative body
+
+  //$mail->msgHTML(file_get_contents('contents.html'), dirname(__FILE__));
+
+
+
+  $body = $email_body;
+
+  $mail->Body = $body;
+
+
+
+  //Replace the plain text body with one created manually
+
+  $mail->AltBody = 'This is a plain-text message body';
+
+  $mail->isHTML(true);
+
+  //Attach an image file
+
+  //$mail->addAttachment('images/phpmailer_mini.png');
+
+
+
+  //send the message, check for errors
+
+  if (!$mail->send()) {
+
+    $msg = "Mailer Error: " . $mail->ErrorInfo;
+
+    $sts = "danger";
+
+  } else {
+
+    $msg = "Email Sent Successfully...";
+
+    $sts = "success";
+
+  }
 
 
 
@@ -876,75 +891,77 @@ $sts="success";
 
 
 
- <?php  
+<?php
 
-  //student promoton
+//student promoton
 
-   function studentPromotion($dbc,$student_id){
+function studentPromotion($dbc, $student_id)
+{
 
-    $q = mysqli_query($dbc,"SELECT * FROM student_promotion WHERE student_id='$student_id' ORDER BY promotion_date DESC");
+  $q = mysqli_query($dbc, "SELECT * FROM student_promotion WHERE student_id='$student_id' ORDER BY promotion_date DESC");
 
-    while($r=mysqli_fetch_assoc($q)){
+  while ($r = mysqli_fetch_assoc($q)) {
 
-      echo "<li> <mark>Promoted to <i>".$r['student_class']." ".$r['student_section']." at ".date('D, d-M-Y',strtotime($r['promotion_date']))."</i></mark> <hr></li>";
+    echo "<li> <mark>Promoted to <i>" . $r['student_class'] . " " . $r['student_section'] . " at " . date('D, d-M-Y', strtotime($r['promotion_date'])) . "</i></mark> <hr></li>";
 
-    }
+  }
 
-   }
+}
 
-  ?>
+?>
 
 
 
-<?php  
+<?php
 
-  //student Fund History
+//student Fund History
 
-   function studentFundHistory($dbc,$student_id){
+function studentFundHistory($dbc, $student_id)
+{
 
-    $q = mysqli_query($dbc,"SELECT * FROM fee_and_fund WHERE student_id='$student_id' GROUP BY fund_add_date ORDER BY fund_id DESC");
+  $q = mysqli_query($dbc, "SELECT * FROM fee_and_fund WHERE student_id='$student_id' GROUP BY fund_add_date ORDER BY fund_id DESC");
 
-    if(mysqli_num_rows($q)>=1){
+  if (mysqli_num_rows($q) >= 1) {
 
-    while($r=mysqli_fetch_assoc($q)){
+    while ($r = mysqli_fetch_assoc($q)) {
 
-      echo '<a target="_new" href="print_student_reciept.php?fund_id='.$r['fund_id'].'" class="btn btn-warning pull-right">
+      echo '<a target="_new" href="print_student_reciept.php?fund_id=' . $r['fund_id'] . '" class="btn btn-warning pull-right">
 
           <span class="glyphicon glyphicon-list"></span> Print Reciept
 
           </a>';
 
-      echo '<a href="index.php?nav=fee_and_fund&edit_fund_id='.$r['fund_id'].'" class="btn btn-primary pull-right">
+      echo '<a href="index.php?nav=fee_and_fund&edit_fund_id=' . $r['fund_id'] . '" class="btn btn-primary pull-right">
 
                     <span class="glyphicon glyphicon-edit"></span> Edit
 
                   </a>';
 
-         echo '<a href="index.php?nav=fee_and_fund&del_fund_id='.$r['fund_id'].'" class="btn btn-danger pull-right">
+      echo '<a href="index.php?nav=fee_and_fund&del_fund_id=' . $r['fund_id'] . '" class="btn btn-danger pull-right">
 
           <span class="glyphicon glyphicon-trash"></span> Delete
 
         </a>';
 
-      echo "Dated: <span class='label label-danger'>".date('d-M-Y',strtotime($r['fund_add_date']))."</span><br>";
+      echo "Dated: <span class='label label-danger'>" . date('d-M-Y', strtotime($r['fund_add_date'])) . "</span><br>";
 
-      echo "Monthly Fee: ".$r['fund_monthly_fee']."<br>";
+      echo "Monthly Fee: " . $r['fund_monthly_fee'] . "<br>";
 
-      echo "Cycle Fund: ".$r['fund_cycle']."<br>";
+      echo "Cycle Fund: " . $r['fund_cycle'] . "<br>";
 
-       echo "Paper Fund: ".$r['fund_paper']."<br>";
+      echo "Paper Fund: " . $r['fund_paper'] . "<br>";
 
-        echo "MF Fund: ".$r['fund_mf']."<br>";
+      echo "MF Fund: " . $r['fund_mf'] . "<br>";
 
-         echo "Admission Fee: ".$r['fund_admission_fee']."<br>";
+      echo "Admission Fee: " . $r['fund_admission_fee'] . "<br>";
 
-          echo "Minhaj Registration: ".$r['fund_minhaj_registration']."<br>";
+      echo "Minhaj Registration: " . $r['fund_minhaj_registration'] . "<br>";
 
-          echo "Board Registration: ".$r['fund_board_registration']."<br>";          
+      echo "Board Registration: " . $r['fund_board_registration'] . "<br>";
 
-          echo "Board Admission Fee: ".$r['fund_board_admission_fee']."<br>";       
+      echo "Board Admission Fee: " . $r['fund_board_admission_fee'] . "<br>";
 
-          echo "<hr>";   
+      echo "<hr>";
 
 
 
@@ -952,583 +969,587 @@ $sts="success";
 
   }
 
-   }
+}
 
-  ?>
+?>
 
 
 
-<?php 
+<?php
 
-  //Level status
+//Level status
 
-  function getLevel($sts){
+function getLevel($sts)
+{
 
-    switch ($sts) {
+  switch ($sts) {
 
-      case 'l1':
+    case 'l1':
 
-        # code...
+      # code...
 
       return '<label class="label label-warning">Level 1</label>';
 
-        break;
+      break;
 
-      case 'l2':
+    case 'l2':
 
-        # code...
+      # code...
 
       return '<label class="label label-primary">Level 2</label>';
 
-        break;
+      break;
 
-      case 'l3':
+    case 'l3':
 
-        # code...
+      # code...
 
       return '<label class="label label-success">Level 3</label>';
 
-        break;
+      break;
 
-      default:
+    default:
 
-        # code... 
+      # code... 
 
       break;
 
-    }
-
   }
 
+}
 
 
-function getTransaction($sts){
 
-  if ($sts == "ware_sale") { 
+function getTransaction($sts)
+{
+
+  if ($sts == "ware_sale") {
 
     return '<label class="label label-warning">Ware House Sale</label>';
 
-  }elseif($sts == "sale"){
+  } elseif ($sts == "sale") {
 
     return '<label class="label label-success">Direct Sale</label>';
 
-  }else{
+  } else {
 
     return '<label class="label label-danger">Purchase</label>';
 
   }
 
-}  
+}
 
 
 
-function getOrderType($sts){
+function getOrderType($sts)
+{
 
-  if ($sts == "0") { 
+  if ($sts == "0") {
 
     return '<label class="label label-danger">Cancelled</label>';
 
-  }elseif($sts == "1"){
+  } elseif ($sts == "1") {
 
     return '<label class="label label-info">Approved</label>';
 
-  }elseif($sts == "2"){
+  } elseif ($sts == "2") {
 
     return '<label class="label label-success">Completed</label>';
 
-  }else{
+  } else {
 
     return '<label class="label label-warning">Pending</label>';
 
   }
 
-}  
+}
 
- ?>
-
-
+?>
 
 
 
-<?php 
-
-  function setColor($dbc, $tbl, $colName, $checkID, $fetchThis){
-
-    $id = fetchRecord($dbc, $tbl, $colName, $checkID)[$fetchThis];
-
-    echo ($id > 0) ? "text-success" : "text-danger";
-
-  }
-
-  // setColor($dbc,"vehicle_info", "vehicle_id", $r['vehicle_id'], "vehicle_id")
-
-?> 
 
 
+<?php
 
-<?php 
+function setColor($dbc, $tbl, $colName, $checkID, $fetchThis)
+{
+
+  $id = fetchRecord($dbc, $tbl, $colName, $checkID)[$fetchThis];
+
+  echo ($id > 0) ? "text-success" : "text-danger";
+
+}
+
+// setColor($dbc,"vehicle_info", "vehicle_id", $r['vehicle_id'], "vehicle_id")
+
+?>
+
+
+
+<?php
 
 $countryArray = array(
 
-  'AD'=>array('name'=>'ANDORRA','code'=>'376'),
+  'AD' => array('name' => 'ANDORRA', 'code' => '376'),
 
-  'AE'=>array('name'=>'UNITED ARAB EMIRATES','code'=>'971'),
+  'AE' => array('name' => 'UNITED ARAB EMIRATES', 'code' => '971'),
 
-  'AF'=>array('name'=>'AFGHANISTAN','code'=>'93'),
+  'AF' => array('name' => 'AFGHANISTAN', 'code' => '93'),
 
-  'AG'=>array('name'=>'ANTIGUA AND BARBUDA','code'=>'1268'),
+  'AG' => array('name' => 'ANTIGUA AND BARBUDA', 'code' => '1268'),
 
-  'AI'=>array('name'=>'ANGUILLA','code'=>'1264'),
+  'AI' => array('name' => 'ANGUILLA', 'code' => '1264'),
 
-  'AL'=>array('name'=>'ALBANIA','code'=>'355'),
+  'AL' => array('name' => 'ALBANIA', 'code' => '355'),
 
-  'AM'=>array('name'=>'ARMENIA','code'=>'374'),
+  'AM' => array('name' => 'ARMENIA', 'code' => '374'),
 
-  'AN'=>array('name'=>'NETHERLANDS ANTILLES','code'=>'599'),
+  'AN' => array('name' => 'NETHERLANDS ANTILLES', 'code' => '599'),
 
-  'AO'=>array('name'=>'ANGOLA','code'=>'244'),
+  'AO' => array('name' => 'ANGOLA', 'code' => '244'),
 
-  'AQ'=>array('name'=>'ANTARCTICA','code'=>'672'),
+  'AQ' => array('name' => 'ANTARCTICA', 'code' => '672'),
 
-  'AR'=>array('name'=>'ARGENTINA','code'=>'54'),
+  'AR' => array('name' => 'ARGENTINA', 'code' => '54'),
 
-  'AS'=>array('name'=>'AMERICAN SAMOA','code'=>'1684'),
+  'AS' => array('name' => 'AMERICAN SAMOA', 'code' => '1684'),
 
-  'AT'=>array('name'=>'AUSTRIA','code'=>'43'),
+  'AT' => array('name' => 'AUSTRIA', 'code' => '43'),
 
-  'AU'=>array('name'=>'AUSTRALIA','code'=>'61'),
+  'AU' => array('name' => 'AUSTRALIA', 'code' => '61'),
 
-  'AW'=>array('name'=>'ARUBA','code'=>'297'),
+  'AW' => array('name' => 'ARUBA', 'code' => '297'),
 
-  'AZ'=>array('name'=>'AZERBAIJAN','code'=>'994'),
+  'AZ' => array('name' => 'AZERBAIJAN', 'code' => '994'),
 
-  'BA'=>array('name'=>'BOSNIA AND HERZEGOVINA','code'=>'387'),
+  'BA' => array('name' => 'BOSNIA AND HERZEGOVINA', 'code' => '387'),
 
-  'BB'=>array('name'=>'BARBADOS','code'=>'1246'),
+  'BB' => array('name' => 'BARBADOS', 'code' => '1246'),
 
-  'BD'=>array('name'=>'BANGLADESH','code'=>'880'),
+  'BD' => array('name' => 'BANGLADESH', 'code' => '880'),
 
-  'BE'=>array('name'=>'BELGIUM','code'=>'32'),
+  'BE' => array('name' => 'BELGIUM', 'code' => '32'),
 
-  'BF'=>array('name'=>'BURKINA FASO','code'=>'226'),
+  'BF' => array('name' => 'BURKINA FASO', 'code' => '226'),
 
-  'BG'=>array('name'=>'BULGARIA','code'=>'359'),
+  'BG' => array('name' => 'BULGARIA', 'code' => '359'),
 
-  'BH'=>array('name'=>'BAHRAIN','code'=>'973'),
+  'BH' => array('name' => 'BAHRAIN', 'code' => '973'),
 
-  'BI'=>array('name'=>'BURUNDI','code'=>'257'),
+  'BI' => array('name' => 'BURUNDI', 'code' => '257'),
 
-  'BJ'=>array('name'=>'BENIN','code'=>'229'),
+  'BJ' => array('name' => 'BENIN', 'code' => '229'),
 
-  'BL'=>array('name'=>'SAINT BARTHELEMY','code'=>'590'),
+  'BL' => array('name' => 'SAINT BARTHELEMY', 'code' => '590'),
 
-  'BM'=>array('name'=>'BERMUDA','code'=>'1441'),
+  'BM' => array('name' => 'BERMUDA', 'code' => '1441'),
 
-  'BN'=>array('name'=>'BRUNEI DARUSSALAM','code'=>'673'),
+  'BN' => array('name' => 'BRUNEI DARUSSALAM', 'code' => '673'),
 
-  'BO'=>array('name'=>'BOLIVIA','code'=>'591'),
+  'BO' => array('name' => 'BOLIVIA', 'code' => '591'),
 
-  'BR'=>array('name'=>'BRAZIL','code'=>'55'),
+  'BR' => array('name' => 'BRAZIL', 'code' => '55'),
 
-  'BS'=>array('name'=>'BAHAMAS','code'=>'1242'),
+  'BS' => array('name' => 'BAHAMAS', 'code' => '1242'),
 
-  'BT'=>array('name'=>'BHUTAN','code'=>'975'),
+  'BT' => array('name' => 'BHUTAN', 'code' => '975'),
 
-  'BW'=>array('name'=>'BOTSWANA','code'=>'267'),
+  'BW' => array('name' => 'BOTSWANA', 'code' => '267'),
 
-  'BY'=>array('name'=>'BELARUS','code'=>'375'),
+  'BY' => array('name' => 'BELARUS', 'code' => '375'),
 
-  'BZ'=>array('name'=>'BELIZE','code'=>'501'),
+  'BZ' => array('name' => 'BELIZE', 'code' => '501'),
 
-  'CA'=>array('name'=>'CANADA','code'=>'1'),
+  'CA' => array('name' => 'CANADA', 'code' => '1'),
 
-  'CC'=>array('name'=>'COCOS (KEELING) ISLANDS','code'=>'61'),
+  'CC' => array('name' => 'COCOS (KEELING) ISLANDS', 'code' => '61'),
 
-  'CD'=>array('name'=>'CONGO, THE DEMOCRATIC REPUBLIC OF THE','code'=>'243'),
+  'CD' => array('name' => 'CONGO, THE DEMOCRATIC REPUBLIC OF THE', 'code' => '243'),
 
-  'CF'=>array('name'=>'CENTRAL AFRICAN REPUBLIC','code'=>'236'),
+  'CF' => array('name' => 'CENTRAL AFRICAN REPUBLIC', 'code' => '236'),
 
-  'CG'=>array('name'=>'CONGO','code'=>'242'),
+  'CG' => array('name' => 'CONGO', 'code' => '242'),
 
-  'CH'=>array('name'=>'SWITZERLAND','code'=>'41'),
+  'CH' => array('name' => 'SWITZERLAND', 'code' => '41'),
 
-  'CI'=>array('name'=>'COTE D IVOIRE','code'=>'225'),
+  'CI' => array('name' => 'COTE D IVOIRE', 'code' => '225'),
 
-  'CK'=>array('name'=>'COOK ISLANDS','code'=>'682'),
+  'CK' => array('name' => 'COOK ISLANDS', 'code' => '682'),
 
-  'CL'=>array('name'=>'CHILE','code'=>'56'),
+  'CL' => array('name' => 'CHILE', 'code' => '56'),
 
-  'CM'=>array('name'=>'CAMEROON','code'=>'237'),
+  'CM' => array('name' => 'CAMEROON', 'code' => '237'),
 
-  'CN'=>array('name'=>'CHINA','code'=>'86'),
+  'CN' => array('name' => 'CHINA', 'code' => '86'),
 
-  'CO'=>array('name'=>'COLOMBIA','code'=>'57'),
+  'CO' => array('name' => 'COLOMBIA', 'code' => '57'),
 
-  'CR'=>array('name'=>'COSTA RICA','code'=>'506'),
+  'CR' => array('name' => 'COSTA RICA', 'code' => '506'),
 
-  'CU'=>array('name'=>'CUBA','code'=>'53'),
+  'CU' => array('name' => 'CUBA', 'code' => '53'),
 
-  'CV'=>array('name'=>'CAPE VERDE','code'=>'238'),
+  'CV' => array('name' => 'CAPE VERDE', 'code' => '238'),
 
-  'CX'=>array('name'=>'CHRISTMAS ISLAND','code'=>'61'),
+  'CX' => array('name' => 'CHRISTMAS ISLAND', 'code' => '61'),
 
-  'CY'=>array('name'=>'CYPRUS','code'=>'357'),
+  'CY' => array('name' => 'CYPRUS', 'code' => '357'),
 
-  'CZ'=>array('name'=>'CZECH REPUBLIC','code'=>'420'),
+  'CZ' => array('name' => 'CZECH REPUBLIC', 'code' => '420'),
 
-  'DE'=>array('name'=>'GERMANY','code'=>'49'),
+  'DE' => array('name' => 'GERMANY', 'code' => '49'),
 
-  'DJ'=>array('name'=>'DJIBOUTI','code'=>'253'),
+  'DJ' => array('name' => 'DJIBOUTI', 'code' => '253'),
 
-  'DK'=>array('name'=>'DENMARK','code'=>'45'),
+  'DK' => array('name' => 'DENMARK', 'code' => '45'),
 
-  'DM'=>array('name'=>'DOMINICA','code'=>'1767'),
+  'DM' => array('name' => 'DOMINICA', 'code' => '1767'),
 
-  'DO'=>array('name'=>'DOMINICAN REPUBLIC','code'=>'1809'),
+  'DO' => array('name' => 'DOMINICAN REPUBLIC', 'code' => '1809'),
 
-  'DZ'=>array('name'=>'ALGERIA','code'=>'213'),
+  'DZ' => array('name' => 'ALGERIA', 'code' => '213'),
 
-  'EC'=>array('name'=>'ECUADOR','code'=>'593'),
+  'EC' => array('name' => 'ECUADOR', 'code' => '593'),
 
-  'EE'=>array('name'=>'ESTONIA','code'=>'372'),
+  'EE' => array('name' => 'ESTONIA', 'code' => '372'),
 
-  'EG'=>array('name'=>'EGYPT','code'=>'20'),
+  'EG' => array('name' => 'EGYPT', 'code' => '20'),
 
-  'ER'=>array('name'=>'ERITREA','code'=>'291'),
+  'ER' => array('name' => 'ERITREA', 'code' => '291'),
 
-  'ES'=>array('name'=>'SPAIN','code'=>'34'),
+  'ES' => array('name' => 'SPAIN', 'code' => '34'),
 
-  'ET'=>array('name'=>'ETHIOPIA','code'=>'251'),
+  'ET' => array('name' => 'ETHIOPIA', 'code' => '251'),
 
-  'FI'=>array('name'=>'FINLAND','code'=>'358'),
+  'FI' => array('name' => 'FINLAND', 'code' => '358'),
 
-  'FJ'=>array('name'=>'FIJI','code'=>'679'),
+  'FJ' => array('name' => 'FIJI', 'code' => '679'),
 
-  'FK'=>array('name'=>'FALKLAND ISLANDS (MALVINAS)','code'=>'500'),
+  'FK' => array('name' => 'FALKLAND ISLANDS (MALVINAS)', 'code' => '500'),
 
-  'FM'=>array('name'=>'MICRONESIA, FEDERATED STATES OF','code'=>'691'),
+  'FM' => array('name' => 'MICRONESIA, FEDERATED STATES OF', 'code' => '691'),
 
-  'FO'=>array('name'=>'FAROE ISLANDS','code'=>'298'),
+  'FO' => array('name' => 'FAROE ISLANDS', 'code' => '298'),
 
-  'FR'=>array('name'=>'FRANCE','code'=>'33'),
+  'FR' => array('name' => 'FRANCE', 'code' => '33'),
 
-  'GA'=>array('name'=>'GABON','code'=>'241'),
+  'GA' => array('name' => 'GABON', 'code' => '241'),
 
-  'GB'=>array('name'=>'UNITED KINGDOM','code'=>'44'),
+  'GB' => array('name' => 'UNITED KINGDOM', 'code' => '44'),
 
-  'GD'=>array('name'=>'GRENADA','code'=>'1473'),
+  'GD' => array('name' => 'GRENADA', 'code' => '1473'),
 
-  'GE'=>array('name'=>'GEORGIA','code'=>'995'),
+  'GE' => array('name' => 'GEORGIA', 'code' => '995'),
 
-  'GH'=>array('name'=>'GHANA','code'=>'233'),
+  'GH' => array('name' => 'GHANA', 'code' => '233'),
 
-  'GI'=>array('name'=>'GIBRALTAR','code'=>'350'),
+  'GI' => array('name' => 'GIBRALTAR', 'code' => '350'),
 
-  'GL'=>array('name'=>'GREENLAND','code'=>'299'),
+  'GL' => array('name' => 'GREENLAND', 'code' => '299'),
 
-  'GM'=>array('name'=>'GAMBIA','code'=>'220'),
+  'GM' => array('name' => 'GAMBIA', 'code' => '220'),
 
-  'GN'=>array('name'=>'GUINEA','code'=>'224'),
+  'GN' => array('name' => 'GUINEA', 'code' => '224'),
 
-  'GQ'=>array('name'=>'EQUATORIAL GUINEA','code'=>'240'),
+  'GQ' => array('name' => 'EQUATORIAL GUINEA', 'code' => '240'),
 
-  'GR'=>array('name'=>'GREECE','code'=>'30'),
+  'GR' => array('name' => 'GREECE', 'code' => '30'),
 
-  'GT'=>array('name'=>'GUATEMALA','code'=>'502'),
+  'GT' => array('name' => 'GUATEMALA', 'code' => '502'),
 
-  'GU'=>array('name'=>'GUAM','code'=>'1671'),
+  'GU' => array('name' => 'GUAM', 'code' => '1671'),
 
-  'GW'=>array('name'=>'GUINEA-BISSAU','code'=>'245'),
+  'GW' => array('name' => 'GUINEA-BISSAU', 'code' => '245'),
 
-  'GY'=>array('name'=>'GUYANA','code'=>'592'),
+  'GY' => array('name' => 'GUYANA', 'code' => '592'),
 
-  'HK'=>array('name'=>'HONG KONG','code'=>'852'),
+  'HK' => array('name' => 'HONG KONG', 'code' => '852'),
 
-  'HN'=>array('name'=>'HONDURAS','code'=>'504'),
+  'HN' => array('name' => 'HONDURAS', 'code' => '504'),
 
-  'HR'=>array('name'=>'CROATIA','code'=>'385'),
+  'HR' => array('name' => 'CROATIA', 'code' => '385'),
 
-  'HT'=>array('name'=>'HAITI','code'=>'509'),
+  'HT' => array('name' => 'HAITI', 'code' => '509'),
 
-  'HU'=>array('name'=>'HUNGARY','code'=>'36'),
+  'HU' => array('name' => 'HUNGARY', 'code' => '36'),
 
-  'ID'=>array('name'=>'INDONESIA','code'=>'62'),
+  'ID' => array('name' => 'INDONESIA', 'code' => '62'),
 
-  'IE'=>array('name'=>'IRELAND','code'=>'353'),
+  'IE' => array('name' => 'IRELAND', 'code' => '353'),
 
-  'IL'=>array('name'=>'ISRAEL','code'=>'972'),
+  'IL' => array('name' => 'ISRAEL', 'code' => '972'),
 
-  'IM'=>array('name'=>'ISLE OF MAN','code'=>'44'),
+  'IM' => array('name' => 'ISLE OF MAN', 'code' => '44'),
 
-  'IN'=>array('name'=>'INDIA','code'=>'91'),
+  'IN' => array('name' => 'INDIA', 'code' => '91'),
 
-  'IQ'=>array('name'=>'IRAQ','code'=>'964'),
+  'IQ' => array('name' => 'IRAQ', 'code' => '964'),
 
-  'IR'=>array('name'=>'IRAN, ISLAMIC REPUBLIC OF','code'=>'98'),
+  'IR' => array('name' => 'IRAN, ISLAMIC REPUBLIC OF', 'code' => '98'),
 
-  'IS'=>array('name'=>'ICELAND','code'=>'354'),
+  'IS' => array('name' => 'ICELAND', 'code' => '354'),
 
-  'IT'=>array('name'=>'ITALY','code'=>'39'),
+  'IT' => array('name' => 'ITALY', 'code' => '39'),
 
-  'JM'=>array('name'=>'JAMAICA','code'=>'1876'),
+  'JM' => array('name' => 'JAMAICA', 'code' => '1876'),
 
-  'JO'=>array('name'=>'JORDAN','code'=>'962'),
+  'JO' => array('name' => 'JORDAN', 'code' => '962'),
 
-  'JP'=>array('name'=>'JAPAN','code'=>'81'),
+  'JP' => array('name' => 'JAPAN', 'code' => '81'),
 
-  'KE'=>array('name'=>'KENYA','code'=>'254'),
+  'KE' => array('name' => 'KENYA', 'code' => '254'),
 
-  'KG'=>array('name'=>'KYRGYZSTAN','code'=>'996'),
+  'KG' => array('name' => 'KYRGYZSTAN', 'code' => '996'),
 
-  'KH'=>array('name'=>'CAMBODIA','code'=>'855'),
+  'KH' => array('name' => 'CAMBODIA', 'code' => '855'),
 
-  'KI'=>array('name'=>'KIRIBATI','code'=>'686'),
+  'KI' => array('name' => 'KIRIBATI', 'code' => '686'),
 
-  'KM'=>array('name'=>'COMOROS','code'=>'269'),
+  'KM' => array('name' => 'COMOROS', 'code' => '269'),
 
-  'KN'=>array('name'=>'SAINT KITTS AND NEVIS','code'=>'1869'),
+  'KN' => array('name' => 'SAINT KITTS AND NEVIS', 'code' => '1869'),
 
-  'KP'=>array('name'=>'KOREA DEMOCRATIC PEOPLES REPUBLIC OF','code'=>'850'),
+  'KP' => array('name' => 'KOREA DEMOCRATIC PEOPLES REPUBLIC OF', 'code' => '850'),
 
-  'KR'=>array('name'=>'KOREA REPUBLIC OF','code'=>'82'),
+  'KR' => array('name' => 'KOREA REPUBLIC OF', 'code' => '82'),
 
-  'KW'=>array('name'=>'KUWAIT','code'=>'965'),
+  'KW' => array('name' => 'KUWAIT', 'code' => '965'),
 
-  'KY'=>array('name'=>'CAYMAN ISLANDS','code'=>'1345'),
+  'KY' => array('name' => 'CAYMAN ISLANDS', 'code' => '1345'),
 
-  'KZ'=>array('name'=>'KAZAKSTAN','code'=>'7'),
+  'KZ' => array('name' => 'KAZAKSTAN', 'code' => '7'),
 
-  'LA'=>array('name'=>'LAO PEOPLES DEMOCRATIC REPUBLIC','code'=>'856'),
+  'LA' => array('name' => 'LAO PEOPLES DEMOCRATIC REPUBLIC', 'code' => '856'),
 
-  'LB'=>array('name'=>'LEBANON','code'=>'961'),
+  'LB' => array('name' => 'LEBANON', 'code' => '961'),
 
-  'LC'=>array('name'=>'SAINT LUCIA','code'=>'1758'),
+  'LC' => array('name' => 'SAINT LUCIA', 'code' => '1758'),
 
-  'LI'=>array('name'=>'LIECHTENSTEIN','code'=>'423'),
+  'LI' => array('name' => 'LIECHTENSTEIN', 'code' => '423'),
 
-  'LK'=>array('name'=>'SRI LANKA','code'=>'94'),
+  'LK' => array('name' => 'SRI LANKA', 'code' => '94'),
 
-  'LR'=>array('name'=>'LIBERIA','code'=>'231'),
+  'LR' => array('name' => 'LIBERIA', 'code' => '231'),
 
-  'LS'=>array('name'=>'LESOTHO','code'=>'266'),
+  'LS' => array('name' => 'LESOTHO', 'code' => '266'),
 
-  'LT'=>array('name'=>'LITHUANIA','code'=>'370'),
+  'LT' => array('name' => 'LITHUANIA', 'code' => '370'),
 
-  'LU'=>array('name'=>'LUXEMBOURG','code'=>'352'),
+  'LU' => array('name' => 'LUXEMBOURG', 'code' => '352'),
 
-  'LV'=>array('name'=>'LATVIA','code'=>'371'),
+  'LV' => array('name' => 'LATVIA', 'code' => '371'),
 
-  'LY'=>array('name'=>'LIBYAN ARAB JAMAHIRIYA','code'=>'218'),
+  'LY' => array('name' => 'LIBYAN ARAB JAMAHIRIYA', 'code' => '218'),
 
-  'MA'=>array('name'=>'MOROCCO','code'=>'212'),
+  'MA' => array('name' => 'MOROCCO', 'code' => '212'),
 
-  'MC'=>array('name'=>'MONACO','code'=>'377'),
+  'MC' => array('name' => 'MONACO', 'code' => '377'),
 
-  'MD'=>array('name'=>'MOLDOVA, REPUBLIC OF','code'=>'373'),
+  'MD' => array('name' => 'MOLDOVA, REPUBLIC OF', 'code' => '373'),
 
-  'ME'=>array('name'=>'MONTENEGRO','code'=>'382'),
+  'ME' => array('name' => 'MONTENEGRO', 'code' => '382'),
 
-  'MF'=>array('name'=>'SAINT MARTIN','code'=>'1599'),
+  'MF' => array('name' => 'SAINT MARTIN', 'code' => '1599'),
 
-  'MG'=>array('name'=>'MADAGASCAR','code'=>'261'),
+  'MG' => array('name' => 'MADAGASCAR', 'code' => '261'),
 
-  'MH'=>array('name'=>'MARSHALL ISLANDS','code'=>'692'),
+  'MH' => array('name' => 'MARSHALL ISLANDS', 'code' => '692'),
 
-  'MK'=>array('name'=>'MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF','code'=>'389'),
+  'MK' => array('name' => 'MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF', 'code' => '389'),
 
-  'ML'=>array('name'=>'MALI','code'=>'223'),
+  'ML' => array('name' => 'MALI', 'code' => '223'),
 
-  'MM'=>array('name'=>'MYANMAR','code'=>'95'),
+  'MM' => array('name' => 'MYANMAR', 'code' => '95'),
 
-  'MN'=>array('name'=>'MONGOLIA','code'=>'976'),
+  'MN' => array('name' => 'MONGOLIA', 'code' => '976'),
 
-  'MO'=>array('name'=>'MACAU','code'=>'853'),
+  'MO' => array('name' => 'MACAU', 'code' => '853'),
 
-  'MP'=>array('name'=>'NORTHERN MARIANA ISLANDS','code'=>'1670'),
+  'MP' => array('name' => 'NORTHERN MARIANA ISLANDS', 'code' => '1670'),
 
-  'MR'=>array('name'=>'MAURITANIA','code'=>'222'),
+  'MR' => array('name' => 'MAURITANIA', 'code' => '222'),
 
-  'MS'=>array('name'=>'MONTSERRAT','code'=>'1664'),
+  'MS' => array('name' => 'MONTSERRAT', 'code' => '1664'),
 
-  'MT'=>array('name'=>'MALTA','code'=>'356'),
+  'MT' => array('name' => 'MALTA', 'code' => '356'),
 
-  'MU'=>array('name'=>'MAURITIUS','code'=>'230'),
+  'MU' => array('name' => 'MAURITIUS', 'code' => '230'),
 
-  'MV'=>array('name'=>'MALDIVES','code'=>'960'),
+  'MV' => array('name' => 'MALDIVES', 'code' => '960'),
 
-  'MW'=>array('name'=>'MALAWI','code'=>'265'),
+  'MW' => array('name' => 'MALAWI', 'code' => '265'),
 
-  'MX'=>array('name'=>'MEXICO','code'=>'52'),
+  'MX' => array('name' => 'MEXICO', 'code' => '52'),
 
-  'MY'=>array('name'=>'MALAYSIA','code'=>'60'),
+  'MY' => array('name' => 'MALAYSIA', 'code' => '60'),
 
-  'MZ'=>array('name'=>'MOZAMBIQUE','code'=>'258'),
+  'MZ' => array('name' => 'MOZAMBIQUE', 'code' => '258'),
 
-  'NA'=>array('name'=>'NAMIBIA','code'=>'264'),
+  'NA' => array('name' => 'NAMIBIA', 'code' => '264'),
 
-  'NC'=>array('name'=>'NEW CALEDONIA','code'=>'687'),
+  'NC' => array('name' => 'NEW CALEDONIA', 'code' => '687'),
 
-  'NE'=>array('name'=>'NIGER','code'=>'227'),
+  'NE' => array('name' => 'NIGER', 'code' => '227'),
 
-  'NG'=>array('name'=>'NIGERIA','code'=>'234'),
+  'NG' => array('name' => 'NIGERIA', 'code' => '234'),
 
-  'NI'=>array('name'=>'NICARAGUA','code'=>'505'),
+  'NI' => array('name' => 'NICARAGUA', 'code' => '505'),
 
-  'NL'=>array('name'=>'NETHERLANDS','code'=>'31'),
+  'NL' => array('name' => 'NETHERLANDS', 'code' => '31'),
 
-  'NO'=>array('name'=>'NORWAY','code'=>'47'),
+  'NO' => array('name' => 'NORWAY', 'code' => '47'),
 
-  'NP'=>array('name'=>'NEPAL','code'=>'977'),
+  'NP' => array('name' => 'NEPAL', 'code' => '977'),
 
-  'NR'=>array('name'=>'NAURU','code'=>'674'),
+  'NR' => array('name' => 'NAURU', 'code' => '674'),
 
-  'NU'=>array('name'=>'NIUE','code'=>'683'),
+  'NU' => array('name' => 'NIUE', 'code' => '683'),
 
-  'NZ'=>array('name'=>'NEW ZEALAND','code'=>'64'),
+  'NZ' => array('name' => 'NEW ZEALAND', 'code' => '64'),
 
-  'OM'=>array('name'=>'OMAN','code'=>'968'),
+  'OM' => array('name' => 'OMAN', 'code' => '968'),
 
-  'PA'=>array('name'=>'PANAMA','code'=>'507'),
+  'PA' => array('name' => 'PANAMA', 'code' => '507'),
 
-  'PE'=>array('name'=>'PERU','code'=>'51'),
+  'PE' => array('name' => 'PERU', 'code' => '51'),
 
-  'PF'=>array('name'=>'FRENCH POLYNESIA','code'=>'689'),
+  'PF' => array('name' => 'FRENCH POLYNESIA', 'code' => '689'),
 
-  'PG'=>array('name'=>'PAPUA NEW GUINEA','code'=>'675'),
+  'PG' => array('name' => 'PAPUA NEW GUINEA', 'code' => '675'),
 
-  'PH'=>array('name'=>'PHILIPPINES','code'=>'63'),
+  'PH' => array('name' => 'PHILIPPINES', 'code' => '63'),
 
-  'PK'=>array('name'=>'PAKISTAN','code'=>'92'),
+  'PK' => array('name' => 'PAKISTAN', 'code' => '92'),
 
-  'PL'=>array('name'=>'POLAND','code'=>'48'),
+  'PL' => array('name' => 'POLAND', 'code' => '48'),
 
-  'PM'=>array('name'=>'SAINT PIERRE AND MIQUELON','code'=>'508'),
+  'PM' => array('name' => 'SAINT PIERRE AND MIQUELON', 'code' => '508'),
 
-  'PN'=>array('name'=>'PITCAIRN','code'=>'870'),
+  'PN' => array('name' => 'PITCAIRN', 'code' => '870'),
 
-  'PR'=>array('name'=>'PUERTO RICO','code'=>'1'),
+  'PR' => array('name' => 'PUERTO RICO', 'code' => '1'),
 
-  'PT'=>array('name'=>'PORTUGAL','code'=>'351'),
+  'PT' => array('name' => 'PORTUGAL', 'code' => '351'),
 
-  'PW'=>array('name'=>'PALAU','code'=>'680'),
+  'PW' => array('name' => 'PALAU', 'code' => '680'),
 
-  'PY'=>array('name'=>'PARAGUAY','code'=>'595'),
+  'PY' => array('name' => 'PARAGUAY', 'code' => '595'),
 
-  'QA'=>array('name'=>'QATAR','code'=>'974'),
+  'QA' => array('name' => 'QATAR', 'code' => '974'),
 
-  'RO'=>array('name'=>'ROMANIA','code'=>'40'),
+  'RO' => array('name' => 'ROMANIA', 'code' => '40'),
 
-  'RS'=>array('name'=>'SERBIA','code'=>'381'),
+  'RS' => array('name' => 'SERBIA', 'code' => '381'),
 
-  'RU'=>array('name'=>'RUSSIAN FEDERATION','code'=>'7'),
+  'RU' => array('name' => 'RUSSIAN FEDERATION', 'code' => '7'),
 
-  'RW'=>array('name'=>'RWANDA','code'=>'250'),
+  'RW' => array('name' => 'RWANDA', 'code' => '250'),
 
-  'SA'=>array('name'=>'SAUDI ARABIA','code'=>'966'),
+  'SA' => array('name' => 'SAUDI ARABIA', 'code' => '966'),
 
-  'SB'=>array('name'=>'SOLOMON ISLANDS','code'=>'677'),
+  'SB' => array('name' => 'SOLOMON ISLANDS', 'code' => '677'),
 
-  'SC'=>array('name'=>'SEYCHELLES','code'=>'248'),
+  'SC' => array('name' => 'SEYCHELLES', 'code' => '248'),
 
-  'SD'=>array('name'=>'SUDAN','code'=>'249'),
+  'SD' => array('name' => 'SUDAN', 'code' => '249'),
 
-  'SE'=>array('name'=>'SWEDEN','code'=>'46'),
+  'SE' => array('name' => 'SWEDEN', 'code' => '46'),
 
-  'SG'=>array('name'=>'SINGAPORE','code'=>'65'),
+  'SG' => array('name' => 'SINGAPORE', 'code' => '65'),
 
-  'SH'=>array('name'=>'SAINT HELENA','code'=>'290'),
+  'SH' => array('name' => 'SAINT HELENA', 'code' => '290'),
 
-  'SI'=>array('name'=>'SLOVENIA','code'=>'386'),
+  'SI' => array('name' => 'SLOVENIA', 'code' => '386'),
 
-  'SK'=>array('name'=>'SLOVAKIA','code'=>'421'),
+  'SK' => array('name' => 'SLOVAKIA', 'code' => '421'),
 
-  'SL'=>array('name'=>'SIERRA LEONE','code'=>'232'),
+  'SL' => array('name' => 'SIERRA LEONE', 'code' => '232'),
 
-  'SM'=>array('name'=>'SAN MARINO','code'=>'378'),
+  'SM' => array('name' => 'SAN MARINO', 'code' => '378'),
 
-  'SN'=>array('name'=>'SENEGAL','code'=>'221'),
+  'SN' => array('name' => 'SENEGAL', 'code' => '221'),
 
-  'SO'=>array('name'=>'SOMALIA','code'=>'252'),
+  'SO' => array('name' => 'SOMALIA', 'code' => '252'),
 
-  'SR'=>array('name'=>'SURINAME','code'=>'597'),
+  'SR' => array('name' => 'SURINAME', 'code' => '597'),
 
-  'ST'=>array('name'=>'SAO TOME AND PRINCIPE','code'=>'239'),
+  'ST' => array('name' => 'SAO TOME AND PRINCIPE', 'code' => '239'),
 
-  'SV'=>array('name'=>'EL SALVADOR','code'=>'503'),
+  'SV' => array('name' => 'EL SALVADOR', 'code' => '503'),
 
-  'SY'=>array('name'=>'SYRIAN ARAB REPUBLIC','code'=>'963'),
+  'SY' => array('name' => 'SYRIAN ARAB REPUBLIC', 'code' => '963'),
 
-  'SZ'=>array('name'=>'SWAZILAND','code'=>'268'),
+  'SZ' => array('name' => 'SWAZILAND', 'code' => '268'),
 
-  'TC'=>array('name'=>'TURKS AND CAICOS ISLANDS','code'=>'1649'),
+  'TC' => array('name' => 'TURKS AND CAICOS ISLANDS', 'code' => '1649'),
 
-  'TD'=>array('name'=>'CHAD','code'=>'235'),
+  'TD' => array('name' => 'CHAD', 'code' => '235'),
 
-  'TG'=>array('name'=>'TOGO','code'=>'228'),
+  'TG' => array('name' => 'TOGO', 'code' => '228'),
 
-  'TH'=>array('name'=>'THAILAND','code'=>'66'),
+  'TH' => array('name' => 'THAILAND', 'code' => '66'),
 
-  'TJ'=>array('name'=>'TAJIKISTAN','code'=>'992'),
+  'TJ' => array('name' => 'TAJIKISTAN', 'code' => '992'),
 
-  'TK'=>array('name'=>'TOKELAU','code'=>'690'),
+  'TK' => array('name' => 'TOKELAU', 'code' => '690'),
 
-  'TL'=>array('name'=>'TIMOR-LESTE','code'=>'670'),
+  'TL' => array('name' => 'TIMOR-LESTE', 'code' => '670'),
 
-  'TM'=>array('name'=>'TURKMENISTAN','code'=>'993'),
+  'TM' => array('name' => 'TURKMENISTAN', 'code' => '993'),
 
-  'TN'=>array('name'=>'TUNISIA','code'=>'216'),
+  'TN' => array('name' => 'TUNISIA', 'code' => '216'),
 
-  'TO'=>array('name'=>'TONGA','code'=>'676'),
+  'TO' => array('name' => 'TONGA', 'code' => '676'),
 
-  'TR'=>array('name'=>'TURKEY','code'=>'90'),
+  'TR' => array('name' => 'TURKEY', 'code' => '90'),
 
-  'TT'=>array('name'=>'TRINIDAD AND TOBAGO','code'=>'1868'),
+  'TT' => array('name' => 'TRINIDAD AND TOBAGO', 'code' => '1868'),
 
-  'TV'=>array('name'=>'TUVALU','code'=>'688'),
+  'TV' => array('name' => 'TUVALU', 'code' => '688'),
 
-  'TW'=>array('name'=>'TAIWAN, PROVINCE OF CHINA','code'=>'886'),
+  'TW' => array('name' => 'TAIWAN, PROVINCE OF CHINA', 'code' => '886'),
 
-  'TZ'=>array('name'=>'TANZANIA, UNITED REPUBLIC OF','code'=>'255'),
+  'TZ' => array('name' => 'TANZANIA, UNITED REPUBLIC OF', 'code' => '255'),
 
-  'UA'=>array('name'=>'UKRAINE','code'=>'380'),
+  'UA' => array('name' => 'UKRAINE', 'code' => '380'),
 
-  'UG'=>array('name'=>'UGANDA','code'=>'256'),
+  'UG' => array('name' => 'UGANDA', 'code' => '256'),
 
-  'US'=>array('name'=>'UNITED STATES','code'=>'1'),
+  'US' => array('name' => 'UNITED STATES', 'code' => '1'),
 
-  'UY'=>array('name'=>'URUGUAY','code'=>'598'),
+  'UY' => array('name' => 'URUGUAY', 'code' => '598'),
 
-  'UZ'=>array('name'=>'UZBEKISTAN','code'=>'998'),
+  'UZ' => array('name' => 'UZBEKISTAN', 'code' => '998'),
 
-  'VA'=>array('name'=>'HOLY SEE (VATICAN CITY STATE)','code'=>'39'),
+  'VA' => array('name' => 'HOLY SEE (VATICAN CITY STATE)', 'code' => '39'),
 
-  'VC'=>array('name'=>'SAINT VINCENT AND THE GRENADINES','code'=>'1784'),
+  'VC' => array('name' => 'SAINT VINCENT AND THE GRENADINES', 'code' => '1784'),
 
-  'VE'=>array('name'=>'VENEZUELA','code'=>'58'),
+  'VE' => array('name' => 'VENEZUELA', 'code' => '58'),
 
-  'VG'=>array('name'=>'VIRGIN ISLANDS, BRITISH','code'=>'1284'),
+  'VG' => array('name' => 'VIRGIN ISLANDS, BRITISH', 'code' => '1284'),
 
-  'VI'=>array('name'=>'VIRGIN ISLANDS, U.S.','code'=>'1340'),
+  'VI' => array('name' => 'VIRGIN ISLANDS, U.S.', 'code' => '1340'),
 
-  'VN'=>array('name'=>'VIET NAM','code'=>'84'),
+  'VN' => array('name' => 'VIET NAM', 'code' => '84'),
 
-  'VU'=>array('name'=>'VANUATU','code'=>'678'),
+  'VU' => array('name' => 'VANUATU', 'code' => '678'),
 
-  'WF'=>array('name'=>'WALLIS AND FUTUNA','code'=>'681'),
+  'WF' => array('name' => 'WALLIS AND FUTUNA', 'code' => '681'),
 
-  'WS'=>array('name'=>'SAMOA','code'=>'685'),
+  'WS' => array('name' => 'SAMOA', 'code' => '685'),
 
-  'XK'=>array('name'=>'KOSOVO','code'=>'381'),
+  'XK' => array('name' => 'KOSOVO', 'code' => '381'),
 
-  'YE'=>array('name'=>'YEMEN','code'=>'967'),
+  'YE' => array('name' => 'YEMEN', 'code' => '967'),
 
-  'YT'=>array('name'=>'MAYOTTE','code'=>'262'),
+  'YT' => array('name' => 'MAYOTTE', 'code' => '262'),
 
-  'ZA'=>array('name'=>'SOUTH AFRICA','code'=>'27'),
+  'ZA' => array('name' => 'SOUTH AFRICA', 'code' => '27'),
 
-  'ZM'=>array('name'=>'ZAMBIA','code'=>'260'),
+  'ZM' => array('name' => 'ZAMBIA', 'code' => '260'),
 
-  'ZW'=>array('name'=>'ZIMBABWE','code'=>'263')
+  'ZW' => array('name' => 'ZIMBABWE', 'code' => '263')
 
 );
 
@@ -1556,322 +1577,325 @@ $countryArray = array(
 
 */
 
-function countrySelector($defaultCountry = "", $id = "", $name = "", $classes = ""){
+function countrySelector($defaultCountry = "", $id = "", $name = "", $classes = "")
+{
 
-    global $countryArray; // Assuming the array is placed above this function
+  global $countryArray; // Assuming the array is placed above this function
 
-    
 
-    $output = "<input  list='".$id.$name."' id='".$id."' name='".$name."' class='".$classes."'><datalist id='".$id.$name."'>";
 
-  
+  $output = "<input  list='" . $id . $name . "' id='" . $id . "' name='" . $name . "' class='" . $classes . "'><datalist id='" . $id . $name . "'>";
 
-  foreach($countryArray as $code => $country){
+
+
+  foreach ($countryArray as $code => $country) {
 
     $countryName = ucwords(strtolower($country["name"])); // Making it look good
 
-    $output .= "<option data-country='".$countryName."' value='".$code."' ".(($code==strtoupper($defaultCountry))?"selected":"").">".$code." - ".$countryName." (+".$country["code"].")</option>";
+    $output .= "<option data-country='" . $countryName . "' value='" . $code . "' " . (($code == strtoupper($defaultCountry)) ? "selected" : "") . ">" . $code . " - " . $countryName . " (+" . $country["code"] . ")</option>";
 
   }
 
-  
+
 
   $output .= "</datalist>";
 
-  
+
 
   return $output; // or echo $output; to print directly
 
 }
 
-function countryBySelect($id = "", $name = "", $classes = "",$defaultoption = "",$defaultMsg = ""){
+function countryBySelect($id = "", $name = "", $classes = "", $defaultoption = "", $defaultMsg = "")
+{
 
-    global $countryArray; // Assuming the array is placed above this function
+  global $countryArray; // Assuming the array is placed above this function
 
-    
 
-    $output = "<select  id='".$id."' name='".$name."' class='".$classes."'  ".$defaultMsg.">";
 
-  
+  $output = "<select  id='" . $id . "' name='" . $name . "' class='" . $classes . "'  " . $defaultMsg . ">";
 
-  foreach($countryArray as $code => $country){
+
+
+  foreach ($countryArray as $code => $country) {
 
     $countryName = ucwords(strtolower($country["name"])); // Making it look good
 
-    $output .= "<option ".$defaultoption." value='".$code."' >".$code." - ".$countryName." (+".$country["code"].")</option>";
+    $output .= "<option " . $defaultoption . " value='" . $code . "' >" . $code . " - " . $countryName . " (+" . $country["code"] . ")</option>";
 
   }
 
-  
+
 
   $output .= "</select>";
 
-  
+
 
   return $output; // or echo $output; to print directly
 
 }
 
 
-$currency = array (
+$currency = array(
 
-            'ALL' => 'Albania Lek',
+  'ALL' => 'Albania Lek',
 
-            'AFN' => 'Afghanistan Afghani',
+  'AFN' => 'Afghanistan Afghani',
 
-            'ARS' => 'Argentina Peso',
+  'ARS' => 'Argentina Peso',
 
-            'AWG' => 'Aruba Guilder',
+  'AWG' => 'Aruba Guilder',
 
-            'AUD' => 'Australia Dollar',
+  'AUD' => 'Australia Dollar',
 
-            'AZN' => 'Azerbaijan New Manat',
+  'AZN' => 'Azerbaijan New Manat',
 
-            'BSD' => 'Bahamas Dollar',
+  'BSD' => 'Bahamas Dollar',
 
-            'BBD' => 'Barbados Dollar',
+  'BBD' => 'Barbados Dollar',
 
-            'BDT' => 'Bangladeshi taka',
+  'BDT' => 'Bangladeshi taka',
 
-            'BYR' => 'Belarus Ruble',
+  'BYR' => 'Belarus Ruble',
 
-            'BZD' => 'Belize Dollar',
+  'BZD' => 'Belize Dollar',
 
-            'BMD' => 'Bermuda Dollar',
+  'BMD' => 'Bermuda Dollar',
 
-            'BOB' => 'Bolivia Boliviano',
+  'BOB' => 'Bolivia Boliviano',
 
-            'BAM' => 'Bosnia and Herzegovina Convertible Marka',
+  'BAM' => 'Bosnia and Herzegovina Convertible Marka',
 
-            'BWP' => 'Botswana Pula',
+  'BWP' => 'Botswana Pula',
 
-            'BGN' => 'Bulgaria Lev',
+  'BGN' => 'Bulgaria Lev',
 
-            'BRL' => 'Brazil Real',
+  'BRL' => 'Brazil Real',
 
-            'BND' => 'Brunei Darussalam Dollar',
+  'BND' => 'Brunei Darussalam Dollar',
 
-            'KHR' => 'Cambodia Riel',
+  'KHR' => 'Cambodia Riel',
 
-            'CAD' => 'Canada Dollar',
+  'CAD' => 'Canada Dollar',
 
-            'KYD' => 'Cayman Islands Dollar',
+  'KYD' => 'Cayman Islands Dollar',
 
-            'CLP' => 'Chile Peso',
+  'CLP' => 'Chile Peso',
 
-            'CNY' => 'China Yuan Renminbi',
+  'CNY' => 'China Yuan Renminbi',
 
-            'COP' => 'Colombia Peso',
+  'COP' => 'Colombia Peso',
 
-            'CRC' => 'Costa Rica Colon',
+  'CRC' => 'Costa Rica Colon',
 
-            'HRK' => 'Croatia Kuna',
+  'HRK' => 'Croatia Kuna',
 
-            'CUP' => 'Cuba Peso',
+  'CUP' => 'Cuba Peso',
 
-            'CZK' => 'Czech Republic Koruna',
+  'CZK' => 'Czech Republic Koruna',
 
-            'DKK' => 'Denmark Krone',
+  'DKK' => 'Denmark Krone',
 
-            'DOP' => 'Dominican Republic Peso',
+  'DOP' => 'Dominican Republic Peso',
 
-            'XCD' => 'East Caribbean Dollar',
+  'XCD' => 'East Caribbean Dollar',
 
-            'EGP' => 'Egypt Pound',
+  'EGP' => 'Egypt Pound',
 
-            'SVC' => 'El Salvador Colon',
+  'SVC' => 'El Salvador Colon',
 
-            'EEK' => 'Estonia Kroon',
+  'EEK' => 'Estonia Kroon',
 
-            'EUR' => 'Euro Member Countries',
+  'EUR' => 'Euro Member Countries',
 
-            'FKP' => 'Falkland Islands (Malvinas) Pound',
+  'FKP' => 'Falkland Islands (Malvinas) Pound',
 
-            'FJD' => 'Fiji Dollar',
+  'FJD' => 'Fiji Dollar',
 
-            'GHC' => 'Ghana Cedis',
+  'GHC' => 'Ghana Cedis',
 
-            'GIP' => 'Gibraltar Pound',
+  'GIP' => 'Gibraltar Pound',
 
-            'GTQ' => 'Guatemala Quetzal',
+  'GTQ' => 'Guatemala Quetzal',
 
-            'GGP' => 'Guernsey Pound',
+  'GGP' => 'Guernsey Pound',
 
-            'GYD' => 'Guyana Dollar',
+  'GYD' => 'Guyana Dollar',
 
-            'HNL' => 'Honduras Lempira',
+  'HNL' => 'Honduras Lempira',
 
-            'HKD' => 'Hong Kong Dollar',
+  'HKD' => 'Hong Kong Dollar',
 
-            'HUF' => 'Hungary Forint',
+  'HUF' => 'Hungary Forint',
 
-            'ISK' => 'Iceland Krona',
+  'ISK' => 'Iceland Krona',
 
-            'INR' => 'India Rupee',
+  'INR' => 'India Rupee',
 
-            'IDR' => 'Indonesia Rupiah',
+  'IDR' => 'Indonesia Rupiah',
 
-            'IRR' => 'Iran Rial',
+  'IRR' => 'Iran Rial',
 
-            'IMP' => 'Isle of Man Pound',
+  'IMP' => 'Isle of Man Pound',
 
-            'ILS' => 'Israel Shekel',
+  'ILS' => 'Israel Shekel',
 
-            'JMD' => 'Jamaica Dollar',
+  'JMD' => 'Jamaica Dollar',
 
-            'JPY' => 'Japan Yen',
+  'JPY' => 'Japan Yen',
 
-            'JEP' => 'Jersey Pound',
+  'JEP' => 'Jersey Pound',
 
-            'KZT' => 'Kazakhstan Tenge',
+  'KZT' => 'Kazakhstan Tenge',
 
-            'KPW' => 'Korea (North) Won',
+  'KPW' => 'Korea (North) Won',
 
-            'KRW' => 'Korea (South) Won',
+  'KRW' => 'Korea (South) Won',
 
-            'KGS' => 'Kyrgyzstan Som',
+  'KGS' => 'Kyrgyzstan Som',
 
-            'LAK' => 'Laos Kip',
+  'LAK' => 'Laos Kip',
 
-            'LVL' => 'Latvia Lat',
+  'LVL' => 'Latvia Lat',
 
-            'LBP' => 'Lebanon Pound',
+  'LBP' => 'Lebanon Pound',
 
-            'LRD' => 'Liberia Dollar',
+  'LRD' => 'Liberia Dollar',
 
-            'LTL' => 'Lithuania Litas',
+  'LTL' => 'Lithuania Litas',
 
-            'MKD' => 'Macedonia Denar',
+  'MKD' => 'Macedonia Denar',
 
-            'MYR' => 'Malaysia Ringgit',
+  'MYR' => 'Malaysia Ringgit',
 
-            'MUR' => 'Mauritius Rupee',
+  'MUR' => 'Mauritius Rupee',
 
-            'MXN' => 'Mexico Peso',
+  'MXN' => 'Mexico Peso',
 
-            'MNT' => 'Mongolia Tughrik',
+  'MNT' => 'Mongolia Tughrik',
 
-            'MZN' => 'Mozambique Metical',
+  'MZN' => 'Mozambique Metical',
 
-            'NAD' => 'Namibia Dollar',
+  'NAD' => 'Namibia Dollar',
 
-            'NPR' => 'Nepal Rupee',
+  'NPR' => 'Nepal Rupee',
 
-            'ANG' => 'Netherlands Antilles Guilder',
+  'ANG' => 'Netherlands Antilles Guilder',
 
-            'NZD' => 'New Zealand Dollar',
+  'NZD' => 'New Zealand Dollar',
 
-            'NIO' => 'Nicaragua Cordoba',
+  'NIO' => 'Nicaragua Cordoba',
 
-            'NGN' => 'Nigeria Naira',
+  'NGN' => 'Nigeria Naira',
 
-            'NOK' => 'Norway Krone',
+  'NOK' => 'Norway Krone',
 
-            'OMR' => 'Oman Rial',
+  'OMR' => 'Oman Rial',
 
-            'PKR' => 'Pakistan Rupee',
+  'PKR' => 'Pakistan Rupee',
 
-            'PAB' => 'Panama Balboa',
+  'PAB' => 'Panama Balboa',
 
-            'PYG' => 'Paraguay Guarani',
+  'PYG' => 'Paraguay Guarani',
 
-            'PEN' => 'Peru Nuevo Sol',
+  'PEN' => 'Peru Nuevo Sol',
 
-            'PHP' => 'Philippines Peso',
+  'PHP' => 'Philippines Peso',
 
-            'PLN' => 'Poland Zloty',
+  'PLN' => 'Poland Zloty',
 
-            'QAR' => 'Qatar Riyal',
+  'QAR' => 'Qatar Riyal',
 
-            'RON' => 'Romania New Leu',
+  'RON' => 'Romania New Leu',
 
-            'RUB' => 'Russia Ruble',
+  'RUB' => 'Russia Ruble',
 
-            'SHP' => 'Saint Helena Pound',
+  'SHP' => 'Saint Helena Pound',
 
-            'SAR' => 'Saudi Arabia Riyal',
+  'SAR' => 'Saudi Arabia Riyal',
 
-            'RSD' => 'Serbia Dinar',
+  'RSD' => 'Serbia Dinar',
 
-            'SCR' => 'Seychelles Rupee',
+  'SCR' => 'Seychelles Rupee',
 
-            'SGD' => 'Singapore Dollar',
+  'SGD' => 'Singapore Dollar',
 
-            'SBD' => 'Solomon Islands Dollar',
+  'SBD' => 'Solomon Islands Dollar',
 
-            'SOS' => 'Somalia Shilling',
+  'SOS' => 'Somalia Shilling',
 
-            'ZAR' => 'South Africa Rand',
+  'ZAR' => 'South Africa Rand',
 
-            'LKR' => 'Sri Lanka Rupee',
+  'LKR' => 'Sri Lanka Rupee',
 
-            'SEK' => 'Sweden Krona',
+  'SEK' => 'Sweden Krona',
 
-            'CHF' => 'Switzerland Franc',
+  'CHF' => 'Switzerland Franc',
 
-            'SRD' => 'Suriname Dollar',
+  'SRD' => 'Suriname Dollar',
 
-            'SYP' => 'Syria Pound',
+  'SYP' => 'Syria Pound',
 
-            'TWD' => 'Taiwan New Dollar',
+  'TWD' => 'Taiwan New Dollar',
 
-            'THB' => 'Thailand Baht',
+  'THB' => 'Thailand Baht',
 
-            'TTD' => 'Trinidad and Tobago Dollar',
+  'TTD' => 'Trinidad and Tobago Dollar',
 
-            'TRY' => 'Turkey Lira',
+  'TRY' => 'Turkey Lira',
 
-            'TRL' => 'Turkey Lira',
+  'TRL' => 'Turkey Lira',
 
-            'TVD' => 'Tuvalu Dollar',
+  'TVD' => 'Tuvalu Dollar',
 
-            'UAH' => 'Ukraine Hryvna',
+  'UAH' => 'Ukraine Hryvna',
 
-            'GBP' => 'United Kingdom Pound',
+  'GBP' => 'United Kingdom Pound',
 
-            'UGX' => 'Uganda Shilling',
+  'UGX' => 'Uganda Shilling',
 
-            'USD' => 'United States Dollar',
+  'USD' => 'United States Dollar',
 
-            'UYU' => 'Uruguay Peso',
+  'UYU' => 'Uruguay Peso',
 
-            'UZS' => 'Uzbekistan Som',
+  'UZS' => 'Uzbekistan Som',
 
-            'VEF' => 'Venezuela Bolivar',
+  'VEF' => 'Venezuela Bolivar',
 
-            'VND' => 'Viet Nam Dong',
+  'VND' => 'Viet Nam Dong',
 
-            'YER' => 'Yemen Rial',
+  'YER' => 'Yemen Rial',
 
-            'ZWD' => 'Zimbabwe Dollar'
+  'ZWD' => 'Zimbabwe Dollar'
 
-        );
+);
 
 
 
-function countryCurrency($id = "", $name = "", $classes = "",$checkstate=""){
+function countryCurrency($id = "", $name = "", $classes = "", $checkstate = "")
+{
 
-    global $currency; // Assuming the array is placed above this function
+  global $currency; // Assuming the array is placed above this function
 
-      
 
-    $output = "<input value='".$checkstate."' list='".$id.$name."' id='".$id."' name='".$name."' class='".$classes."'><datalist id='".$id.$name."'>";
 
-  
+  $output = "<input value='" . $checkstate . "' list='" . $id . $name . "' id='" . $id . "' name='" . $name . "' class='" . $classes . "'><datalist id='" . $id . $name . "'>";
+
+
 
   foreach ($currency as $index => $country) {
 
- 
 
-    $output .= "<option  value='".$index."'>".$index." - ".$country."</option>";
+
+    $output .= "<option  value='" . $index . "'>" . $index . " - " . $country . "</option>";
 
   }
 
-  
+
 
   $output .= "</datalist>";
 
-  
+
 
   return $output; // or echo $output; to print directly
 
@@ -1881,9 +1905,10 @@ function countryCurrency($id = "", $name = "", $classes = "",$checkstate=""){
 
 
 
-<?php 
+<?php
 
-function getTotalCost($dbc,$data){
+function getTotalCost($dbc, $data)
+{
 
   //Vehicle Info
 
@@ -1901,7 +1926,7 @@ function getTotalCost($dbc,$data){
 
   $terminal = $vehicle_info['vehicle_terminal_charges'];
 
-  $vehicle_info_total =  (int)$fright + (int)$bl + (int)$terminal;
+  $vehicle_info_total = (int) $fright + (int) $bl + (int) $terminal;
 
 
 
@@ -1921,7 +1946,7 @@ function getTotalCost($dbc,$data){
 
   $recycle_fee = $auction_info['auction_recycle_fee'];
 
-  $auction_info_total = (int)$fee + (int)$win_price + (int)$recycle_fee;
+  $auction_info_total = (int) $fee + (int) $win_price + (int) $recycle_fee;
 
 
 
@@ -1930,7 +1955,7 @@ function getTotalCost($dbc,$data){
   $ricksu_fee = 0;
 
   $ricksu_repair = 0;
-  $ricksu_charger_for_additional=0;
+  $ricksu_charger_for_additional = 0;
 
   $ricksu = fetchRecord($dbc, "ricksu", "vehicle_id", $data);
 
@@ -1939,9 +1964,9 @@ function getTotalCost($dbc,$data){
   $ricksu_repair = $ricksu['ricksu_repair_fee'];
   $ricksu_charger_for_additional = $ricksu['ricksu_charger_for_additional'];
 
-  $ricksu_total = (int)$ricksu_fee + (int)$ricksu_repair +(int)$ricksu_charger_for_additional;
+  $ricksu_total = (int) $ricksu_fee + (int) $ricksu_repair + (int) $ricksu_charger_for_additional;
 
-  
+
 
 
 
@@ -1955,33 +1980,33 @@ function getTotalCost($dbc,$data){
 
   $charges = $inspection_info['inspection_info_charges'];
 
-  $inspection_info_total = (int)$repair_charges_tax + (int)$charges;
+  $inspection_info_total = (int) $repair_charges_tax + (int) $charges;
 
 
 
-$shipment_total=0;
-$vehicle_bl_charges=$vehicle_info['vehicle_bl_charges'];
-$radiation_charges=$shipment['radiation_charges'];
-$radiation_charges=$vehicle_info['vehicle_freight_charges'];
-$vehicle_terminal_charges=$vehicle_info['vehicle_terminal_charges'];
-$heat_charges=$shipment['heat_charges'];
-$other_charges=$shipment['other_charges'];
-$shipping_charges=$shipment['shipping_charges'];
+  $shipment_total = 0;
+  $vehicle_bl_charges = $vehicle_info['vehicle_bl_charges'];
+  $radiation_charges = $shipment['radiation_charges'];
+  $radiation_charges = $vehicle_info['vehicle_freight_charges'];
+  $vehicle_terminal_charges = $vehicle_info['vehicle_terminal_charges'];
+  $heat_charges = $shipment['heat_charges'];
+  $other_charges = $shipment['other_charges'];
+  $shipping_charges = $shipment['shipping_charges'];
 
-$shipment_total=(int)$vehicle_bl_charges+(int)$radiation_charges+(int)$radiation_charges+(int)$vehicle_terminal_charges+(int)$heat_charges+(int)$other_charges+(int)$shipping_charges;
+  $shipment_total = (int) $vehicle_bl_charges + (int) $radiation_charges + (int) $radiation_charges + (int) $vehicle_terminal_charges + (int) $heat_charges + (int) $other_charges + (int) $shipping_charges;
 
-$shipment=fetchRecord($dbc,"shipment","vehicle_id",$data);
+  $shipment = fetchRecord($dbc, "shipment", "vehicle_id", $data);
 
 
 
 
   $airmail = fetchRecord($dbc, "airmail", "vehicle_id", $data);
 
-  $airmail_courier =  $airmail['airmail_courier_charges'];
+  $airmail_courier = $airmail['airmail_courier_charges'];
 
-  
 
-  $grandTotal = (int)$vehicle_info_total + (int)$auction_info_total + (int)$ricksu_total + (int)$ricksu_total + (int)$airmail_courier+$shipment_total;
+
+  $grandTotal = (int) $vehicle_info_total + (int) $auction_info_total + (int) $ricksu_total + (int) $ricksu_total + (int) $airmail_courier + $shipment_total;
 
   return $grandTotal;
 
@@ -1989,7 +2014,8 @@ $shipment=fetchRecord($dbc,"shipment","vehicle_id",$data);
 
 
 
-function getTotalExpense($dbc,$data){
+function getTotalExpense($dbc, $data)
+{
 
   $ttl = 0;
 
@@ -1997,7 +2023,7 @@ function getTotalExpense($dbc,$data){
 
   while ($r = mysqli_fetch_assoc($q)) {
 
-      $ttl += $r['vehicle_expense_amount'];
+    $ttl += $r['vehicle_expense_amount'];
 
   }
 
@@ -2017,23 +2043,22 @@ function getTotalExpense($dbc,$data){
 
 
 
-function html_mailto($dbc,$to_email,$subject,$id)
-
+function html_mailto($dbc, $to_email, $subject, $id)
 {
 
-  $record=fetchRecord($dbc,"ricksu","ricksu_id",$id);
+  $record = fetchRecord($dbc, "ricksu", "ricksu_id", $id);
 
-  $v=fetchRecord($dbc,"vehicle_info","vehicle_id",$record['vehicle_id']);
+  $v = fetchRecord($dbc, "vehicle_info", "vehicle_id", $record['vehicle_id']);
 
-  $company=fetchRecord($dbc,"ricksu_company","ricksu_company_id",$record['ricksu_company']);
+  $company = fetchRecord($dbc, "ricksu_company", "ricksu_company_id", $record['ricksu_company']);
 
-  $brand=fetchRecord($dbc,"brands","brand_id",$v['vehicle_brand']);
+  $brand = fetchRecord($dbc, "brands", "brand_id", $v['vehicle_brand']);
 
-  $maker=fetchRecord($dbc,"maker","maker_id",$v['vehicle_maker']);
-  @$body_type=fetchRecord($dbc,"body_type","body_type_id",$v['vehicle_type']);
+  $maker = fetchRecord($dbc, "maker", "maker_id", $v['vehicle_maker']);
+  @$body_type = fetchRecord($dbc, "body_type", "body_type_id", $v['vehicle_type']);
 
 
-$body = '<!DOCTYPE html>
+  $body = '<!DOCTYPE html>
 
 <html lang="en">
 
@@ -2083,7 +2108,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$brand['brand_name'].' '.@$maker['maker_name'].'</td>
+        <td width="93px">' . @$brand['brand_name'] . ' ' . @$maker['maker_name'] . '</td>
 
    
 
@@ -2092,7 +2117,7 @@ $body = '<!DOCTYPE html>
           Manufacture Year:
 
         </td>
-<td width="93px">'.@$v['vehicle_manu_year'].'</td>
+<td width="93px">' . @$v['vehicle_manu_year'] . '</td>
        
 
 
@@ -2106,7 +2131,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-         <td width="93px">'.@$body_type['body_type_name'].'</td><!-- input -->
+         <td width="93px">' . @$body_type['body_type_name'] . '</td><!-- input -->
 
 
 
@@ -2117,7 +2142,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$v['vehicle_color'].'</td>
+        <td width="93px">' . @$v['vehicle_color'] . '</td>
 
 
 
@@ -2137,7 +2162,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_loading_point'].'</td>
+        <td width="93px">' . @$record['ricksu_loading_point'] . '</td>
 
 
 
@@ -2147,7 +2172,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_delievery_point'].'</td>
+        <td width="93px">' . @$record['ricksu_delievery_point'] . '</td>
 
 
 
@@ -2160,7 +2185,7 @@ $body = '<!DOCTYPE html>
           Type: 
 
         </td>
-         <td width="93px">'.@$record['ricksu_type'].'</td>
+         <td width="93px">' . @$record['ricksu_type'] . '</td>
 
 
 
@@ -2171,7 +2196,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$company['ricksu_company_name'].'</td>
+        <td width="93px">' . @$company['ricksu_company_name'] . '</td>
 
 
 
@@ -2185,7 +2210,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_receive'].'</td>
+        <td width="93px">' . @$record['ricksu_receive'] . '</td>
 
 
 
@@ -2195,7 +2220,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_deliever_by'].'</td>
+        <td width="93px">' . @$record['ricksu_deliever_by'] . '</td>
 
 
 
@@ -2209,7 +2234,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_arrival_date'].'</td>
+        <td width="93px">' . @$record['ricksu_arrival_date'] . '</td>
 
 
 
@@ -2219,7 +2244,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_leaving_date'].'</td>
+        <td width="93px">' . @$record['ricksu_leaving_date'] . '</td>
 
 
 
@@ -2234,7 +2259,7 @@ $body = '<!DOCTYPE html>
         </td>
 
         
-        <td width="93px">'.@$record[' ricksu_repair_info'].'</td><!-- input -->
+        <td width="93px">' . @$record[' ricksu_repair_info'] . '</td><!-- input -->
 
 
 
@@ -2244,7 +2269,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_repair_fee'].'</td>
+        <td width="93px">' . @$record['ricksu_repair_fee'] . '</td>
 
 
 
@@ -2258,7 +2283,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_fee'].'</td>
+        <td width="93px">' . @$record['ricksu_fee'] . '</td>
 
 
 
@@ -2268,7 +2293,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_charger_for_additional'].'</td>
+        <td width="93px">' . @$record['ricksu_charger_for_additional'] . '</td>
 
 
 
@@ -2282,7 +2307,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_free_at_yard'].'</td>
+        <td width="93px">' . @$record['ricksu_free_at_yard'] . '</td>
 
 
 
@@ -2292,7 +2317,7 @@ $body = '<!DOCTYPE html>
 
         </td>
 
-        <td width="93px">'.@$record['ricksu_yard_services'].'</td>
+        <td width="93px">' . @$record['ricksu_yard_services'] . '</td>
 
 
 
@@ -2314,87 +2339,90 @@ $body = '<!DOCTYPE html>
 
 
 
-$headers = "MIME-Version: 1.0\r\n";
+  $headers = "MIME-Version: 1.0\r\n";
 
 
 
-$headers = "Content-type: text/html; charset=ISO-8859-1";
+  $headers = "Content-type: text/html; charset=ISO-8859-1";
 
 
 
-if (mail($to_email,$subject,$body,$headers)) {
+  if (mail($to_email, $subject, $body, $headers)) {
 
     echo "Email successfully sent to $to_email... ";
 
-} else {
+  } else {
 
     echo "Email sending failed...";
 
 
 
-}
+  }
 
 }
-function getcustomerBlance($dbc,$id){
-// $r4 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(advance) AS newbalance FROM transactions WHERE customer_id = '$id'"));
+function getcustomerBlance($dbc, $id)
+{
+  // $r4 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(advance) AS newbalance FROM transactions WHERE customer_id = '$id'"));
 // return ((int)$r4['newbalance']);
 
- $from_balance=mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='$id'"));
+  $from_balance = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(credit-debit) AS from_balance FROM transactions WHERE customer_id='$id'"));
   if (!empty($from_balance['from_balance'])) {
     return $from_balance['from_balance'];
-  }else{
+  } else {
     return 0;
   }
   # code...
 }
-function getIncome($dbc,$value=''){
-   $salesGet = mysqli_query($dbc,"SELECT * FROM orders ".$value." ");
-    $net_profit=0;
-  
-  while($fetchOrder=mysqli_fetch_assoc($salesGet)):
-            $sql = "SELECT * FROM order_item WHERE order_id = '$fetchOrder[order_id]' AND order_item_status=1";
-                  $query = $dbc->query($sql);
-                  while ($result = $query->fetch_assoc()) {
-                  $product_id= $result['product_id'];
-                  $sold_quantity= $result['quantity'];
-                  $sold_rate= $result['rate'];
-                //$purchases_items ="SELECT * FROM purchase_item WHERE purchase_id=  ";
-                  $sql_item = "SELECT * FROM purchase_item WHERE product_id = '$product_id'";
-                  $query_item = $dbc->query($sql_item);
-                  while ($result_item = $query_item->fetch_assoc()) {
-                  $product_purchase= $result_item['rate'];
-                  $sold_income = @$sold_quantity * @$sold_rate;
-                  $purchase_income = $product_purchase * $sold_quantity; 
-                }
-                  $net_profit+=@$sold_income-@$purchase_income ;
+function getIncome($dbc, $value = '')
+{
+  $salesGet = mysqli_query($dbc, "SELECT * FROM orders " . $value . " ");
+  $net_profit = 0;
 
-                 }//while
-  endwhile; 
-     return $net_profit;
+  while ($fetchOrder = mysqli_fetch_assoc($salesGet)):
+    $sql = "SELECT * FROM order_item WHERE order_id = '$fetchOrder[order_id]' AND order_item_status=1";
+    $query = $dbc->query($sql);
+    while ($result = $query->fetch_assoc()) {
+      $product_id = $result['product_id'];
+      $sold_quantity = $result['quantity'];
+      $sold_rate = $result['rate'];
+      //$purchases_items ="SELECT * FROM purchase_item WHERE purchase_id=  ";
+      $sql_item = "SELECT * FROM purchase_item WHERE product_id = '$product_id'";
+      $query_item = $dbc->query($sql_item);
+      while ($result_item = $query_item->fetch_assoc()) {
+        $product_purchase = $result_item['rate'];
+        $sold_income = @$sold_quantity * @$sold_rate;
+        $purchase_income = $product_purchase * $sold_quantity;
+      }
+      $net_profit += @$sold_income - @$purchase_income;
+
+    }//while
+  endwhile;
+  return $net_profit;
 }
-function getexpense($dbc,$value){
-  $expense =mysqli_query($dbc,"SELECT sum(voucher_amount) as total_amount FROM vouchers  WHERE voucher_group='expense_voucher' ".$value." ");
-  if (mysqli_num_rows($expense)>0) {
-    $r=mysqli_fetch_array($expense);
-    return $total_expense=!empty($r['total_amount'])?abs($r['total_amount']):0;
-  }else{
+function getexpense($dbc, $value)
+{
+  $expense = mysqli_query($dbc, "SELECT sum(voucher_amount) as total_amount FROM vouchers  WHERE voucher_group='expense_voucher' " . $value . " ");
+  if (mysqli_num_rows($expense) > 0) {
+    $r = mysqli_fetch_array($expense);
+    return $total_expense = !empty($r['total_amount']) ? abs($r['total_amount']) : 0;
+  } else {
     return 0;
   }
 }
-function getOrders($dbc,$value,$type)
+function getOrders($dbc, $value, $type)
 {
-  @$total_sales=mysqli_query($dbc,"SELECT count(*) as total_order,sum(grand_total) as total_sales FROM orders ".$value." ");
-                             
-   if (mysqli_num_rows($total_sales)>0) {
-    $r=mysqli_fetch_array($total_sales);
-    if ($type=="order") {
-      return $total_sales=!empty($r['total_order'])?abs($r['total_order']):0; 
+  @$total_sales = mysqli_query($dbc, "SELECT count(*) as total_order,sum(grand_total) as total_sales FROM orders " . $value . " ");
+
+  if (mysqli_num_rows($total_sales) > 0) {
+    $r = mysqli_fetch_array($total_sales);
+    if ($type == "order") {
+      return $total_sales = !empty($r['total_order']) ? abs($r['total_order']) : 0;
       # code...
-    }else{
-      return $total_sales=!empty($r['total_sales'])?abs($r['total_sales']):0; 
+    } else {
+      return $total_sales = !empty($r['total_sales']) ? abs($r['total_sales']) : 0;
     }
-   
-  }else{
+
+  } else {
     return 0;
   }
 }

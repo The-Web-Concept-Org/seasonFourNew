@@ -108,84 +108,79 @@ $(document).ready(function () {
       },
     }); //ajax call
   }); //main
-  $("#sale_order_fm").on("submit", function (e) {
-    e.preventDefault();
+  let isSubmitting = false;
 
-    var form = $("#sale_order_fm")[0];
-    var formData = new FormData(form);
+$("#sale_order_fm").on("submit", function (e) {
+  e.preventDefault();
 
-    for (var pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
-    }
-    const $btn = $("#sale_order_btn");
-    const $spinner = $btn.find(".spinner-border");
-    const $text = $btn.find(".btn-text");
+  if (isSubmitting) return; // Avoid double submit
+  isSubmitting = true;
 
-    $.ajax({
-      type: "POST",
-      url: $(form).attr("action"),
-      data: formData,
-      dataType: "json",
-      processData: false,
-      contentType: false,
-      beforeSend: function () {
-        // Show loader
-        $spinner.removeClass("d-none");
-        $text.addClass("d-none");
-        $btn.prop("disabled", true);
-      },
-      success: function (response) {
-        // Hide loader
-        resetButton();
+  const form = this;
+  const formData = new FormData(form);
+  const $btn = $("#sale_order_btn");
+  const $spinner = $btn.find(".spinner-border");
+  const $text = $btn.find(".btn-text");
 
-        if (response.sts == "success") {
-          $("#sale_order_fm")[0].reset();
-          $("#purchase_product_tb").html("");
-          $("#product_grand_total_amount").html("");
-          $("#product_total_amount").html("");
+  $.ajax({
+    type: "POST",
+    url: $(form).attr("action"),
+    data: formData,
+    dataType: "json",
+    processData: false,
+    contentType: false,
+    beforeSend: function () {
+      $spinner.removeClass("d-none");
+      $text.addClass("d-none");
+      $btn.prop("disabled", true);
+    },
+    success: function (response) {
+      if (response.sts === "success") {
+        form.reset();
+        $("#purchase_product_tb").html("");
+        $("#product_grand_total_amount").html("");
+        $("#product_total_amount").html("");
 
-          Swal.fire({
-            title: response.msg,
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: `Print`,
-            denyButtonText: `Add New`,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.open(
-                "print_sale.php?id=" +
-                response.order_id +
-                "&type=" +
-                response.type,
-                "_blank"
-              );
-              location.reload();
-            } else if (
-              result.isDenied ||
-              result.dismiss === Swal.DismissReason.cancel
-            ) {
-              location.reload();
-            }
-          });
-        } else if (response.sts == "error") {
-          sweeetalert(response.msg, response.sts, 1500);
-        }
-      },
-      error: function (xhr) {
-        console.log("AJAX error:", xhr.responseText);
-      },
-      complete: function () {
-        // Re-enable and reset button UI regardless of outcome
-        resetButton();
-      },
-    });
-
-    function resetButton() {
-      $spinner.addClass("d-none");
-      $text.removeClass("d-none");
-      $btn.prop("disabled", false);
-    }
+        Swal.fire({
+          title: response.msg,
+          showDenyButton: true,
+          showCancelButton: true,
+          confirmButtonText: `Print`,
+          denyButtonText: `Add New`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.open(
+              "print_sale.php?id=" +
+              response.order_id +
+              "&type=" +
+              response.type,
+              "_blank"
+            );
+            location.reload();
+          } else {
+            location.reload();
+          }
+        });
+      } else {
+        sweeetalert(response.msg, response.sts, 1500);
+      }
+    },
+    error: function (xhr) {
+      console.error("AJAX error:", xhr.responseText);
+    },
+    complete: function () {
+      resetButton();
+      isSubmitting = false;
+    },
   });
+
+  function resetButton() {
+    $spinner.addClass("d-none");
+    $text.removeClass("d-none");
+    $btn.prop("disabled", false);
+  }
+});
+
 
   $("#credit_order_client_name").on("change", function () {
     var value = $("#credit_order_client_name :selected").data("id");
@@ -1417,24 +1412,7 @@ $(document).ready(function () {
   });
 });
 
-//  function getdata(orderId,type) {
-//    const url = 'print_sale.php?type=' + type + '&id=' + orderId;
 
-//     $('#stock_detail_content').html('<div class="text-center">Loading...</div>');
-
-//     $.ajax({
-//       url: url,
-//       method: 'GET',
-//       success: function (data) {
-//         // Remove window.print() if present
-//         const cleaned = data.replace(/window\.print\s*\(\s*\)\s*;?/gi, '');
-//         $('#stock_detail_content').html(cleaned);
-//       },
-//       error: function () {
-//         $('#stock_detail_content').html('<div class="text-danger">Failed to load stock details.</div>');
-//       }
-//     });
-//   }
 function getdata(orderId, type) {
   const url = 'print_sale.php?type=' + type + '&id=' + orderId;
 

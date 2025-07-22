@@ -223,8 +223,8 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   </div>
                   <div class="col-sm-2 mt-3 mb-sm-0">
                     <label for="">Sale Rate</label>
-                    <input type="text" class="form-control" id="" placeholder=" Rate" name="current_rate"
-                      required value="<?= @$fetchproduct['current_rate'] ?>">
+                    <input type="text" class="form-control" id="" placeholder=" Rate" name="current_rate" required
+                      value="<?= @$fetchproduct['current_rate'] ?>">
                   </div>
                   <div class="col-sm-2 mt-3 mb-sm-0">
                     <label for="">Final Rate</label>
@@ -258,20 +258,6 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
               </form>
             </div>
           <?php else: ?>
-            <!-- <form method="GET" class="form-inline mb-3">
-              <label for="branch_id" class="mr-2">Filter by Branch:</label>
-              <select name="branch_id" id="branch_id" class="form-control text-capitalize mr-2"
-                onchange="this.form.submit()">
-                <option value="">All Branches</option>
-                <?php
-                $branches = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                while ($b = mysqli_fetch_assoc($branches)) {
-                  $selected = ($_GET['branch_id'] ?? '') == $b['branch_id'] ? 'selected' : '';
-                  echo "<option value='{$b['branch_id']}' class='text-capitalize' $selected>{$b['branch_name']}</option>";
-                }
-                ?>
-              </select>
-            </form> -->
             <div class="card-body">
 
               <div class="d-flex justify-content-between  mb-3 ">
@@ -328,127 +314,105 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
 
               <div id="productTableWrapper" style="display: none;">
                 <table class="table dataTable col-12" style="width: 100%" id="product_tb">
-
                   <thead>
                     <tr>
-                      <!-- <th class="text-dark">#</th> -->
                       <th class="text-dark">Code</th>
                       <th class="text-dark">Name</th>
                       <th class="text-dark" style="width: 20%;">Description</th>
-                      <th class="text-dark " style="min-width: 5%;">Category</th>
+                      <th class="text-dark" style="min-width: 5%;">Category</th>
                       <th class="text-dark" style="width: 15%;">Brand</th>
-                      <?php
-                      if ($UserData['user_role'] == 'admin'):
-                        ?>
+                      <?php if ($UserData['user_role'] == 'admin'): ?>
                         <th class="text-dark" style="width: 20%;">Purchase Rate</th>
-                        <?php
-                      endif;
-                      ?>
+                      <?php endif; ?>
                       <th class="text-dark" style="width: 15%;">Sale Rate</th>
-                      <!-- <?php if ($get_company['stock_manage'] == 1): ?>
-                      <th class="text-dark">Quanity instock</th>
-                    <?php endif; ?> -->
                       <th class="text-dark" style="width: 15%;">Final Rate</th>
                       <th class="text-dark" style="width: 15%;">Quantity</th>
-                      <th class="d-print-none text-dark " style="width: 15%;">Action</th>
+                      <th class="d-print-none text-dark" style="width: 15%;">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php $q = mysqli_query($dbc, "SELECT * FROM product where status=1");
-                    $c = 0;
-                    while ($r = mysqli_fetch_assoc($q)) {
-                      @$brandFetched = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
-                      @$categoryFetched = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-                      $c++;
+                    <?php
+                    $branch_id = ($_SESSION['user_role'] == 'admin') ? ($_GET['branch_id'] ?? '') : $_SESSION['branch_id'];
+
+                    $query = "
+        SELECT 
+          p.*, 
+          b.brand_name, 
+          c.categories_name, 
+          IFNULL(SUM(i.quantity_instock), 0) AS quantity_instock
+        FROM product p
+        LEFT JOIN brands b ON p.brand_id = b.brand_id
+        LEFT JOIN categories c ON p.category_id = c.categories_id
+        LEFT JOIN inventory i ON p.product_id = i.product_id";
+
+                    if (!empty($branch_id)) {
+                      $query .= " AND i.branch_id = '$branch_id'";
+                    }
+
+                    $query .= "
+        WHERE p.status = 1
+        GROUP BY p.product_id
+        ORDER BY p.product_code DESC";
+
+                    $result = mysqli_query($dbc, $query);
+
+                    while ($r = mysqli_fetch_assoc($result)) {
+                      $quantity = $r['quantity_instock'];
+                      $alert_at = !empty($r['alert_at']) ? $r['alert_at'] : 5;
+                      $badge_class = ($quantity <= $alert_at) ? 'bg-danger text-white p-1 rounded' : 'bg-success text-white p-1 rounded';
                       ?>
                       <tr>
-                        <!-- <td><?= $c ?></td> -->
                         <td class="text-uppercase"><?= $r['product_code'] ?></td>
-
                         <td class="text-capitalize"><?= $r['product_name'] ?></td>
                         <td class="text-capitalize"><?= $r['product_description'] ?></td>
-                        <td class="text-capitalize"><?= @$categoryFetched['categories_name'] ?></td>
-                        <td class="text-capitalize"><?= @$brandFetched['brand_name'] ?></td>
-                        <?php
-                        if ($UserData['user_role'] == 'admin'):
-                          ?>
+                        <td class="text-capitalize"><?= $r['categories_name'] ?? 'N/A' ?></td>
+                        <td class="text-capitalize"><?= $r['brand_name'] ?? 'N/A' ?></td>
+
+                        <?php if ($UserData['user_role'] == 'admin'): ?>
                           <td><?= $r['purchase_rate'] ?></td>
-                          <?php
-                        endif;
-                        ?>
-                        <td><?= $r['current_rate'] ?>
-                        <td><?= $r['final_rate'] ?>
-                        </td>
-                        <td>
-                          <?php
-                          $product_id = $r['product_id'];
-                          $user_id = $_SESSION['user_id'];
+                        <?php endif; ?>
 
-                          if ($_SESSION['user_role'] == 'admin') {
-                            $branch_id = $_GET['branch_id'] ?? '';
-                          } else {
-                            $branch_id = $_SESSION['branch_id'];
-                          }
+                        <td><?= $r['current_rate'] ?></td>
+                        <td><?= $r['final_rate'] ?></td>
 
-                          if (!empty($branch_id)) {
-                            $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'";
-                          } else {
-                            $inventory_query = "SELECT SUM(quantity_instock) as quantity FROM inventory WHERE product_id = '$product_id'";
-                          }
+                        <td><span class='<?= $badge_class ?>'><?= $quantity ?></span></td>
 
-                          $inventory_stock = mysqli_query($dbc, $inventory_query);
-
-                          if (mysqli_num_rows($inventory_stock) > 0) {
-                            $i = mysqli_fetch_assoc($inventory_stock);
-                            $quantity = $i['quantity'] ?? 0;
-                            $badge_class = ($quantity <= 5) ? 'bg-danger text-white p-1 rounded' : 'bg-success text-white p-1 rounded';
-                            ?>
-                            <span class=' <?= $badge_class ?> '><?= $quantity ?></span>
-                            <?php
-                          } else {
-                            ?>
-                            <span class='<?= $badge_class ?>'>0</span>
-                            <?php
-                          }
-                          ?>
-                        </td>
                         <td class="d-flex">
-
                           <?php if (@$userPrivileges['nav_edit'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
                             <form action="product.php?act=add" method="POST">
                               <input type="hidden" name="edit_product_id" value="<?= base64_encode($r['product_id']) ?>">
                               <button type="submit" class="btn btn-admin btn-sm m-1 d-inline-block">Edit</button>
                             </form>
                           <?php endif ?>
+
                           <?php if (@$userPrivileges['nav_delete'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
                             <button type="button"
                               onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
                               class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
-
                           <?php endif ?>
+
                           <a href="print_barcode.php?id=<?= base64_encode($r['product_id']) ?>"
                             class="btn btn-primary btn-sm m-1">Barcode</a>
-
 
                           <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
                             onclick="getdata(<?= $r['product_id'] ?>)" data-toggle="modal" data-target="#view_stock_modal">
                             Detail
                           </button>
-
                         </td>
-
                       </tr>
                     <?php } ?>
                   </tbody>
                 </table>
               </div>
 
-            <?php endif ?>
-          </div>
-        </div> <!-- .row -->
-      </div> <!-- .container-fluid -->
+            </div>
 
-    </main> <!-- main -->
+          <?php endif ?>
+        </div>
+      </div> <!-- .row -->
+  </div> <!-- .container-fluid -->
+
+  </main> <!-- main -->
   </div> <!-- .wrapper -->
 
   <div class="modal fade" id="add_category_modal" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
@@ -743,7 +707,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
               <div class="col-sm-6 ">
                 <label for="">Brand Category</label>
                 <div id="categoryDropdownContainer">
-                  <select class="form-control searchableSelect" name="category_id" id="tableData1" size="1">
+                  <select class="form-control searchableSelect" name="category_id" id="tableData2" size="1">
                     <option value="">Select Category</option>
                     <?php
                     $result = mysqli_query($dbc, "select * from categories");
@@ -772,205 +736,6 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                 <select class="form-control searchableSelect" id="brand_country" name="brand_country">
                   <option value="">Select Country</option>
                   <?php
-                  $countries = [
-                    "Afghanistan",
-                    "Albania",
-                    "Algeria",
-                    "Andorra",
-                    "Angola",
-                    "Antigua and Barbuda",
-                    "Argentina",
-                    "Armenia",
-                    "Australia",
-                    "Austria",
-                    "Azerbaijan",
-                    "Bahamas",
-                    "Bahrain",
-                    "Bangladesh",
-                    "Barbados",
-                    "Belarus",
-                    "Belgium",
-                    "Belize",
-                    "Benin",
-                    "Bhutan",
-                    "Bolivia",
-                    "Bosnia and Herzegovina",
-                    "Botswana",
-                    "Brazil",
-                    "Brunei",
-                    "Bulgaria",
-                    "Burkina Faso",
-                    "Burundi",
-                    "Cabo Verde",
-                    "Cambodia",
-                    "Cameroon",
-                    "Canada",
-                    "Central African Republic",
-                    "Chad",
-                    "Chile",
-                    "China",
-                    "Colombia",
-                    "Comoros",
-                    "Congo, Democratic Republic of the",
-                    "Congo, Republic of the",
-                    "Costa Rica",
-                    "Cote d'Ivoire",
-                    "Croatia",
-                    "Cuba",
-                    "Cyprus",
-                    "Czech Republic",
-                    "Denmark",
-                    "Djibouti",
-                    "Dominica",
-                    "Dominican Republic",
-                    "East Timor",
-                    "Ecuador",
-                    "Egypt",
-                    "El Salvador",
-                    "Equatorial Guinea",
-                    "Eritrea",
-                    "Estonia",
-                    "Eswatini",
-                    "Ethiopia",
-                    "Fiji",
-                    "Finland",
-                    "France",
-                    "Gabon",
-                    "Gambia",
-                    "Georgia",
-                    "Germany",
-                    "Ghana",
-                    "Greece",
-                    "Grenada",
-                    "Guatemala",
-                    "Guinea",
-                    "Guinea-Bissau",
-                    "Guyana",
-                    "Haiti",
-                    "Honduras",
-                    "Hungary",
-                    "Iceland",
-                    "India",
-                    "Indonesia",
-                    "Iran",
-                    "Iraq",
-                    "Ireland",
-                    "Israel",
-                    "Italy",
-                    "Jamaica",
-                    "Japan",
-                    "Jordan",
-                    "Kazakhstan",
-                    "Kenya",
-                    "Kiribati",
-                    "Korea, North",
-                    "Korea, South",
-                    "Kosovo",
-                    "Kuwait",
-                    "Kyrgyzstan",
-                    "Laos",
-                    "Latvia",
-                    "Lebanon",
-                    "Lesotho",
-                    "Liberia",
-                    "Libya",
-                    "Liechtenstein",
-                    "Lithuania",
-                    "Luxembourg",
-                    "Madagascar",
-                    "Malawi",
-                    "Malaysia",
-                    "Maldives",
-                    "Mali",
-                    "Malta",
-                    "Marshall Islands",
-                    "Mauritania",
-                    "Mauritius",
-                    "Mexico",
-                    "Micronesia",
-                    "Moldova",
-                    "Monaco",
-                    "Mongolia",
-                    "Montenegro",
-                    "Morocco",
-                    "Mozambique",
-                    "Myanmar",
-                    "Namibia",
-                    "Nauru",
-                    "Nepal",
-                    "Netherlands",
-                    "New Zealand",
-                    "Nicaragua",
-                    "Niger",
-                    "Nigeria",
-                    "North Macedonia",
-                    "Norway",
-                    "Oman",
-                    "Pakistan",
-                    "Palau",
-                    "Panama",
-                    "Papua New Guinea",
-                    "Paraguay",
-                    "Peru",
-                    "Philippines",
-                    "Poland",
-                    "Portugal",
-                    "Qatar",
-                    "Romania",
-                    "Russia",
-                    "Rwanda",
-                    "Saint Kitts and Nevis",
-                    "Saint Lucia",
-                    "Saint Vincent and the Grenadines",
-                    "Samoa",
-                    "San Marino",
-                    "Sao Tome and Principe",
-                    "Saudi Arabia",
-                    "Senegal",
-                    "Serbia",
-                    "Seychelles",
-                    "Sierra Leone",
-                    "Singapore",
-                    "Slovakia",
-                    "Slovenia",
-                    "Solomon Islands",
-                    "Somalia",
-                    "South Africa",
-                    "South Sudan",
-                    "Spain",
-                    "Sri Lanka",
-                    "Sudan",
-                    "Suriname",
-                    "Sweden",
-                    "Switzerland",
-                    "Syria",
-                    "Taiwan",
-                    "Tajikistan",
-                    "Tanzania",
-                    "Thailand",
-                    "Togo",
-                    "Tonga",
-                    "Trinidad and Tobago",
-                    "Tunisia",
-                    "Turkey",
-                    "Turkmenistan",
-                    "Tuvalu",
-                    "Uganda",
-                    "Ukraine",
-                    "United Arab Emirates",
-                    "United Kingdom",
-                    "United States",
-                    "Uruguay",
-                    "Uzbekistan",
-                    "Vanuatu",
-                    "Vatican City",
-                    "Venezuela",
-                    "Vietnam",
-                    "Yemen",
-                    "Zambia",
-                    "Zimbabwe"
-                  ];
-
                   foreach ($countries as $country) {
                     // Trim whitespace and compare case-insensitively
                     $selected = (trim(strtolower(@$brands['brand_country'])) == trim(strtolower($country))) ? 'selected' : '';
