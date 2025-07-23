@@ -110,76 +110,76 @@ $(document).ready(function () {
   }); //main
   let isSubmitting = false;
 
-$("#sale_order_fm").on("submit", function (e) {
-  e.preventDefault();
+  $("#sale_order_fm").on("submit", function (e) {
+    e.preventDefault();
 
-  if (isSubmitting) return; // Avoid double submit
-  isSubmitting = true;
+    if (isSubmitting) return; // Avoid double submit
+    isSubmitting = true;
 
-  const form = this;
-  const formData = new FormData(form);
-  const $btn = $("#sale_order_btn");
-  const $spinner = $btn.find(".spinner-border");
-  const $text = $btn.find(".btn-text");
+    const form = this;
+    const formData = new FormData(form);
+    const $btn = $("#sale_order_btn");
+    const $spinner = $btn.find(".spinner-border");
+    const $text = $btn.find(".btn-text");
 
-  $.ajax({
-    type: "POST",
-    url: $(form).attr("action"),
-    data: formData,
-    dataType: "json",
-    processData: false,
-    contentType: false,
-    beforeSend: function () {
-      $spinner.removeClass("d-none");
-      $text.addClass("d-none");
-      $btn.prop("disabled", true);
-    },
-    success: function (response) {
-      if (response.sts === "success") {
-        form.reset();
-        $("#purchase_product_tb").html("");
-        $("#product_grand_total_amount").html("");
-        $("#product_total_amount").html("");
+    $.ajax({
+      type: "POST",
+      url: $(form).attr("action"),
+      data: formData,
+      dataType: "json",
+      processData: false,
+      contentType: false,
+      beforeSend: function () {
+        $spinner.removeClass("d-none");
+        $text.addClass("d-none");
+        $btn.prop("disabled", true);
+      },
+      success: function (response) {
+        if (response.sts === "success") {
+          form.reset();
+          $("#purchase_product_tb").html("");
+          $("#product_grand_total_amount").html("");
+          $("#product_total_amount").html("");
 
-        Swal.fire({
-          title: response.msg,
-          showDenyButton: true,
-          showCancelButton: true,
-          confirmButtonText: `Print`,
-          denyButtonText: `Add New`,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.open(
-              "print_sale.php?id=" +
-              response.order_id +
-              "&type=" +
-              response.type,
-              "_blank"
-            );
-            location.reload();
-          } else {
-            location.reload();
-          }
-        });
-      } else {
-        sweeetalert(response.msg, response.sts, 1500);
-      }
-    },
-    error: function (xhr) {
-      console.error("AJAX error:", xhr.responseText);
-    },
-    complete: function () {
-      resetButton();
-      isSubmitting = false;
-    },
+          Swal.fire({
+            title: response.msg,
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: `Print`,
+            denyButtonText: `Add New`,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.open(
+                "print_sale.php?id=" +
+                response.order_id +
+                "&type=" +
+                response.type,
+                "_blank"
+              );
+              location.reload();
+            } else {
+              location.reload();
+            }
+          });
+        } else {
+          sweeetalert(response.msg, response.sts, 1500);
+        }
+      },
+      error: function (xhr) {
+        console.error("AJAX error:", xhr.responseText);
+      },
+      complete: function () {
+        resetButton();
+        isSubmitting = false;
+      },
+    });
+
+    function resetButton() {
+      $spinner.addClass("d-none");
+      $text.removeClass("d-none");
+      $btn.prop("disabled", false);
+    }
   });
-
-  function resetButton() {
-    $spinner.addClass("d-none");
-    $text.removeClass("d-none");
-    $btn.prop("disabled", false);
-  }
-});
 
 
   $("#credit_order_client_name").on("change", function () {
@@ -476,7 +476,7 @@ $("#get_product_name").on("change", function () {
   var delivery_note = $("#delivery_note").val();
   var gatepass = $("#gatepass").val();
   var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
- 
+
   $.ajax({
     type: "POST",
     url: "php_action/custom_action.php",
@@ -528,7 +528,7 @@ $("#get_product_name").on("change", function () {
 
   // Call the function for both purchase and sale prices
   fetchProductPrice(price_type);
- 
+
 });
 $("#product_code").on("change", function () {
   //var code=  $('#get_product_code').val();
@@ -605,7 +605,7 @@ $("#addProductPurchase").on("click", function () {
       var product_quantity = parseInt($("#get_product_quantity").val());
       var max_qty = parseInt($("#get_product_quantity").attr("max")) || 0;
       var pro_type = $("#add_pro_type").val();
-
+      var isGatepass = $("#gatepass").val() === "gatepass";
       if (
         (payment_type === "cash_purchase" && !isPurchaseReturn) ||
         (payment_type === "credit_purchase" && !isPurchaseReturn) ||
@@ -627,11 +627,11 @@ $("#addProductPurchase").on("click", function () {
 
       var total_price = price * product_quantity;
 
-      if (!id || !product_quantity || !code) {
+      if (!id || !product_quantity || !code || (!isGatepass && !price)) {
         Swal.fire({
           icon: "error",
           title: "Missing Information",
-          text: "Please make sure to select product and quantity.",
+          text: "Please make sure to select Product, Price and Quantity.",
           timer: 1500,
           showConfirmButton: false,
         });
