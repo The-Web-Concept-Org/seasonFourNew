@@ -823,7 +823,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 
 						$x++;
 					} //end of foreach
-					$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
+					$total_grand = $total_ammount - @$_REQUEST['ordered_discount'];
 					$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 					if ($due_amount > 0) {
 						$payment_status = 0; //pending

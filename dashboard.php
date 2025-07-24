@@ -170,43 +170,129 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                         <!-- row start-->
                         <div class="row">
 
-                            <div class="col-md-4 col-12 mb-4">
+                            <div class="col-md-6 col-12 mb-4">
                                 <div class="card shadow bg-primary text-white border-0">
                                     <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-3 text-center">
-                                                <span class="circle circle-sm bg-white">
-                                                    <i class="fe fe-16 fe-shopping-bag text-default mb-0"></i>
-                                                </span>
+                                        <div class="row">
+                                            <!-- 1. Today Sales -->
+                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                                <div class="mr-1 text-center">
+                                                    <span class="circle bg-white p-2 d-inline-block rounded-circle">
+                                                        <i class="fe fe-shopping-bag text-primary fe-20"></i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="small text-white mb-0">Today Sales</p>
+                                                    <h4 class="mb-0 text-white">
+                                                        <?php
+                                                        $branch_filter = '';
+                                                        if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                            $branch_id = intval($_SESSION['branch_id']);
+                                                            $branch_filter = " AND branch_id = $branch_id";
+                                                        }
+
+                                                        $query = "SELECT SUM(grand_total) AS total_sales FROM orders WHERE 1=1 $branch_filter $date_select";
+                                                        $result = mysqli_query($dbc, $query);
+                                                        @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
+
+                                                        $total = isset($total_sales) ? $total_sales : 0;
+                                                        echo number_format($total - $total_profit) . "KD";
+                                                        ?>
+                                                    </h4>
+                                                </div>
                                             </div>
-                                            <div class="col pr-0">
-                                                <p class="small text-white mb-0">Today Sales</p>
-                                                <span class="h3 mb-0 text-white">
-                                                    <?php
-                                                    // Ensure session is started
-                                                    
-                                                    $branch_filter = '';
-                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                        $branch_id = intval($_SESSION['branch_id']);
-                                                        $branch_filter = " AND branch_id = $branch_id";
-                                                    }
+                                            <?php
+                                            $branch_filter = '';
+                                            if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                $branch_id = intval($_SESSION['branch_id']);
+                                                $branch_filter = " AND o.branch_id = $branch_id";
+                                            }
 
-                                                    $query = "SELECT SUM(grand_total) AS total_sales, timestamp FROM orders WHERE 1=1 $branch_filter $date_select";
-                                                    $result = mysqli_query($dbc, $query);
-                                                    @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
+                                            // Fetch cash in hand, KNET, WAMD from orders based on payment structure
+                                            $query = "
+SELECT
+    SUM(CASE 
+        WHEN o.split_payment = 0 AND a.customer_name = 'cash in hand' THEN o.grand_total
+        WHEN o.split_payment = 1 AND a3.customer_name = 'cash in hand' THEN o.cash_paid
+        ELSE 0
+    END) AS cash_in_hand,
 
-                                                    $total = isset($total_sales) ? $total_sales : 0;
-                                                    echo number_format($total - $total_profit);
-                                                    ?>
+    SUM(CASE 
+        WHEN o.split_payment = 0 AND a.customer_name = 'knet' THEN o.grand_total
+        WHEN o.split_payment = 1 AND a2.customer_name = 'knet' THEN o.bank_paid
+        ELSE 0
+    END) AS knet_total,
 
-                                                </span>
-                                                <!--   <span class="small text-white">+5.5%</span> -->
+    SUM(CASE 
+        WHEN o.split_payment = 0 AND a.customer_name = 'wamd' THEN o.grand_total
+        WHEN o.split_payment = 1 AND a2.customer_name = 'wamd' THEN o.bank_paid
+        ELSE 0
+    END) AS wamd_total
+
+FROM orders o
+LEFT JOIN customers a ON o.payment_account = a.customer_id
+LEFT JOIN customers a2 ON o.bank_payment_account = a2.customer_id
+LEFT JOIN customers a3 ON o.cash_payment_account = a3.customer_id
+WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
+";
+
+                                            $result = mysqli_query($dbc, $query);
+                                            $data = mysqli_fetch_assoc($result);
+
+                                            $cashInHand = $data['cash_in_hand'] ?? 0;
+                                            $knetTotal = $data['knet_total'] ?? 0;
+                                            $wamdTotal = $data['wamd_total'] ?? 0;
+                                            ?>
+
+                                            <!-- 2. Cash In Hand -->
+                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                                <div class="mr-1 text-center">
+                                                    <span class="circle  p-2 d-inline-block rounded-circle border">
+                                                        <i class="fas fa-hand-holding-usd"></i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="small text-white mb-0">Cash In Hand</p>
+                                                    <h4 class="mb-0 text-white"><?= number_format($cashInHand) . "KD" ?>
+                                                    </h4> <!-- Replace with dynamic -->
+                                                </div>
+                                            </div>
+
+                                            <!-- 3. KNET -->
+                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                                <div class="mr-1 text-center">
+                                                    <span class="circle bg-white p-2 d-inline-block rounded-circle">
+                                                        <img src="img/logo/knet.png" alt="KNET"
+                                                            style="width: 24px; height: 24px;">
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="small text-white mb-0">KNET</p>
+                                                    <h4 class="mb-0 text-white"><?= number_format($knetTotal) . "KD" ?>
+                                                    </h4> <!-- Replace with dynamic -->
+                                                </div>
+                                            </div>
+
+                                            <!-- 4. WAMD / Account -->
+                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                                <div class="mr-1 text-center">
+                                                    <span class="circle bg-white p-2 d-inline-block rounded-circle">
+                                                        <img src="img/logo/wamd.png" alt="WAMD"
+                                                            style="width: 22px; height: 22px;">
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="small text-white mb-0">WAMD</p>
+                                                    <h4 class="mb-0 text-white"><?= number_format($wamdTotal) . "KD" ?>
+                                                    </h4>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-12 mb-4">
+
+                            <div class="col-md-3 col-12 mb-4">
                                 <div class="card shadow bg-primary text-white border-0">
                                     <div class="card-body">
                                         <div class="row align-items-center">
@@ -231,7 +317,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     $result = mysqli_query($dbc, $query);
                                                     @$total_purchase = mysqli_fetch_assoc($result)['total_sales'];
 
-                                                    echo $total_purchase2 = isset($total_purchase) ? $total_purchase : "0";
+                                                    echo $total_purchase2 = isset($total_purchase) ? $total_purchase . "KD" : "0" . "KD";
                                                     ?>
 
                                                 </span>
@@ -241,7 +327,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-12 mb-4">
+                            <div class="col-md-3 col-12 mb-4">
                                 <div class="card shadow bg-primary text-white border-0">
                                     <div class="card-body">
                                         <div class="row align-items-center">
@@ -256,7 +342,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     <span class="h3 mb-0 text-white">
                                                         <?php
 
-                                                        echo number_format($total_profit);
+                                                        echo number_format($total_profit) . "KD";
                                                         ?>
                                                     </span>
                                                 </span>
@@ -518,7 +604,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
 "))['total_sales'];
 
                                                     $total = isset($total_sales) ? $total_sales : "0";
-                                                    echo number_format($total);
+                                                    echo number_format($total) . "KD";
 
                                                     ?>
                                                 </h6>
@@ -540,7 +626,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
 "))['total_sales'];
 
                                                     $total = isset($total_sales) ? $total_sales : "0";
-                                                    echo number_format($total);
+                                                    echo number_format($total) . "KD";
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted"></p>
@@ -562,7 +648,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
 "))['total_sales'];
 
                                                     $total = isset($total_sales) ? $total_sales : 0;
-                                                    echo number_format($total);
+                                                    echo number_format($total) . "KD";
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
@@ -582,7 +668,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                     @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
                                                     $total_sales = isset($total_sales) ? $total_sales : 0;
 
-                                                    echo number_format($total_sales);
+                                                    echo number_format($total_sales) . "KD";
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted"></p>
@@ -647,8 +733,8 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
         <tr>
             <td>{$serial_number}</td>
             <td>{$bill_no}</td>
-            <td>{$grand_total}</td>
-            <td>{$profit}</td>
+            <td>{$grand_total}KD</td>
+            <td>{$profit}KD</td>
         </tr>
     ";
 

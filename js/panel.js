@@ -259,7 +259,7 @@ $(document).ready(function() {
 					success: function(response) {
 						if (response.sts === "success") {
 							Swal.fire("Success!", response.msg, "success").then(() => {
-								location.reload(); // reload after alert confirmation
+								location.reload(); 
 							});
 						} else {
 							Swal.fire("Error!", response.msg || "Something went wrong.", "error");
