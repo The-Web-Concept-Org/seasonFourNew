@@ -303,9 +303,9 @@
             $table_row = "390px";
             $getDate = $order['purchase_date'];
             if ($order['payment_type'] == "credit_purchase") {
-                $invoice_name = " purchase invoice";
+                $invoice_name = "Credit purchase invoice";
             } else {
-                $invoice_name = " purchase invoice";
+                $invoice_name = "Cash purchase invoice";
             }
             $order_item = mysqli_query($dbc, "SELECT purchase_item.*,product.* FROM purchase_item INNER JOIN product ON purchase_item.product_id=product.product_id WHERE purchase_item.purchase_id='" . $_REQUEST['id'] . "'");
         } elseif ($_REQUEST['type'] == "gatepass") {
@@ -333,10 +333,10 @@
             $id_name = "Sale Id";
             $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
             $unique_id = 'SF25-S-' . $order['order_id'];
-            if ($order['payment_type'] == "credit_sale") {
-                $invoice_name = " Sale Invoice";
+            if ($order['payment_type'] == "credit") {
+                $invoice_name = "Credit Sale Invoice";
             } else {
-                $invoice_name = " Sale Invoice";
+                $invoice_name = "Cash Sale Invoice";
             }
             $getDate = $order['order_date'];
             $comment = $order['order_narration'];
@@ -420,7 +420,7 @@
             $order = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['id']);
             $unique_id = 'SF25R-S-' . $order['order_id'];
             $unique_id = $order['order_id'];
-            if ($order['payment_type'] == "credit_sale") {
+            if ($order['payment_type'] == "credit") {
                 $invoice_name = "Credit Sale Return Invoice";
             } else {
                 $invoice_name = "Cash Sale Return Invoice";
@@ -696,7 +696,10 @@
                                         ?>
                                         <tr class="border">
                                             <td class="text-center border"><?= $jc ?></td>
-                                            <td class="text-left border pl-3"><?= strtoupper($item['product_name']) ?></td>
+                                            <td class="text-left border pl-3">
+                                                <?= strtoupper(preg_replace('/\s*-\s*CHINA\s*$/i', '', $item['product_name'])) ?>
+                                            </td>
+
                                             <td class="text-center border"><?= $item['quantity'] ?></td>
                                             <?php
                                             // Special case: Show if it's manualbill AND NOT delivery_note
@@ -894,23 +897,24 @@
 
 
                     </div>
-                <?php } else { ?>
-
-                    <div class="row mt-5 pt-5 m-0 pl-5">
-                        <div class="col-12 d-flex justify-content-end align-items-center">
-                            <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
-                            <div style="white-space: nowrap;">
-                                <?php
-                                $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-                                $user = fetchRecord($dbc, "users", "user_id", $userId);
-                                $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
-                                ?>
-                                <span><?= $fullName ?></span>
+                <?php } else {
+                    if (($_REQUEST['type'] ?? '') !== 'gatepass') { ?>
+                        <div class="row mt-5 pt-5 m-0 pl-5">
+                            <div class="col-12 d-flex justify-content-end align-items-center">
+                                <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
+                                <div style="white-space: nowrap;">
+                                    <?php
+                                    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+                                    $user = fetchRecord($dbc, "users", "user_id", $userId);
+                                    $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
+                                    ?>
+                                    <span><?= $fullName ?></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                <?php } ?>
+                    <?php }
+                } ?>
 
 
             </div><!-- end of container -->

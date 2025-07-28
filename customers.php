@@ -53,7 +53,9 @@ if (@$getCustomer) {
 
 
 						<div class="card card-info">
-							<div class="card-header text-center h4"><?= ucfirst($_REQUEST['type']) ?> Information</div>
+							<div class="card-header text-center h4">
+								<?= ($_REQUEST['type'] == 'bank') ? 'Account' : ucfirst($_REQUEST['type']) ?>
+								Information</div>
 							<div class=" card-body">
 								<form action="php_action/custom_action.php" method="post" id="formData">
 									<input type="hidden" name="add_manually_user" value="<?= @$_REQUEST['type'] ?>">
@@ -189,7 +191,9 @@ if (@$getCustomer) {
 
 						<div class="card card-info mt-3">
 							<div class="card-header" align="center">
-								<h5><span class="glyphicon glyphicon-user"></span> <?= ucfirst($_REQUEST['type']) ?>
+								<h5><span class="glyphicon glyphicon-user"></span>
+									<?= ($_REQUEST['type'] == 'bank') ? 'Account' : ucfirst($_REQUEST['type']) ?>
+
 									Management system</h5>
 							</div>
 							<div class="card-body">
@@ -325,8 +329,8 @@ if (@$getCustomer) {
 															<input type="hidden" name="id" value="<?= $r['customer_id'] ?>">
 															<button type="submit" class="btn btn-admin btn-sm">Edit</button>
 														</form>
-														<?php endif ?>
-														<?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
+													<?php endif ?>
+													<?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
 														<a href="#"
 															onclick="deleteAlert('<?= $r['customer_id'] ?>','customers','customer_id','tableData')"
 															class="btn btn-danger btn-sm ml-1">Delete</a>

@@ -128,7 +128,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                     }
                     ?>
                     <input type="text" name="next_increment" id="next_increment"
-                      value="SF25-PROD-<?= @empty($_REQUEST['edit_purchase_id']) ? $number_only : $fetchproduct['product_id'] ?>"
+                      value="SF25-PROD-<?= @empty($_REQUEST['edit_product_id']) ? $number_only : preg_replace('/\D/', '', $fetchproduct['product_code']) ?>"
                       readonly class="form-control">
                   </div>
 
@@ -200,14 +200,16 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                     ?>
 
                     <label for="product_code">Product Code</label>
-                    <input type="text" class="form-control" id="product_code" name="product_code"
+                    <input type="text" class="form-control text-uppercase" id="product_code" name="product_code"
                       value="<?= $input_value ?>" readonly required>
                   </div>
 
                   <div class="col-sm-2 mb-3 mt-3 mb-sm-0">
                     <label for="">Product Name</label>
                     <input type="text" class="form-control" id="product_name" placeholder="Product Name"
-                      name="product_name" required value="<?= @$fetchproduct['product_name'] ?>">
+                      name="product_name" required
+                      value="<?= htmlspecialchars(@$fetchproduct['product_name'], ENT_QUOTES) ?>">
+
                   </div>
 
                   <div class="col-sm-3 mt-3 mb-sm-0">
@@ -877,7 +879,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
     $('#tableData1').on('change', function () {
       const categoryIdForBrand = $(this).val();
 
-      $('#brandSelect').html('<option>Loading...</option>').prop('disabled', true);
+      $('#brandSelect').html('<option>Select Brand</option>').prop('disabled', true);
 
       if (categoryIdForBrand) {
         $.ajax({
