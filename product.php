@@ -387,11 +387,32 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                             </form>
                           <?php endif ?>
 
-                          <?php if (@$userPrivileges['nav_delete'] == 1 || $_SESSION['user_role'] == 'admin'): ?>
-                            <button type="button"
-                              onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
-                              class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
-                          <?php endif ?>
+                          <?php
+                          $product_id = $r['product_id'];
+                        
+                          $query_for_delete = "SELECT SUM(quantity_instock) as total_stock FROM inventory WHERE product_id = $product_id";
+                          $result_for_delete = mysqli_query($dbc, $query_for_delete);
+
+                          if (!$result_for_delete) {
+                            echo "Query error: " . mysqli_error($dbc);
+                            exit;
+                          }
+
+                          $row_for_delete = mysqli_fetch_assoc($result_for_delete);
+                          $total_stock_for_delete = (float) $row_for_delete['total_stock'];
+
+                          // Only show delete button if total stock is exactly 0 (no + or - stock)
+                          if ($total_stock_for_delete == 0) {
+                            if (@$userPrivileges['nav_delete'] == 1 || $_SESSION['user_role'] == 'admin') {
+                              ?>
+                              <button type="button"
+                                onclick="deleteAlert('<?= $r['product_id'] ?>','product','product_id','product_tb')"
+                                class="btn btn-admin2 btn-sm m-1 d-inline-block">Delete</button>
+                              <?php
+                            }
+                          }
+                          ?>
+
 
                           <a href="print_barcode.php?id=<?= base64_encode($r['product_id']) ?>"
                             class="btn btn-primary btn-sm m-1">Barcode</a>
