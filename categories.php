@@ -346,9 +346,9 @@ $btn_name = isset($_REQUEST['edit_categories_id']) ? "Update" : "Add";
                           onclick="deleteAlert('<?= $r['categories_id'] ?>','categories','categories_id','tableData')"
                           class="btn btn-admin2 btn-sm m-1">Delete</a>
                       <?php endif ?>
-                      <a target="_blank" href="stock.php?type=simple&category=<?= $r['categories_id'] ?>"
+                      <!-- <a target="_blank" href="stock.php?type=simple&category=<?= $r['categories_id'] ?>"
                         class="btn btn-admin  btn-sm m-1">Print Stock</a>
-                      <!-- <a target="_blank" href="stock.php?type=amount&category=<?= $r['categories_id'] ?>" class="btn btn-admin2  btn-sm mx-1">Print Stock With Amount</a>
+                      <a target="_blank" href="stock.php?type=amount&category=<?= $r['categories_id'] ?>" class="btn btn-admin2  btn-sm mx-1">Print Stock With Amount</a>
               <a target="_blank" href="stock.php?type=amount&category=<?= $r['categories_id'] ?>&stock=0" class="btn btn-admin2  btn-sm mx-1">Print Stock With Amount + AQ</a> -->
 
                     </td>

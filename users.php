@@ -190,23 +190,23 @@
 
 													</td>
 													<td>
-														<?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
-															<form action="users.php" method="POST">
-																<input type="hidden" name="user_del_id"
-																	value="<?= $row['user_id'] ?>">
-																<button type="submit"
-																	class="btn btn-admin2 btn-sm m-1">Delete</button>
-															</form>
-														<?php endif ?>
+    <?php if ($row['user_role'] != 'admin'): ?>
+        <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
+            <form action="users.php" method="POST">
+                <input type="hidden" name="user_del_id" value="<?= $row['user_id'] ?>">
+                <button type="submit" class="btn btn-admin2 btn-sm m-1">Delete</button>
+            </form>
+        <?php endif ?>
 
-														<?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>
-															<form action="users.php" method="POST">
-																<input type="hidden" name="user_edit_id"
-																	value="<?= $row['user_id'] ?>">
-																<button type="submit" class="btn btn-admin btn-sm m-1">Edit</button>
-															</form>
-														<?php endif ?>
-													</td>
+        <?php if (@$userPrivileges['nav_edit'] == 1 || $fetchedUserRole == "admin"): ?>
+            <form action="users.php" method="POST">
+                <input type="hidden" name="user_edit_id" value="<?= $row['user_id'] ?>">
+                <button type="submit" class="btn btn-admin btn-sm m-1">Edit</button>
+            </form>
+        <?php endif ?>
+    <?php endif ?>
+</td>
+
 													<td><a href="privileges.php?new_user_id=<?= base64_encode($row['user_id']) ?>"
 															target="_blank" class="text-danger btn btn-admin2 "><i
 																class=" text-white fa fa-user"></i></a>
