@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
-<?php include_once 'includes/head.php';
-?>
+<?php include_once 'includes/head.php'; ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -24,9 +23,18 @@
     .invoice-container {
         width: 100%;
         min-height: 297mm;
+        /* Adjusted for top and bottom margins */
         background: white;
         padding: 10mm;
+        /* 20mm top/bottom padding for margins */
         box-shadow: none;
+        position: relative;
+        /* Relative positioning for absolute footer */
+        page-break-after: always;
+    }
+
+    .invoice-container:last-child {
+        page-break-after: auto;
     }
 
     .company-header {
@@ -72,12 +80,6 @@
         text-align: right;
     }
 
-    /* Add perforated edge effect with pseudo-elements */
-    .company-header {
-        position: relative;
-        overflow: hidden;
-    }
-
     .company-header::before,
     .company-header::after {
         content: '';
@@ -99,9 +101,23 @@
         right: -10px;
     }
 
+    .pdf-only-header {
+        display: none;
+        /* Hidden by default for screen and simple print */
+    }
+
+    .pdf_footer {
+        display: none;
+        /* Hidden by default for screen and simple print */
+        position: absolute;
+        bottom: 5mm;
+        left: 10mm;
+        right: 10mm;
+        width: calc(100% - 20mm);
+    }
+
     @media print {
         body {
-            position: relative;
             margin: 0;
             padding: 0;
             font-family: 'Roboto', 'Arial', sans-serif;
@@ -114,7 +130,6 @@
             padding: 0 30px;
         }
 
-
         .bg-img img {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -122,6 +137,27 @@
 
         .pdf-only-header {
             display: none;
+            /* Hidden for simple print */
+        }
+
+        .pdf_footer {
+            display: none;
+            /* Hidden for simple print */
+        }
+
+        .pdf-only-header.pdf-visible {
+            display: block;
+        }
+
+        .pdf_footer.pdf-visible {
+            position: fixed;
+            bottom: 25mm;
+            left: 10mm;
+            right: 10mm;
+            display: block;
+            height: 100px;
+            z-index: 1000;
+
         }
 
         #saveAsPdfBtn,
@@ -129,15 +165,17 @@
             display: none !important;
         }
 
-        .pdf_footer {
-            position: absolute;
-            margin-left: 50px;
+        .tablefooter.last-page-only {
+            display: none;
+        }
+
+        .tablefooter.last-page {
+            display: table-row;
         }
     }
 
     .invo {
         text-align: center;
-        /* margin-bottom: 20% */
     }
 
     .label {
@@ -159,6 +197,8 @@
     .content {
         position: relative;
         width: 100%;
+        padding-bottom: 15mm;
+        /* Reserve space for footer to prevent overlap */
     }
 
     .bg-img {
@@ -234,7 +274,6 @@
         font-size: 16px;
         font-weight: bold;
         border-bottom: 3px solid black;
-        /* margin-top: 200px; */
     }
 
     .footer {
@@ -263,10 +302,6 @@
         font-size: 16px;
     }
 
-    .pdf-only-header {
-        display: none;
-    }
-
     #saveAsPdfBtn,
     #printBtn {
         padding: 10px 20px;
@@ -279,8 +314,208 @@
 </style>
 
 <body>
+    <?php
+    // Initialize variables
+    $totalQTY = 0;
+    $totalAm = 0;
+
+    // Determine invoice details based on type
+    if ($_REQUEST['type'] == "purchase") {
+        $nameSHow = 'Supplier';
+        $id_name = "Purchase Id";
+        $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
+        $unique_id = $order['payment_type'] == "credit_purchase" ? 'SF-CRP-' . $order['purchase_id'] : 'SF25-CP-' . $order['purchase_id'];
+        $comment = $order['purchase_narration'];
+        $table_row = "390px";
+        $getDate = $order['purchase_date'];
+        $invoice_name = $order['payment_type'] == "credit_purchase" ? "credit invoice" : "purchase invoice";
+        $order_item = mysqli_query($dbc, "SELECT purchase_item.*,product.* FROM purchase_item INNER JOIN product ON purchase_item.product_id=product.product_id WHERE purchase_item.purchase_id='" . $_REQUEST['id'] . "'");
+    } elseif ($_REQUEST['type'] == "gatepass") {
+        $nameSHow = 'Customer';
+        $invoice_name = "Gatepass";
+        $id_name = "Gatepass Id";
+        $order = fetchRecord($dbc, "gatepass", "gatepass_id", $_REQUEST['id']);
+        $unique_id = 'SF25-G-' . $order['gatepass_id'];
+        $getDate = $order['gatepass_date'];
+        $comment = $order['gatepass_narration'];
+        $order_item = mysqli_query($dbc, "SELECT gatepass_item.*,product.* FROM gatepass_item INNER JOIN product ON gatepass_item.product_id=product.product_id WHERE gatepass_item.gatepass_id='" . $_REQUEST['id'] . "'");
+        $table_row = $order['payment_type'] == "gatepass" ? "300px" : "350px";
+        $order_type = $order['payment_type'] == "none" ? "Gatepass" : " (Gatepass)";
+    } elseif ($_REQUEST['type'] == "order") {
+        $nameSHow = 'Customer';
+        $id_name = "Sale Id";
+        $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
+        $unique_id = 'SF25-S-' . $order['order_id'];
+        $invoice_name = $order['payment_type'] == "credit" ? "Credit Invoice" : "Sale Invoice";
+        $getDate = $order['order_date'];
+        $comment = $order['order_narration'];
+        $order_item = mysqli_query($dbc, "SELECT order_item.*,product.* FROM order_item INNER JOIN product ON order_item.product_id=product.product_id WHERE order_item.order_id='" . $_REQUEST['id'] . "'");
+        $table_row = $order['payment_type'] == "credit" ? "300px" : "350px";
+        $order_type = $order['payment_type'] == "none" ? "credit sale" : ($order['payment_type'] == "credit" ? $order['credit_sale_type'] . " (Credit)" : "cash sale");
+    } elseif ($_REQUEST['type'] == "quotation") {
+        $nameSHow = 'Customer';
+        $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
+        if ($order['is_delivery_note'] == 1) {
+            $invoice_name = "Delivery Note";
+            $id_name = "Delivery Note Id";
+            $unique_id = 'SF25-DN-' . $order['quotation_id'];
+        } else {
+            $invoice_name = "Quotation";
+            $id_name = "Quotation Id";
+            $unique_id = 'SF25-Q-' . $order['quotation_id'];
+        }
+        $getDate = $order['quotation_date'];
+        $comment = $order['quotation_narration'];
+        $order_item = mysqli_query($dbc, "SELECT quotation_item.*,product.* FROM quotation_item INNER JOIN product ON quotation_item.product_id=product.product_id WHERE quotation_item.quotation_id='" . $_REQUEST['id'] . "'");
+        $table_row = $order['payment_type'] == "quotation" ? "300px" : "350px";
+        $order_type = $order['payment_type'] == "none" ? "Quotation" : " (Quotation)";
+    } elseif ($_REQUEST['type'] == "lpo") {
+        $nameSShow = 'Customer';
+        $invoice_name = "LPO";
+        $id_name = "LPO Id";
+        $order = fetchRecord($dbc, "lpo", "lpo_id", $_REQUEST['id']);
+        $unique_id = 'SF25-LPO-' . $order['lpo_id'];
+        $getDate = $order['lpo_date'];
+        $comment = $order['lpo_narration'];
+        $order_item = mysqli_query($dbc, "SELECT lpo_item.*,product.* FROM lpo_item INNER JOIN product ON lpo_item.product_id=product.product_id WHERE lpo_item.lpo_id='" . $_REQUEST['id'] . "'");
+        $table_row = $order['payment_type'] == "lpo" ? "300px" : "350px";
+        $order_type = $order['payment_type'] == "none" ? "LPO" : " (LPO)";
+    } elseif ($_REQUEST['type'] == "purchase_return") {
+        $nameSHow = 'Supplier';
+        $id_name = "Purchase Id";
+        $order = fetchRecord($dbc, "purchase_return", "purchase_id", $_REQUEST['id']);
+        $unique_id = 'SF25-PR-' . $order['purchase_id'];
+        $comment = $order['purchase_narration'];
+        $table_row = "390px";
+        $getDate = $order['purchase_date'];
+        $invoice_name = $order['payment_type'] == "credit_purchase" ? "credit return invoice" : "purchase return invoice";
+        $order_item = mysqli_query($dbc, "SELECT purchase_return_item.*,product.* FROM purchase_return_item INNER JOIN product ON purchase_return_item.product_id=product.product_id WHERE purchase_return_item.purchase_id='" . $_REQUEST['id'] . "'");
+    } elseif ($_REQUEST['type'] == "order_return") {
+        $nameSHow = 'Customer';
+        $id_name = "Sale Id";
+        $order = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['id']);
+        $unique_id = 'SF25R-S-' . $order['order_id'];
+        $invoice_name = $order['payment_type'] == "credit" ? "Credit Return Invoice" : "Sale Return Invoice";
+        $getDate = $order['order_date'];
+        $comment = $order['order_narration'];
+        $order_item = mysqli_query($dbc, "SELECT order_return_item.*,product.* FROM order_return_item INNER JOIN product ON order_return_item.product_id=product.product_id WHERE order_return_item.order_id='" . $_REQUEST['id'] . "'");
+        $table_row = $order['payment_type'] == "credit" ? "300px" : "350px";
+        $order_type = $order['payment_type'] == "none" ? "credit sale" : ($order['payment_type'] == "credit" ? $order['credit_sale_type'] . " (Credit)" : "cash sale");
+    } elseif ($_REQUEST['type'] == "manualbill") {
+        $nameSShow = 'Customer_name';
+        $id_name = "Id";
+        $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
+        $unique_id = 'SF25-Id-' . $order['order_id'];
+        $invoice_name = $order['type'];
+        $getDate = $order['timestamp'];
+        $comment = $order['order_narration'];
+    }
+
+    $date = date('d-M-Y h:i A', strtotime(@$order['timestamp'] . " +7 hours"));
+
+    function numberToWords($number)
+    {
+        $words = [
+            0 => 'ZERO',
+            1 => 'ONE',
+            2 => 'TWO',
+            3 => 'THREE',
+            4 => 'FOUR',
+            5 => 'FIVE',
+            6 => 'SIX',
+            7 => 'SEVEN',
+            8 => 'EIGHT',
+            9 => 'NINE',
+            10 => 'TEN',
+            11 => 'ELEVEN',
+            12 => 'TWELVE',
+            13 => 'THIRTEEN',
+            14 => 'FOURTEEN',
+            15 => 'FIFTEEN',
+            16 => 'SIXTEEN',
+            17 => 'SEVENTEEN',
+            18 => 'EIGHTEEN',
+            19 => 'NINETEEN',
+            20 => 'TWENTY',
+            30 => 'THIRTY',
+            40 => 'FORTY',
+            50 => 'FIFTY',
+            60 => 'SIXTY',
+            70 => 'SEVENTY',
+            80 => 'EIGHTY',
+            90 => 'NINETY'
+        ];
+
+        if ($number < 21)
+            return $words[$number];
+        if ($number < 100) {
+            return $words[10 * floor($number / 10)] . ($number % 10 ? ' ' . $words[$number % 10] : '');
+        }
+        if ($number < 1000) {
+            return $words[floor($number / 100)] . ' HUNDRED' . ($number % 100 ? ' ' . numberToWords($number % 100) : '');
+        }
+        if ($number < 1000000) {
+            return numberToWords(floor($number / 1000)) . ' THOUSAND' . ($number % 1000 ? ' ' . numberToWords($number % 1000) : '');
+        }
+        return 'NUMBER TOO LARGE';
+    }
+
+    function amountToWordsKD($amount)
+    {
+        $parts = explode('.', number_format($amount, 3, '.', ''));
+        $kd = (int) $parts[0];
+        $fils = isset($parts[1]) ? (int) round($parts[1]) : 0;
+        $kdPart = numberToWords($kd) . ' KD';
+        $filsPart = $fils > 0 ? ' AND ' . numberToWords($fils) . ' FILLS' : '';
+        return $kdPart . $filsPart;
+    }
+
+    function formatKDandFils($amount)
+    {
+        $parts = explode('.', number_format($amount, 3, '.', ''));
+        $kd = (int) $parts[0];
+        $fils = (int) $parts[1];
+        $output = $kd . ' KD';
+        if ($fils > 0) {
+            $output .= ' AND ' . $fils . ' FILLS';
+        }
+        return $output;
+    }
+
+    function formatAmountWithKD($amount)
+    {
+        if (!is_numeric($amount) || $amount === '') {
+            $amount = 0;
+        }
+        return number_format((float) $amount, 3) . ' KD';
+    }
+
+    function formatAmountWithoutKD($amount)
+    {
+        if (!is_numeric($amount) || $amount === '') {
+            $amount = 0;
+        }
+        return number_format((float) $amount, 3);
+    }
+
+    // Collect items for pagination
+    $items = [];
+    if (!empty($order['product_details'])) {
+        $json_items = json_decode($order['product_details'], true);
+        $items = $json_items;
+    } elseif (!empty($order_item) && gettype($order_item) === 'object') {
+        while ($r = mysqli_fetch_assoc($order_item)) {
+            $items[] = $r;
+        }
+    }
+
+    // Paginate items (15 per page)
+    $recordsPerPage = 13;
+    $itemChunks = array_chunk($items, $recordsPerPage);
+    $totalPages = count($itemChunks);
+    ?>
+
     <?php for ($i = 0; $i < 1; $i++):
-        $totalQTY = 0;
         if ($i > 0) {
             $margin = "margin-top:-270px !important";
             $copy = "Company Copy";
@@ -288,711 +523,353 @@
             $margin = "";
             $copy = "Customer Copy";
         }
-
-        if ($_REQUEST['type'] == "purchase") {
-            $nameSHow = 'Supplier';
-            $id_name = "Purchase Id";
-            $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
-            if ($order['payment_type'] == "credit_purchase") {
-                $unique_id = 'SF-CRP-' . $order['purchase_id'];
-            } else {
-                $unique_id = 'SF25-CP-' . $order['purchase_id'];
-            }
-            // $unique_id = 'SF25-CP-' . $order['purchase_id'];
-            $comment = $order['purchase_narration'];
-            $table_row = "390px";
-            $getDate = $order['purchase_date'];
-            if ($order['payment_type'] == "credit_purchase") {
-                $invoice_name = "Credit purchase invoice";
-            } else {
-                $invoice_name = "Cash purchase invoice";
-            }
-            $order_item = mysqli_query($dbc, "SELECT purchase_item.*,product.* FROM purchase_item INNER JOIN product ON purchase_item.product_id=product.product_id WHERE purchase_item.purchase_id='" . $_REQUEST['id'] . "'");
-        } elseif ($_REQUEST['type'] == "gatepass") {
-            $nameSHow = 'Customer';
-            $invoice_name = "Gatepass";
-            $id_name = "Gatepass Id";
-            $order = fetchRecord($dbc, "gatepass", "gatepass_id", $_REQUEST['id']);
-            $unique_id = 'SF25-G-' . $order['gatepass_id'];
-            $getDate = $order['gatepass_date'];
-            $comment = $order['gatepass_narration'];
-            $order_item = mysqli_query($dbc, "SELECT gatepass_item.*,product.* FROM gatepass_item INNER JOIN product ON gatepass_item.product_id=product.product_id WHERE gatepass_item.gatepass_id='" . $_REQUEST['id'] . "'");
-            if ($order['payment_type'] == "gatepass") {
-                $table_row = "300px";
-                if ($order['payment_type'] == "none") {
-                    $order_type = "Gatepass";
-                } else {
-                    $order_type = " (Gatepass)";
-                }
-            } else {
-                $order_type = "Gatepass";
-                $table_row = "350px";
-            }
-        } elseif ($_REQUEST['type'] == "order") {
-            $nameSHow = 'Customer';
-            $id_name = "Sale Id";
-            $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
-            $unique_id = 'SF25-S-' . $order['order_id'];
-            if ($order['payment_type'] == "credit") {
-                $invoice_name = "Credit Sale Invoice";
-            } else {
-                $invoice_name = "Cash Sale Invoice";
-            }
-            $getDate = $order['order_date'];
-            $comment = $order['order_narration'];
-            $order_item = mysqli_query($dbc, "SELECT order_item.*,product.* FROM order_item INNER JOIN product ON order_item.product_id=product.product_id WHERE order_item.order_id='" . $_REQUEST['id'] . "'");
-            if ($order['payment_type'] == "credit_sale") {
-                $table_row = "300px";
-                if ($order['payment_type'] == "none") {
-                    $order_type = "credit sale";
-                } else {
-                    $order_type = $order['credit_sale_type'] . " (Credit)";
-                }
-            } else {
-                $order_type = "cash sale";
-                $table_row = "350px";
-            }
-        } elseif ($_REQUEST['type'] == "quotation") {
-            $nameSHow = 'Customer';
-
-
-            $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
-            if ($order['is_delivery_note'] == 1) {
-                $invoice_name = "Delivery Note";
-                $id_name = "Delivery Note Id";
-                $unique_id = 'SF25-DN-' . $order['quotation_id'];
-            } else {
-                $invoice_name = "Quotation";
-                $id_name = "Quotation Id";
-                $unique_id = 'SF25-Q-' . $order['quotation_id'];
-            }
-            $getDate = $order['quotation_date'];
-            $comment = $order['quotation_narration'];
-            $order_item = mysqli_query($dbc, "SELECT quotation_item.*,product.* FROM quotation_item INNER JOIN product ON quotation_item.product_id=product.product_id WHERE quotation_item.quotation_id='" . $_REQUEST['id'] . "'");
-            if ($order['payment_type'] == "quotation") {
-                $table_row = "300px";
-                if ($order['payment_type'] == "none") {
-                    $order_type = "Quotation";
-                } else {
-                    $order_type = " (Quotation)";
-                }
-            } else {
-                $order_type = "Quotation";
-                $table_row = "350px";
-            }
-        } elseif ($_REQUEST['type'] == "lpo") {
-            $nameSHow = 'Customer';
-            $invoice_name = "LPO";
-            $id_name = "LPO Id";
-            $order = fetchRecord($dbc, "lpo", "lpo_id", $_REQUEST['id']);
-            $unique_id = 'SF25-LPO-' . $order['lpo_id'];
-            $getDate = $order['lpo_date'];
-            $comment = $order['lpo_narration'];
-            $order_item = mysqli_query($dbc, "SELECT lpo_item.*,product.* FROM lpo_item INNER JOIN product ON lpo_item.product_id=product.product_id WHERE lpo_item.lpo_id='" . $_REQUEST['id'] . "'");
-            if ($order['payment_type'] == "lpo") {
-                $table_row = "300px";
-                if ($order['payment_type'] == "none") {
-                    $order_type = "LPO";
-                } else {
-                    $order_type = " (LPO)";
-                }
-            } else {
-                $order_type = "LPO";
-                $table_row = "350px";
-            }
-        } elseif ($_REQUEST['type'] == "purchase_return") {
-            $nameSHow = 'Supplier';
-            $id_name = "Purchase Id";
-            $order = fetchRecord($dbc, "purchase_return", "purchase_id", $_REQUEST['id']);
-            $unique_id = 'SF25-PR-' . $order['purchase_id'];
-            $comment = $order['purchase_narration'];
-            $table_row = "390px";
-            $getDate = $order['purchase_date'];
-            if ($order['payment_type'] == "credit_purchase") {
-                $invoice_name = "credit purchase return invoice";
-            } else {
-                $invoice_name = "cash purchase return invoice";
-            }
-            $order_item = mysqli_query($dbc, "SELECT purchase_return_item.*,product.* FROM purchase_return_item INNER JOIN product ON purchase_return_item.product_id=product.product_id WHERE purchase_return_item.purchase_id='" . $_REQUEST['id'] . "'");
-        } elseif ($_REQUEST['type'] == 'order_return') {
-            $nameSHow = 'Customer';
-            $id_name = "Sale Id";
-            $order = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['id']);
-            $unique_id = 'SF25R-S-' . $order['order_id'];
-            $unique_id = $order['order_id'];
-            if ($order['payment_type'] == "credit") {
-                $invoice_name = "Credit Sale Return Invoice";
-            } else {
-                $invoice_name = "Cash Sale Return Invoice";
-            }
-            $getDate = $order['order_date'];
-            $comment = $order['order_narration'];
-            $order_item = mysqli_query($dbc, "SELECT order_return_item.*,product.* FROM order_return_item INNER JOIN product ON order_return_item.product_id=product.product_id WHERE order_return_item.order_id='" . $_REQUEST['id'] . "'");
-            if ($order['payment_type'] == "credit_sale") {
-                $table_row = "300px";
-                if ($order['payment_type'] == "none") {
-                    $order_type = "credit sale";
-                } else {
-                    $order_type = $order['credit_sale_type'] . " (Credit)";
-                }
-            } else {
-                $order_type = "cash sale";
-                $table_row = "350px";
-            }
-        } elseif ($_REQUEST['type'] == "manualbill") {
-            $nameSHow = 'Customer_name';
-            $id_name = "Id";
-            $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
-            $unique_id = 'SF25-Id-' . $order['order_id'];
-
-            $invoice_name = $order['type'];
-
-            $getDate = $order['timestamp'];
-            $comment = $order['order_narration'];
-            // $order_item = json_decode($order['product_details'], true);
-    
-        }
-
-
-        $date = date(' d-M-Y h:i A', strtotime(@$order['timestamp'] . " +7 hours"));
-        function numberToWords($number)
-        {
-            $words = [
-                0 => 'ZERO',
-                1 => 'ONE',
-                2 => 'TWO',
-                3 => 'THREE',
-                4 => 'FOUR',
-                5 => 'FIVE',
-                6 => 'SIX',
-                7 => 'SEVEN',
-                8 => 'EIGHT',
-                9 => 'NINE',
-                10 => 'TEN',
-                11 => 'ELEVEN',
-                12 => 'TWELVE',
-                13 => 'THIRTEEN',
-                14 => 'FOURTEEN',
-                15 => 'FIFTEEN',
-                16 => 'SIXTEEN',
-                17 => 'SEVENTEEN',
-                18 => 'EIGHTEEN',
-                19 => 'NINETEEN',
-                20 => 'TWENTY',
-                30 => 'THIRTY',
-                40 => 'FORTY',
-                50 => 'FIFTY',
-                60 => 'SIXTY',
-                70 => 'SEVENTY',
-                80 => 'EIGHTY',
-                90 => 'NINETY'
-            ];
-
-            if ($number < 21)
-                return $words[$number];
-            if ($number < 100) {
-                return $words[10 * floor($number / 10)] . ($number % 10 ? ' ' . $words[$number % 10] : '');
-            }
-            if ($number < 1000) {
-                return $words[floor($number / 100)] . ' HUNDRED' . ($number % 100 ? ' ' . numberToWords($number % 100) : '');
-            }
-            if ($number < 1000000) {
-                return numberToWords(floor($number / 1000)) . ' THOUSAND' . ($number % 1000 ? ' ' . numberToWords($number % 1000) : '');
-            }
-
-            return 'NUMBER TOO LARGE';
-        }
-
-        function amountToWordsKD($amount)
-        {
-            $parts = explode('.', number_format($amount, 3, '.', ''));
-            $kd = (int) $parts[0];
-            $fils = isset($parts[1]) ? (int) round($parts[1]) : 0;
-
-            $kdPart = numberToWords($kd) . ' KD';
-            $filsPart = $fils > 0 ? ' AND ' . numberToWords($fils) . ' FILLS' : '';
-
-            return $kdPart . $filsPart;
-        }
-
-        function formatKDandFils($amount)
-        {
-            $parts = explode('.', number_format($amount, 3, '.', ''));
-            $kd = (int) $parts[0];
-            $fils = (int) $parts[1];
-
-            $output = $kd . ' KD';
-            if ($fils > 0) {
-                $output .= ' AND ' . $fils . ' FILLS';
-            }
-
-            return $output;
-        }
-
-        function formatAmountWithKD($amount)
-        {
-            // If amount is not numeric or empty, default to 0
-            if (!is_numeric($amount) || $amount === '') {
-                $amount = 0;
-            }
-            return number_format((float) $amount, 3) . ' KD';
-        }
-
-        function formatAmountWithoutKD($amount)
-        {
-            if (!is_numeric($amount) || $amount === '') {
-                $amount = 0;
-            }
-            return number_format((float) $amount, 3);
-        }
-
-
         ?>
-
-        <div class="invoice-container">
-            <div class="pdf-only-header">
-                <div class="company-header">
-                    <div>
-                        <h2 class="company-name">Season Four</h2>
-                        <p class="company-sub">A/C & Refrigeration Contracting Est</p>
-                        <p class="contact-info"><i class="fa-solid fa-map-marker-alt"></i> Farwaniyah Branch-Block 4, St 45
-                            -
-                            55529978
-                            <i class="fa-brands fa-whatsapp"></i> 66944871
-                        </p>
-                        <p class="contact-info"><i class="fa-solid fa-map-marker-alt"></i> Shuwaikh Branch-Block 3, St 53 -
-                            66945212 <i class="fa-brands fa-whatsapp"></i> 99408640</p>
-                        <p class="contact-info"><i class="fa-solid fa-fax"></i> Telefax: 24734306</p>
-                        <p class="contact-info"><i class="fa-solid fa-envelope"></i> season4-kw@hotmail.com</p>
-                        <p class="contact-info"><i class="fa-brands fa-instagram"></i> seasonfourkwt</p>
+        <?php foreach ($itemChunks as $pageIndex => $pageItems): ?>
+            <div class="invoice-container" style="<?= $margin ?>">
+                <div class="pdf-only-header">
+                    <div class="company-header">
+                        <div>
+                            <h2 class="company-name">Season Four</h2>
+                            <p class="company-sub">A/C & Refrigeration Contracting Est</p>
+                            <p class="contact-info"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M128 252.6C128 148.4 214 64 320 64C426 64 512 148.4 512 252.6C512 371.9 391.8 514.9 341.6 569.4C329.8 582.2 310.1 582.2 298.3 569.4C248.1 514.9 127.9 371.9 127.9 252.6zM320 320C355.3 320 384 291.3 384 256C384 220.7 355.3 192 320 192C284.7 192 256 220.7 256 256C256 291.3 284.7 320 320 320z" />
+                                </svg>
+                                Farwaniyah Branch-Block 4, St 45 - 55529978 <svg xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 640 640" style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M476.9 161.1C435 119.1 379.2 96 319.9 96C197.5 96 97.9 195.6 97.9 318C97.9 357.1 108.1 395.3 127.5 429L96 544L213.7 513.1C246.1 530.8 282.6 540.1 319.8 540.1L319.9 540.1C442.2 540.1 544 440.5 544 318.1C544 258.8 518.8 203.1 476.9 161.1zM319.9 502.7C286.7 502.7 254.2 493.8 225.9 477L219.2 473L149.4 491.3L168 423.2L163.6 416.2C145.1 386.8 135.4 352.9 135.4 318C135.4 216.3 218.2 133.5 320 133.5C369.3 133.5 415.6 152.7 450.4 187.6C485.2 222.5 506.6 268.8 506.5 318.1C506.5 419.9 421.6 502.7 319.9 502.7zM421.1 364.5C415.6 361.7 388.3 348.3 383.2 346.5C378.1 344.6 374.4 343.7 370.7 349.3C367 354.9 356.4 367.3 353.1 371.1C349.9 374.8 346.6 375.3 341.1 372.5C308.5 356.2 287.1 343.4 265.6 306.5C259.9 296.7 271.3 297.4 281.9 276.2C283.7 272.5 282.8 269.3 281.4 266.5C280 263.7 268.9 236.4 264.3 225.3C259.8 214.5 255.2 216 251.8 215.8C248.6 215.6 244.9 215.6 241.2 215.6C237.5 215.6 231.5 217 226.4 222.5C221.3 228.1 207 241.5 207 268.8C207 296.1 226.9 322.5 229.6 326.2C232.4 329.9 268.7 385.9 324.4 410C359.6 425.2 373.4 426.5 391 423.9C401.7 422.3 423.8 410.5 428.4 397.5C433 384.5 433 373.4 431.6 371.1C430.3 368.6 426.6 367.2 421.1 364.5z" />
+                                </svg>
+                                66944871</p>
+                            <p class="contact-info"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M128 252.6C128 148.4 214 64 320 64C426 64 512 148.4 512 252.6C512 371.9 391.8 514.9 341.6 569.4C329.8 582.2 310.1 582.2 298.3 569.4C248.1 514.9 127.9 371.9 127.9 252.6zM320 320C355.3 320 384 291.3 384 256C384 220.7 355.3 192 320 192C284.7 192 256 220.7 256 256C256 291.3 284.7 320 320 320z" />
+                                </svg> Shuwaikh Branch-Block 3, St 53 - 66945212 <svg xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 640 640" style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M476.9 161.1C435 119.1 379.2 96 319.9 96C197.5 96 97.9 195.6 97.9 318C97.9 357.1 108.1 395.3 127.5 429L96 544L213.7 513.1C246.1 530.8 282.6 540.1 319.8 540.1L319.9 540.1C442.2 540.1 544 440.5 544 318.1C544 258.8 518.8 203.1 476.9 161.1zM319.9 502.7C286.7 502.7 254.2 493.8 225.9 477L219.2 473L149.4 491.3L168 423.2L163.6 416.2C145.1 386.8 135.4 352.9 135.4 318C135.4 216.3 218.2 133.5 320 133.5C369.3 133.5 415.6 152.7 450.4 187.6C485.2 222.5 506.6 268.8 506.5 318.1C506.5 419.9 421.6 502.7 319.9 502.7zM421.1 364.5C415.6 361.7 388.3 348.3 383.2 346.5C378.1 344.6 374.4 343.7 370.7 349.3C367 354.9 356.4 367.3 353.1 371.1C349.9 374.8 346.6 375.3 341.1 372.5C308.5 356.2 287.1 343.4 265.6 306.5C259.9 296.7 271.3 297.4 281.9 276.2C283.7 272.5 282.8 269.3 281.4 266.5C280 263.7 268.9 236.4 264.3 225.3C259.8 214.5 255.2 216 251.8 215.8C248.6 215.6 244.9 215.6 241.2 215.6C237.5 215.6 231.5 217 226.4 222.5C221.3 228.1 207 241.5 207 268.8C207 296.1 226.9 322.5 229.6 326.2C232.4 329.9 268.7 385.9 324.4 410C359.6 425.2 373.4 426.5 391 423.9C401.7 422.3 423.8 410.5 428.4 397.5C433 384.5 433 373.4 431.6 371.1C430.3 368.6 426.6 367.2 421.1 364.5z" />
+                                </svg>
+                                99408640</p>
+                            <p class="contact-info"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M224 128L224 208L288 208L288 128L434.7 128L480 173.3L480 208L544 208L544 173.3C544 156.3 537.3 140 525.3 128L480 82.7C468 70.7 451.7 64 434.7 64L288 64C252.7 64 224 92.7 224 128zM96 192C78.3 192 64 206.3 64 224L64 512C64 529.7 78.3 544 96 544L144 544C161.7 544 176 529.7 176 512L176 224C176 206.3 161.7 192 144 192L96 192zM544 256L224 256L224 512C224 529.7 238.3 544 256 544L544 544C561.7 544 576 529.7 576 512L576 288C576 270.3 561.7 256 544 256zM288 352C288 338.7 298.7 328 312 328C325.3 328 336 338.7 336 352C336 365.3 325.3 376 312 376C298.7 376 288 365.3 288 352zM288 448C288 434.7 298.7 424 312 424C325.3 424 336 434.7 336 448C336 461.3 325.3 472 312 472C298.7 472 288 461.3 288 448zM400 328C413.3 328 424 338.7 424 352C424 365.3 413.3 376 400 376C386.7 376 376 365.3 376 352C376 338.7 386.7 328 400 328zM376 448C376 434.7 386.7 424 400 424C413.3 424 424 434.7 424 448C424 461.3 413.3 472 400 472C386.7 472 376 461.3 376 448zM488 328C501.3 328 512 338.7 512 352C512 365.3 501.3 376 488 376C474.7 376 464 365.3 464 352C464 338.7 474.7 328 488 328zM464 448C464 434.7 474.7 424 488 424C501.3 424 512 434.7 512 448C512 461.3 501.3 472 488 472C474.7 472 464 461.3 464 448z" />
+                                </svg>
+                                Telefax: 24734306</p>
+                            <p class="contact-info"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M112 128C85.5 128 64 149.5 64 176C64 191.1 71.1 205.3 83.2 214.4L291.2 370.4C308.3 383.2 331.7 383.2 348.8 370.4L556.8 214.4C568.9 205.3 576 191.1 576 176C576 149.5 554.5 128 528 128L112 128zM64 260L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 260L377.6 408.8C343.5 434.4 296.5 434.4 262.4 408.8L64 260z" />
+                                </svg>
+                                season4-kw@hotmail.com</p>
+                            <p class="contact-info"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M320.3 205C256.8 204.8 205.2 256.2 205 319.7C204.8 383.2 256.2 434.8 319.7 435C383.2 435.2 434.8 383.8 435 320.3C435.2 256.8 383.8 205.2 320.3 205zM319.7 245.4C360.9 245.2 394.4 278.5 394.6 319.7C394.8 360.9 361.5 394.4 320.3 394.6C279.1 394.8 245.6 361.5 245.4 320.3C245.2 279.1 278.5 245.6 319.7 245.4zM413.1 200.3C413.1 185.5 425.1 173.5 439.9 173.5C454.7 173.5 466.7 185.5 466.7 200.3C466.7 215.1 454.7 227.1 439.9 227.1C425.1 227.1 413.1 215.1 413.1 200.3zM542.8 227.5C541.1 191.6 532.9 159.8 506.6 133.6C480.4 107.4 448.6 99.2 412.7 97.4C375.7 95.3 264.8 95.3 227.8 97.4C192 99.1 160.2 107.3 133.9 133.5C107.6 159.7 99.5 191.5 97.7 227.4C95.6 264.4 95.6 375.3 97.7 412.3C99.4 448.2 107.6 480 133.9 506.2C160.2 532.4 191.9 540.6 227.8 542.4C264.8 544.5 375.7 544.5 412.7 542.4C448.6 540.7 480.4 532.5 506.6 506.2C532.8 480 541 448.2 542.8 412.3C544.9 375.3 544.9 264.5 542.8 227.5zM495 452C487.2 471.6 472.1 486.7 452.4 494.6C422.9 506.3 352.9 503.6 320.3 503.6C287.7 503.6 217.6 506.2 188.2 494.6C168.6 486.8 153.5 471.7 145.6 452C133.9 422.5 136.6 352.5 136.6 319.9C136.6 287.3 134 217.2 145.6 187.8C153.4 168.2 168.5 153.1 188.2 145.2C217.7 133.5 287.7 136.2 320.3 136.2C352.9 136.2 423 133.6 452.4 145.2C472 153 487.1 168.1 495 187.8C506.7 217.3 504 287.3 504 319.9C504 352.5 506.7 422.6 495 452z" />
+                                </svg>
+                                seasonfourkwt</p>
+                        </div>
+                        <div><img class="logo" src="img/logo/<?= $get_company['logo'] ?>" alt="Logo"></div>
+                        <div class="rtl">
+                            <h2 class="company-name">مؤسسة الفصول الأربعة</h2>
+                            <p class="company-sub">للأجهزه التكييف واللتبريد ومقاولاتها</p>
+                            <p class="contact-info_arabic">المعرض الفروانية - قطعة ٤ - شارع ٤٥ - ٦٦٩٤٤٨٧١<svg
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M476.9 161.1C435 119.1 379.2 96 319.9 96C197.5 96 97.9 195.6 97.9 318C97.9 357.1 108.1 395.3 127.5 429L96 544L213.7 513.1C246.1 530.8 282.6 540.1 319.8 540.1L319.9 540.1C442.2 540.1 544 440.5 544 318.1C544 258.8 518.8 203.1 476.9 161.1zM319.9 502.7C286.7 502.7 254.2 493.8 225.9 477L219.2 473L149.4 491.3L168 423.2L163.6 416.2C145.1 386.8 135.4 352.9 135.4 318C135.4 216.3 218.2 133.5 320 133.5C369.3 133.5 415.6 152.7 450.4 187.6C485.2 222.5 506.6 268.8 506.5 318.1C506.5 419.9 421.6 502.7 319.9 502.7zM421.1 364.5C415.6 361.7 388.3 348.3 383.2 346.5C378.1 344.6 374.4 343.7 370.7 349.3C367 354.9 356.4 367.3 353.1 371.1C349.9 374.8 346.6 375.3 341.1 372.5C308.5 356.2 287.1 343.4 265.6 306.5C259.9 296.7 271.3 297.4 281.9 276.2C283.7 272.5 282.8 269.3 281.4 266.5C280 263.7 268.9 236.4 264.3 225.3C259.8 214.5 255.2 216 251.8 215.8C248.6 215.6 244.9 215.6 241.2 215.6C237.5 215.6 231.5 217 226.4 222.5C221.3 228.1 207 241.5 207 268.8C207 296.1 226.9 322.5 229.6 326.2C232.4 329.9 268.7 385.9 324.4 410C359.6 425.2 373.4 426.5 391 423.9C401.7 422.3 423.8 410.5 428.4 397.5C433 384.5 433 373.4 431.6 371.1C430.3 368.6 426.6 367.2 421.1 364.5z" />
+                                </svg> ٥٥٥٢٩٩٧٨</p>
+                            <p class="contact-info_arabic">المعرض الشويخ - قطعة ٣ - شارع ٥٣ - ٩٩٤٢٨٦٤٠ <svg
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                    style="width: 15px; fill: #1a5f3a;">
+                                    <path
+                                        d="M476.9 161.1C435 119.1 379.2 96 319.9 96C197.5 96 97.9 195.6 97.9 318C97.9 357.1 108.1 395.3 127.5 429L96 544L213.7 513.1C246.1 530.8 282.6 540.1 319.8 540.1L319.9 540.1C442.2 540.1 544 440.5 544 318.1C544 258.8 518.8 203.1 476.9 161.1zM319.9 502.7C286.7 502.7 254.2 493.8 225.9 477L219.2 473L149.4 491.3L168 423.2L163.6 416.2C145.1 386.8 135.4 352.9 135.4 318C135.4 216.3 218.2 133.5 320 133.5C369.3 133.5 415.6 152.7 450.4 187.6C485.2 222.5 506.6 268.8 506.5 318.1C506.5 419.9 421.6 502.7 319.9 502.7zM421.1 364.5C415.6 361.7 388.3 348.3 383.2 346.5C378.1 344.6 374.4 343.7 370.7 349.3C367 354.9 356.4 367.3 353.1 371.1C349.9 374.8 346.6 375.3 341.1 372.5C308.5 356.2 287.1 343.4 265.6 306.5C259.9 296.7 271.3 297.4 281.9 276.2C283.7 272.5 282.8 269.3 281.4 266.5C280 263.7 268.9 236.4 264.3 225.3C259.8 214.5 255.2 216 251.8 215.8C248.6 215.6 244.9 215.6 241.2 215.6C237.5 215.6 231.5 217 226.4 222.5C221.3 228.1 207 241.5 207 268.8C207 296.1 226.9 322.5 229.6 326.2C232.4 329.9 268.7 385.9 324.4 410C359.6 425.2 373.4 426.5 391 423.9C401.7 422.3 423.8 410.5 428.4 397.5C433 384.5 433 373.4 431.6 371.1C430.3 368.6 426.6 367.2 421.1 364.5z" />
+                                </svg> ٦٦٩٤٥٢١٢</p>
+                            <p class="contact-info_arabic">ت: ٢٤٧٦٤٣٠٦</p>
+                        </div>
                     </div>
-                    <div><img class="logo" src="img/logo/<?= $get_company['logo'] ?>" alt="Logo"></div>
-                    <div class="rtl">
-                        <h2 class="company-name">مؤسسة الفصول الأربعة</h2>
-                        <p class="company-sub">للأجهزه التكييف واللتبريد ومقاولاتها</p>
-                        <p class="contact-info_arabic"> المعرض الفروانية - قطعة ٤ - شارع ٤٥ -
-                            ٦٦٩٤٤٨٧١<i class="fa-brands fa-whatsapp"></i> ٥٥٥٢٩٩٧٨</p>
-                        <p class="contact-info_arabic"> المعرض الشويخ - قطعة ٣ - شارع ٥٣ -
-                            ٩٩٤٢٨٦٤٠ <i class="fa-brands fa-whatsapp"></i> ٦٦٩٤٥٢١٢
-                        </p>
-                        <p class="contact-info_arabic"> ت: ٢٤٧٦٤٣٠٦ </p>
+                    <div class="label">
+                        <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
+                        <p>قطع غيار ، غسالات - ثلاجات - مكيفا وجميع انواع تبرید و تکییف</p>
                     </div>
                 </div>
-                <div class="label">
-                    <p>ALL TYPES OF A/C, REFRIGERATOR, WASHING MACHINE SPARE PARTS</p>
-                    <p>قطع غيار ، غسالات - ثلاجات - مكيفا وجميع انواع تبرید و تکییف</p>
-                </div>
-            </div>
-            <!-- <div style="margin-top: 226.772px;"></div> -->
-            <div class="invo">
-                <h2 class="text-uppercase"><?= $invoice_name ?></h2>
-                <!-- Manual PDF Button -->
-                <div style="margin-top: 20px; text-align: end;">
-                    <button id="saveAsPdfBtn">Save as PDF</button>
-                    <button onclick="window.print();" id="printBtn">Print</button>
-                </div>
-
-                <div class="invoice-bg">
-                    <!-- <div class="bg-img">
-                    <img class="bg-image" src="img/logo/<?= $get_company['logo'] ?>" alt="" />
-                </div> -->
-                    <div class="content">
-                        <div class="invoice-details">
-                            <div class="m-0 p-0">
-                                <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id ?></p>
-                            </div>
-
-
-                            <div class="m-0 p-0">
-                                <p><strong>DATE:</strong> <?= $date ?> </p>
-                            </div>
+                <div class="invo">
+                    <h2 class="text-uppercase"><?= $invoice_name ?>
+                        <!-- (Page <?= $pageIndex + 1 ?> of <?= $totalPages ?>) -->
+                    </h2>
+                    <?php if ($pageIndex === 0): ?>
+                        <div style="margin-top: 20px; text-align: end;">
+                            <button id="saveAsPdfBtn">Save as PDF</button>
+                            <button onclick="window.print();" id="printBtn">Print</button>
                         </div>
-                        <div class="invoice-details">
-                            <div class="m-0 p-0">
-                                <?php
-                                if ($_REQUEST['type'] == 'gatepass') {
-                                    $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
-                                    $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
-                                    ?>
-                                    <p class="text-uppercase"><strong> From Branch:</strong> <?= @$from['branch_name'] ?></p>
-                                <?php } else { ?>
-
-                                    <p class="text-uppercase"><strong>Customer Name :</strong>
-                                        <?= @$order['client_name'] ?: @$order['customer_name'] ?>
-                                    </p>
-
-                                <?php } ?>
-
-                                <!-- <p><strong>DATE:</strong> <?= $date ?> </p> -->
-                                <!-- <p><strong>TIME:</strong> <?= date($order['timestamp']) ?>
-                            </p> -->
+                    <?php endif; ?>
+                    <div class="invoice-bg">
+                        <div class="content">
+                            <div class="invoice-details">
+                                <div class="m-0 p-0">
+                                    <p class="text-uppercase"><strong><?= $id_name ?> :</strong> <?= $unique_id ?></p>
+                                </div>
+                                <div class="m-0 p-0">
+                                    <p><strong>DATE:</strong> <?= $date ?></p>
+                                </div>
                             </div>
-                            <div class="m-0 p-0">
-                                <?php
-                                if ($_REQUEST['type'] == 'gatepass') {
-                                    $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']);
-                                    $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']);
-                                    ?>
-                                    <p class="text-uppercase"><strong> To Branch:</strong> <?= $to['branch_name'] ?></p>
-                                <?php } else { ?>
-                                    <div>
-                                        <?php if ($_REQUEST['type'] == 'gatepass') {
-                                            $from = fetchRecord($dbc, "branch", "branch_id", @$order['from_branch']);
-                                            $to = fetchRecord($dbc, "branch", "branch_id", @$order['to_branch']);
-                                            ?>
-                                        <?php } else {
-                                            $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']);
-                                            if (isset($branch['branch_name'])) {
-                                                ?>
-                                                <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
-                                            <?php }
-                                        } ?>
-                                    </div>
-                                <?php } ?>
+                            <div class="invoice-details">
+                                <div class="m-0 p-0">
+                                    <?php if ($_REQUEST['type'] == 'gatepass'): ?>
+                                        <?php $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']); ?>
+                                        <p class="text-uppercase"><strong>From Branch:</strong> <?= @$from['branch_name'] ?></p>
+                                    <?php else: ?>
+                                        <p class="text-uppercase"><strong>Customer Name:</strong>
+                                            <?= @$order['client_name'] ?: @$order['customer_name'] ?></p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="m-0 p-0">
+                                    <?php if ($_REQUEST['type'] == 'gatepass'): ?>
+                                        <?php $to = fetchRecord($dbc, "branch", "branch_id", $order['to_branch']); ?>
+                                        <p class="text-uppercase"><strong>To Branch:</strong> <?= @$to['branch_name'] ?></p>
+                                    <?php else: ?>
+                                        <?php $branch = fetchRecord($dbc, "branch", "branch_id", @$order['branch_id']); ?>
+                                        <?php if (isset($branch['branch_name'])): ?>
+                                            <p class="text-uppercase"><strong>Branch:</strong> <?= @$branch['branch_name'] ?></p>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-
-
-                        </div>
-                        <div class="invoice-details">
-
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="heder" style="width: 5%;">S.No</th>
-                                    <th style="width: 25%;" class="text-left pl-3 heder">Description</th>
-                                    <th class="heder" style="width: 5%;">Qty</th>
-                                    <?php $shouldShow = true; // Default to showing content
-                                    
-                                        // Hide if it's a gatepass
-                                        if (($_REQUEST['type'] ?? '') === 'gatepass') {
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="heder" style="width: 5%;">S.No</th>
+                                        <th style="width: 25%;" class="text-left pl-3 heder">Description</th>
+                                        <th class="heder" style="width: 5%;">Qty</th>
+                                        <?php
+                                        $shouldShow = true;
+                                        if (($_REQUEST['type'] ?? '') === 'gatepass' || ($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
                                             $shouldShow = false;
                                         }
-
-                                        // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
-                                        if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
-                                            $shouldShow = false;
-                                        }
-
-                                        // Special case: Show if it's manualbill AND NOT delivery_note
                                         if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
                                             $shouldShow = true;
                                         }
-
-                                        if ($shouldShow) { ?>
-                                        <th class="heder" style="width: 5%;">Unit Price</th>
-                                        <th class="heder" style="width: 5%;">Amount</th>
-                                    <?php } ?>
-                                </tr>
-                            </thead>
-                            <?php if (!empty($order['product_details'])): ?>
-                                <!-- Show JSON-decoded product_details -->
+                                        if ($shouldShow): ?>
+                                            <th class="heder" style="width: 5%;">Unit Price</th>
+                                            <th class="heder" style="width: 5%;">Amount</th>
+                                        <?php endif; ?>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     <?php
-                                    $json_items = json_decode($order['product_details'], true);
-                                    $jc = 0;
-                                    foreach ($json_items as $item) {
-                                        $jc++;
+                                    $c = $pageIndex * $recordsPerPage;
+                                    $totalQTY = 0;
+                                    $totalAm = 0;
+                                    foreach ($pageItems as $item):
+                                        $c++;
+                                        if (!empty($order['product_details'])) {
+                                            $product_name = strtoupper($item['product_name']);
+                                            $quantity = $item['quantity'];
+                                            $rate = $item['final_rate'] ?? 0;
+                                        } else {
+                                            $brand = fetchRecord($dbc, "brands", "brand_id", $item['brand_id']);
+                                            $cat = fetchRecord($dbc, "categories", "categories_id", $item['category_id']);
+                                            $product_name = strtoupper($item['product_name']);
+                                            $quantity = $item['quantity'];
+                                            $rate = $item['rate'];
+                                        }
+                                        $totalQTY += $quantity;
+                                        $totalAm += $rate * $quantity;
                                         ?>
                                         <tr class="border">
-                                            <td class="text-center border"><?= $jc ?></td>
-                                            <td class="text-left border pl-3">
-                                                <?= strtoupper(preg_replace('/\s*-\s*CHINA\s*$/i', '', $item['product_name'])) ?>
-                                            </td>
-
-                                            <td class="text-center border"><?= $item['quantity'] ?></td>
-                                            <?php
-                                            // Special case: Show if it's manualbill AND NOT delivery_note
-                                            if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note'):
-                                                ?>
-                                                <td class="text-center border"><?= formatAmountWithoutKD($item['final_rate']) ?></td>
-                                                <td class="text-center border">
-                                                    <?= formatAmountWithoutKD($item['final_rate'] * $item['quantity']) ?>
-                                                </td>
-                                            <?php endif; ?>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-
-                            <?php elseif (!empty($order_item) && gettype($order_item) === 'object'): ?>
-                                <!-- Show MySQL Fetched Products -->
-                                <tbody>
-                                    <?php
-                                    $c = 0;
-                                    $totalAm = 0;
-                                    $totalQTY = 0;
-                                    while ($r = mysqli_fetch_assoc($order_item)) {
-                                        $c++;
-                                        $brand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
-                                        $cat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-                                        ?>
-                                        <tr class="w-100">
                                             <td class="text-center border"><?= $c ?></td>
                                             <td class="text-left border pl-3">
-                                                <?php if (!empty($cat['categories_name']) && strtolower($cat['categories_name']) !== 'no category'): ?>
-                                                    <?= strtoupper($cat['categories_name']) ?> |
-                                                <?php endif; ?>
-                                                <?= strtoupper($r['product_name']) ?>
-                                                <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_name']) !== 'china'): ?>
-                                                    | <?= strtoupper($brand['brand_name']) ?>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td class="text-center border"><?= $r['quantity'] ?></td>
-                                            <?php if (@$_REQUEST['type'] != 'gatepass' && (!isset($order['is_delivery_note']) || $order['is_delivery_note'] != 1)): ?>
-                                                <td class="text-center border"><?= formatAmountWithoutKD($r['rate']) ?></td>
-                                                <td class="text-center border"><?= formatAmountWithoutKD($r['rate'] * $r['quantity']) ?>
-                                                </td>
-                                            <?php endif; ?>
-                                        </tr>
-                                        <?php
-                                        $totalQTY += $r['quantity'];
-                                        $totalAm += $r['rate'] * $r['quantity'];
-                                    } ?>
-                                </tbody>
-                            <?php endif; ?>
-
-                            <tfoot>
-                                <tr class="tablefooter" style="font-size: 14px;">
-                                    <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span>
-                                    </td>
-
-                                    <?php $shouldShow = true; // Default to showing content
-                                    
-                                        // Hide if it's a gatepass
-                                        if (($_REQUEST['type'] ?? '') === 'gatepass') {
-                                            $shouldShow = false;
-                                        }
-
-                                        // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
-                                        if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
-                                            $shouldShow = false;
-                                        }
-
-                                        // Special case: Show if it's manualbill AND NOT delivery_note
-                                        if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
-                                            $shouldShow = true;
-                                        }
-
-                                        if ($shouldShow): ?>
-                                        <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
-                                            <td class="border">Total Amount:</td>
-                                            <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
-                                        </tr>
-                                        <tr class="tablefooter" style="font-size: 14px;">
-                                            <td colspan="3"></td>
-                                            <td class="border">Discount:</td>
-                                            <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
-                                        </tr>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-
-                                <?php $shouldShow = true; // Default to showing content
-                                
-                                    // Hide if it's a gatepass
-                                    if (($_REQUEST['type'] ?? '') === 'gatepass') {
-                                        $shouldShow = false;
-                                    }
-
-                                    // Hide if it's a delivery note (either is_delivery_note=1 or type=delivery_note)
-                                    if (($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
-                                        $shouldShow = false;
-                                    }
-
-                                    // Special case: Show if it's manualbill AND NOT delivery_note
-                                    if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
-                                        $shouldShow = true;
-                                    }
-
-                                    if ($shouldShow): ?>
-                                    <tr class="tablefooter" style="font-size: 14px; border: none !important;">
-                                        <td colspan="3" class="text-left border-none">
-                                            <?= amountToWordsKD($order['grand_total']) ?>
-                                            ONLY
-                                        </td>
-                                        <td class="text-sm border">Net Amount:</td>
-                                        <td class="border"><?= formatAmountWithKD($order['grand_total']); ?></td>
-                                    </tr>
-                                <?php endif; ?>
-
-                                <?php if (
-                                    $_REQUEST['type'] !== 'lpo' &&
-                                    $_REQUEST['type'] !== 'quotation' &&
-                                    $_REQUEST['type'] !== 'gatepass' &&
-                                    ($_REQUEST['type'] !== 'manualbill' || $order['type'] === 'Sale_Invoice')
-                                ): ?>
-                                    <?php if ($order['grand_total'] !== ""): ?>
-                                        <tr class="tablefooter" style="font-size: 14px;">
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td class="text-sm border">Paid:</td>
-                                            <?php if ($_REQUEST['type'] == "manualbill"): ?>
-                                                <td class="border"><?= formatAmountWithoutKD(@$order['grand_total']) ?></td>
-                                            <?php else: ?>
-                                                <td class="border"><?= formatAmountWithoutKD(@$order['paid']) ?></td>
-                                            <?php endif; ?>
-                                        </tr>
-                                        <tr class="tablefooter" style="font-size: 14px;">
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td class="text-sm border">Remaining:</td>
-                                            <td class="border">
                                                 <?php if (!empty($order['product_details'])): ?>
-                                                    <?= formatAmountWithoutKD(0) ?>
+                                                    <?= rtrim(str_ireplace('china', '', $product_name), ' -') ?>
+
                                                 <?php else: ?>
-                                                    <?= formatAmountWithoutKD($order['due']) ?>
+                                                    <?php if (!empty($cat['categories_name'])): ?>
+                                                        <?= strtoupper($cat['categories_name']) ?> |
+                                                    <?php endif; ?>
+                                                    <?= $product_name ?>
+                                                    <?php if (!empty($brand['brand_name']) && strtolower($brand['brand_name']) !== 'china'): ?>
+                                                        | <?= strtoupper($brand['brand_name']) ?>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                             </td>
+                                            <!-- <td class="text-center border"><?= $quantity ?></td> -->
+                                            <td class="text-center border"><?= ($quantity < 1) ? round($quantity * 15) . ' M' : $quantity ?></td>
+                                            <?php if ($shouldShow): ?>
+                                                <td class="text-center border"><?= formatAmountWithoutKD($rate) ?></td>
+                                                <td class="text-center border"><?= formatAmountWithoutKD($rate * $quantity) ?></td>
+                                            <?php endif; ?>
                                         </tr>
-                                    <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <?php if ($pageIndex === $totalPages - 1): ?>
+                                    <tfoot>
+                                        <tr class="tablefooter last-page" style="font-size: 14px;">
+                                            <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span>
+                                            </td>
+                                            <?php if ($shouldShow): ?>
+                                                <?php if (!empty($order['discount']) && $order['discount'] > 0): ?>
+                                                    <td class="border">Total Amount:</td>
+                                                    <td class="border"><?= formatAmountWithKD($order['total_amount']) ?></td>
+                                                </tr>
+                                                <tr class="tablefooter last-page" style="font-size: 14px;">
+                                                    <td colspan="3"></td>
+                                                    <td class="border">Discount:</td>
+                                                    <td class="border"><?= formatAmountWithKD($order['discount']) ?></td>
+                                                </tr>
+                                            <?php endif; ?>
+                                            <tr class="tablefooter last-page" style="font-size: 14px; border: none !important;">
+                                                <td colspan="3" class="text-left border-none">
+                                                    <?= amountToWordsKD($order['grand_total']) ?> ONLY
+                                                </td>
+                                                <td class="text-sm border">Net Amount:</td>
+                                                <td class="border"><?= formatAmountWithKD($order['grand_total']) ?></td>
+                                            </tr>
+                                            <?php if (
+                                                $_REQUEST['type'] !== 'lpo' &&
+                                                $_REQUEST['type'] !== 'quotation' &&
+                                                $_REQUEST['type'] !== 'gatepass' &&
+                                                ($_REQUEST['type'] !== 'manualbill' || $order['type'] === 'Sale_Invoice')
+                                            ): ?>
+                                                <?php if ($order['grand_total'] !== ""): ?>
+                                                    <tr class="tablefooter last-page" style="font-size: 14px;">
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td class="text-sm border">Paid:</td>
+                                                        <td class="border">
+                                                            <?= formatAmountWithoutKD($_REQUEST['type'] == "manualbill" ? @$order['grand_total'] : @$order['paid']) ?>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="tablefooter last-page" style="font-size: 14px;">
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td class="text-sm border">Remaining:</td>
+                                                        <td class="border">
+                                                            <?= formatAmountWithoutKD(!empty($order['product_details']) ? 0 : @$order['due']) ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    </tfoot>
+                                <?php else: ?>
+                                    <tfoot>
+                                        <tr class="tablefooter last-page-only" style="font-size: 14px;">
+                                            <td colspan="3" class="text-left"><strong>Note:</strong> <span><?= $comment ?></span>
+                                            </td>
+                                            <?php if ($shouldShow): ?>
+                                                <td colspan="2"></td>
+                                            <?php endif; ?>
+                                        </tr>
+                                    </tfoot>
                                 <?php endif; ?>
-                            </tfoot>
-
-
-                        </table>
-                    </div>
-                </div>
-                <?php
-                if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')) { ?>
-                    <div class="pt-5 mt-3 mb-5">
-                        <div class="row">
-                            <div class="col-2">
-
-                                <p><strong>Payment Mode:</strong> </p>
-                            </div>
-                            <div class="col-1">
-                                <p>______________________ </p>
-                            </div>
-                            <div class="col-9"></div>
+                            </table>
                         </div>
-                        <div class="row mt-3">
-                            <div class="col-2">
-
-                                <p><strong>Price Validity:</strong> </p>
-                            </div>
-                            <div class="col-1">
-                                <p>______________________ </p>
-                            </div>
-                            <div class="col-9 w-100 ">
-                                <div class="row w-100 text-right ml-auto mr-3">
-                                    <div class="col-12 text-right d-flex justify-content-end">
-                                        <p><strong>Prepared By:</strong> </p>
-                                        <p class="text-capitalize pr-">
-                                            <?php
-                                            $user = fetchRecord($dbc, "users", "user_id", $_SESSION['user_id']);
-                                            if (isset($user['fullname'])) {
-                                                echo $user['fullname'];
-                                            } else {
-                                                echo "______________________";
-                                            }
-                                            ?>
-                                        </p>
-
+                    </div>
+                    <?php if ($pageIndex === $totalPages - 1): ?>
+                        <?php if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')): ?>
+                            <div class=" mb-2">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <p><strong>Payment Mode:</strong></p>
                                     </div>
-
+                                    <div class="col-1">
+                                        <p>______________________</p>
+                                    </div>
+                                    <div class="col-9"></div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-2">
+                                        <p><strong>Price Validity:</strong></p>
+                                    </div>
+                                    <div class="col-1">
+                                        <p>______________________</p>
+                                    </div>
+                                    <div class="col-9 w-100">
+                                        <div class="row w-100 text-right ml-auto mr-3">
+                                            <div class="col-12 text-right d-flex justify-content-end">
+                                                <p><strong>Prepared By:</strong></p>
+                                                <p class="text-capitalize pr-3">
+                                                    <?php
+                                                    $user = fetchRecord($dbc, "users", "user_id", $_SESSION['user_id']);
+                                                    echo isset($user['fullname']) ? $user['fullname'] : "______________________";
+                                                    ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-
-                    </div>
-                <?php } else {
-                    if (($_REQUEST['type'] ?? '') !== 'gatepass') { ?>
-                        <div class="row mt-5 pt-5 m-0 pl-5">
-                            <div class="col-12 d-flex justify-content-end align-items-center">
-                                <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
-                                <div style="white-space: nowrap;">
-                                    <?php
-                                    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-                                    $user = fetchRecord($dbc, "users", "user_id", $userId);
-                                    $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
-                                    ?>
-                                    <span><?= $fullName ?></span>
+                        <?php else:
+                            if (($_REQUEST['type'] ?? '') !== 'gatepass') { ?>
+                                <div class="row  m-0 pl-5">
+                                    <div class="col-12 d-flex justify-content-end align-items-center">
+                                        <p class="mb-0 mr-1"><strong>Prepared By:</strong></p>
+                                        <div style="white-space: nowrap;">
+                                            <?php
+                                            $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+                                            $user = fetchRecord($dbc, "users", "user_id", $userId);
+                                            $fullName = !empty($user['fullname']) ? strtoupper($user['fullname']) : "_________________";
+                                            ?>
+                                            <span><?= $fullName ?></span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                    <?php }
-                } ?>
-
-
-            </div><!-- end of container -->
-
-        </div>
-        <div class="pdf_footer">
-            <div class="pdf-only-header ">
-                <div class="return">
-                    <p>
-                        Goods can be returned within 14 days original packaging & Invoice
-                    </p>
-                    <p>يمكن إرجاع البضائع فصول ١٤ يوما مع العبوة الأصلية والفاتورة</p>
+                            <?php }endif; ?>
+                    <?php endif; ?>
                 </div>
-                <div class="footer">
-                    <div>
-                        <img class="qr" src="img/logo/frame.svg" alt="" />
+                <div class="pdf_footer">
+                    <div class="return">
+                        <p>Goods can be returned within 14 days original packaging & Invoice</p>
+                        <p>يمكن إرجاع البضائع فصول ١٤ يوما مع العبوة الأصلية والفاتورة</p>
                     </div>
-                    <div class="centerdiv text-center">
-                        <p>
-                            "Please issue The cheque In the name of "Season Four Electronic &
-                            Repairing"
-                        </p>
-                        <p>
-                            "يرجى إصدار الشيك باسم "مؤسسة فصول الاربعة للأجهزة الكهربائية والالكترونية وتصليحها"</p>
-                        <div class="center">
-                            <div><span>Receiver's Sign </span><span>توقيع المستلم</span></div>
-                            <div><span>Salesman's Sign </span><span>توقيع البائع</span></div>
+                    <div class="footer">
+                        <div><img class="qr" src="img/logo/frame.svg" alt="" /></div>
+                        <div class="centerdiv text-center">
+                            <p>"Please issue The cheque In the name of 'Season Four Electronic & Repairing'"</p>
+                            <p>"يرجى إصدار الشيك باسم 'مؤسسة فصول الاربعة للأجهزة الكهربائية والالكترونية وتصليحها'"</p>
+                            <div class="center">
+                                <div><span>Receiver's Sign </span><span>توقيع المستلم</span></div>
+                                <div><span>Salesman's Sign </span><span>توقيع البائع</span></div>
+                            </div>
                         </div>
+                        <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
                     </div>
-                    <div><img class="qr" src="img/logo/frame-2.svg" alt="" /></div>
                 </div>
             </div>
-        </div>
+        <?php endforeach; ?>
     <?php endfor; ?>
-
-
 </body>
 
 </html>
 <script type="text/javascript">
-    // Check if the URL contains ?pdf=true
     const urlParams = new URLSearchParams(window.location.search);
     const isPdf = urlParams.get('pdf') === 'true';
-    console.log('PDF mode:', isPdf); // Debug: Check if pdf=true is detected
 
-    // Function to handle PDF generation
     function generatePdf() {
         const headers = document.querySelectorAll('.pdf-only-header');
-        if (headers.length > 0) {
-            headers.forEach(header => {
-                header.style.display = 'block';
-            });
-            console.log('Headers made visible for PDF'); // Debug: Confirm header visibility
-            // Delay to ensure DOM update is rendered
+        const footers = document.querySelectorAll('.pdf_footer');
+        headers.forEach(header => header.classList.add('pdf-visible'));
+        footers.forEach(footer => footer.classList.add('pdf-visible'));
+        setTimeout(() => {
+            window.print();
             setTimeout(() => {
-                window.print();
-                // Hide headers after printing to reset state
-                setTimeout(() => {
-                    headers.forEach(header => {
-                        header.style.display = 'none';
-                    });
-                }, 100);
-            }, 1000); // Increased delay to 1000ms for reliability
-        } else {
-            console.error('Header elements not found');
-        }
+                headers.forEach(header => header.classList.remove('pdf-visible'));
+                footers.forEach(footer => footer.classList.remove('pdf-visible'));
+            }, 100);
+        }, 1000);
     }
 
-    // Automatic PDF generation if ?pdf=true
     if (isPdf) {
         generatePdf();
     }
 
-    // Show manual button and handle click for fallback
     const saveAsPdfBtn = document.getElementById('saveAsPdfBtn');
     if (saveAsPdfBtn) {
         saveAsPdfBtn.addEventListener('click', () => {
-            // Append ?pdf=true to URL and trigger PDF generation
             window.history.pushState({}, document.title, window.location.pathname + '?pdf=true');
             generatePdf();
         });

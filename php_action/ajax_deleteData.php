@@ -44,13 +44,13 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$proQ = mysqli_query($dbc, "SELECT * FROM order_return_item WHERE order_id = '$id'");
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$product_id = $proR['product_id'];
-				$qty = (int) $proR['quantity'];
+				$qty = $proR['quantity'];
 
 				// Adjust inventory if it exists
 				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
 				if (mysqli_num_rows($invQ) > 0) {
 					$inv = mysqli_fetch_assoc($invQ);
-					$newQty = (int) $inv['quantity_instock'] - $qty;
+					$newQty = $inv['quantity_instock'] - $qty;
 
 					mysqli_query($dbc, "UPDATE inventory SET quantity_instock = '$newQty', inventory_timestamp = NOW() WHERE inventory_id = '{$inv['inventory_id']}' ");
 				}
@@ -81,13 +81,13 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$proQ = mysqli_query($dbc, "SELECT * FROM order_item WHERE order_id = '$id'");
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$product_id = $proR['product_id'];
-				$qty = (int) $proR['quantity'];
+				$qty = $proR['quantity'];
 
 				// Adjust inventory if it exists
 				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
 				if (mysqli_num_rows($invQ) > 0) {
 					$inv = mysqli_fetch_assoc($invQ);
-					$newQty = (int) $inv['quantity_instock'] + $qty;
+					$newQty = $inv['quantity_instock'] + $qty;
 
 					mysqli_query($dbc, "
 					UPDATE inventory 
@@ -125,13 +125,13 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$proQ = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE purchase_id = '$id'");
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$product_id = $proR['product_id'];
-				$qty = (int) $proR['quantity'];
+				$qty = $proR['quantity'];
 
 				// Check if inventory exists for this product and branch
 				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
 				if (mysqli_num_rows($invQ) > 0) {
 					$inv = mysqli_fetch_assoc($invQ);
-					$newQty = (int) $inv['quantity_instock'] - $qty;
+					$newQty = $inv['quantity_instock'] - $qty;
 
 					mysqli_query($dbc, "
                     UPDATE inventory 
@@ -167,13 +167,13 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$proQ = mysqli_query($dbc, "SELECT * FROM purchase_return_item WHERE purchase_id = '$id'");
 			while ($proR = mysqli_fetch_assoc($proQ)) {
 				$product_id = $proR['product_id'];
-				$qty = (int) $proR['quantity'];
+				$qty = $proR['quantity'];
 
 				// Check if inventory exists for this product and branch
 				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
 				if (mysqli_num_rows($invQ) > 0) {
 					$inv = mysqli_fetch_assoc($invQ);
-					$newQty = (int) $inv['quantity_instock'] + $qty;
+					$newQty = $inv['quantity_instock'] + $qty;
 
 					mysqli_query($dbc, "
                     UPDATE inventory 
@@ -269,13 +269,13 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$itemsQ = mysqli_query($dbc, "SELECT * FROM quotation_item WHERE quotation_id = '$id'");
 			while ($item = mysqli_fetch_assoc($itemsQ)) {
 				$product_id = $item['product_id'];
-				$quantity = (int) $item['quantity'];
+				$quantity = $item['quantity'];
 
 				// Check if inventory record exists
 				$invQ = mysqli_query($dbc, "SELECT * FROM inventory WHERE product_id = '$product_id' AND branch_id = '$branch_id'");
 				if (mysqli_num_rows($invQ) > 0) {
 					$inventory = mysqli_fetch_assoc($invQ);
-					$newQty = (int) $inventory['quantity_instock'] + $quantity;
+					$newQty = $inventory['quantity_instock'] + $quantity;
 					mysqli_query($dbc, "UPDATE inventory SET quantity_instock = '$newQty', inventory_timestamp = NOW() WHERE inventory_id = '{$inventory['inventory_id']}'");
 				} else {
 					mysqli_query($dbc, "
