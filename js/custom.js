@@ -444,13 +444,6 @@ function getCustomer_name(value) {
     },
   });
 }
-function getRemaingAmount() {
-  var paid_ammount = $("#paid_ammount").val();
-  var product_grand_total_amount = $("#product_grand_total_amount").html();
-  var total = product_grand_total_amount - paid_ammount;
-  // alert(total)
-  $("#remaining_ammount").val(total);
-}
 
 function loadProducts(id) {
   $.ajax({
@@ -580,6 +573,7 @@ $("#full_payment_check").on("click", function () {
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
+
 $("#addProductPurchase").on("click", function () {
   const $btn = $(this);
   const originalHtml = $btn.html();
@@ -589,6 +583,7 @@ $("#addProductPurchase").on("click", function () {
 
   setTimeout(function () {
     try {
+      
       var currentForm = $btn.closest("form"); // USE $btn INSTEAD OF this
       var get_final_rate =
         currentForm.data("get-final-rate")?.toString() === "true";
@@ -602,7 +597,8 @@ $("#addProductPurchase").on("click", function () {
       var final_rate = $("#get_final_rate").val();
       var id = $("#get_product_name").val();
       var code = $("#get_product_code").val();
-      var product_quantity = parseInt($("#get_product_quantity").val());
+      var product_quantity = parseFloat($("#get_product_quantity").val());
+
       var max_qty = parseInt($("#get_product_quantity").attr("max")) || 0;
       var pro_type = $("#add_pro_type").val();
       var isGatepass = $("#gatepass").val() === "gatepass";
@@ -625,7 +621,7 @@ $("#addProductPurchase").on("click", function () {
         return;
       }
 
-      var total_price = price * product_quantity;
+      var total_price = (price * product_quantity).toFixed(3);
 
       if (!id || !product_quantity || !code || (!isGatepass && !price)) {
         Swal.fire({
@@ -657,8 +653,8 @@ $("#addProductPurchase").on("click", function () {
           if (val === id) {
             var Currentquantity =
               pro_type === "add"
-                ? parseInt(quantity) + parseInt(product_quantity)
-                : parseInt(product_quantity);
+                ? parseFloat(quantity) + parseFloat(product_quantity)
+                : parseFloat(product_quantity);
 
             if (!isSaleReturn && Currentquantity > max_qty) {
               Swal.fire({
@@ -671,7 +667,7 @@ $("#addProductPurchase").on("click", function () {
               return false;
             }
 
-            var updated_total = price * Currentquantity;
+            var updated_total = (price * Currentquantity).toFixed(3);
 
             $("#product_idN_" + id).replaceWith(`
               <tr id="product_idN_${id}">
@@ -740,6 +736,7 @@ function removeByid(id) {
   $(id).remove();
   getOrderTotal();
 }
+
 function getOrderTotal() {
   var payment_type = $("#payment_type").val();
   var total_bill = (grand_total = 0);
@@ -759,8 +756,8 @@ function getOrderTotal() {
   }
   //console.log(discount);
   //grand_total=freight+total_bill-total_bill*(discount/100);
-  grand_total = freight + total_bill - discount;
-  $("#product_total_amount").html(total_bill);
+  grand_total = parseFloat((freight + total_bill - discount).toFixed(3));
+  $("#product_total_amount").html((total_bill).toFixed(3));
   $("#product_grand_total_amount").html(grand_total);
 
   if (payment_type == "cash_in_hand" || payment_type == "cash_purchase") {
@@ -784,7 +781,13 @@ function getOrderTotal() {
   $("#purchase_type").change();
   $("#sale_type").change();
 }
-
+function getRemaingAmount() {
+  var paid_ammount = $("#paid_ammount").val();
+  var product_grand_total_amount = $("#product_grand_total_amount").html();
+  var total = product_grand_total_amount - paid_ammount;
+  // alert(total)
+  $("#remaining_ammount").val(total);
+}
 function editByid(id, code, price, qty, final_rate, pro_details) {
   // alert(pro_details);
   $("#get_product_name").val(id);
@@ -1306,8 +1309,43 @@ $(document).ready(function () {
     var total_price = price * quantity;
     $("#get_product_sale_price").val(total_price);
   }
+// $("#get_product_quantity").on("keydown", function (e) {
+//         if (e.ctrlKey && e.key === "Enter") {
+//             e.preventDefault();
 
-  $("#get_product_price, #get_product_quantity").on("input", calculateQuantity);
+//             let inputVal = $(this).val().trim();
+
+//             // Only allow numbers, math operators, spaces, and parentheses
+//             if (/^[0-9+\-*/().\s]+$/.test(inputVal)) {
+//                 try {
+//                     let result = eval(inputVal); // Caution: use safely
+//                     if (!isNaN(result)) {
+//                         $(this).val(result);
+//                         calculateQuantity(); // Replace input value with result
+//                     } else {
+//                         alert("Invalid expression");
+//                     }
+//                 } catch (error) {
+//                     alert("Invalid expression");
+//                 }
+//             } else {
+//                 alert("Invalid characters in input");
+//             }
+//         }
+//     });
+ 
+$(".quntity_in_meter").on("click", function () {
+    const btnVal = parseFloat($(this).val());
+    if (!isNaN(btnVal) && btnVal > 0) {
+        const result = parseFloat((1 / 15 * btnVal).toFixed(3));
+        $("#get_product_quantity").val(result);
+         $('#view_quntity_modal').modal('hide');
+        calculateQuantity();
+    } else {
+        alert("Invalid button value");
+    }
+});
+$("#get_product_price, #get_product_quantity").on("input", calculateQuantity);
 });
 
 $(document).ready(function () {

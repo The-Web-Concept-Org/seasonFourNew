@@ -26,7 +26,7 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_stock_detail') {
     echo "<thead><tr><th>Branch Name</th><th>Available Stock</th></tr></thead><tbody>";
     $total_stock = 0;
     while ($row = mysqli_fetch_assoc($result)) {
-      $stock = (int) $row['stock'];
+      $stock =  $row['stock'];
       $total_stock += $stock;
 
       echo "<tr>";
@@ -256,7 +256,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
 
 
                 </div>
-                <button class="btn btn-admin float-right" type="submit" id="add_product_btn">Save</button>
+                <button class="btn btn-admin float-right" type="submit" id="add_product_btn"><?= $btn_name ?></button>
               </form>
             </div>
           <?php else: ?>

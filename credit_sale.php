@@ -269,8 +269,12 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                             <div class="col-6 col-sm-2 col-md-1">
                                 <label>Quantity</label>
-                                <input type="text" class="form-control" id="get_product_quantity" value="" min="1"
+                                <input type="text" class="form-control" id="get_product_quantity" value="" min=""
                                     name="quantity">
+                                    <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-quntity-btn"
+                             data-toggle="modal" data-target="#view_quntity_modal">
+                            Meters
+                          </button>
                             </div>
                             <div class="col-6 col-sm-1 col-md-1">
                                 <label>Amount</label>
@@ -505,7 +509,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                             <select class="form-control form-control-sm" name="bank_account" id="bank_account">
                                                                 <option selected value="">Select Bank Account</option>
                                                                 <?php
-                                                                mysqli_data_seek($q, 0); // reset query pointer for reuse
+                                                                mysqli_data_seek($q, 0); 
                                                                 while ($r = mysqli_fetch_assoc($q)): ?>
                                                                     <option <?= @($fetchOrder['bank_payment_account'] == $r['customer_id']) ? "selected" : "" ?>
                                                                         value="<?= $r['customer_id'] ?>">
@@ -549,70 +553,88 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
 
     </div> <!-- .wrapper -->
+ <div class="modal fade" id="view_quntity_modal" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="defaultModalLabel">Quantity In Meter</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
 
+        <div class="modal-body">
+
+          <div class="form-group row">
+           <div class="container mt-3">
+  <div class="row">
+    <div class="col-2 col-sm-2 col-md-2 mb-2" >
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="1">1</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="2">2</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="3">3</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="4">4</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="5">5</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="6">6</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="7">7</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="8">8</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="9">9</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="10">10</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="11">11</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="12">12</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="13">13</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="14">14</button>
+    </div>
+    <div class="col-2 col-sm-2 col-md-2 mb-2">
+      <button class="btn btn-outline-primary w-100 quntity_in_meter" value="15">15</button>
+    </div>
+  </div>
+</div>
+
+
+
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-dark float-right"
+            id="formData_btn">Close</button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
 </body>
 
 <script>
     let bankAutoFill = true;
-
-// function toggleSplitPayment() {
-//     const isSplit = document.getElementById('split_payment').checked;
-
-//     document.getElementById('account_row').style.display = isSplit ? 'none' : '';
-//     document.getElementById('remaining_row').style.display = isSplit ? 'none' : '';
-//     document.getElementById('split_payment_row').style.display = isSplit ? '' : 'none';
-//     document.getElementById('split_error_row').style.display = 'none';
-//     const paid = parseFloat(document.getElementById('paid_ammount').value) || 0;
-//     document.getElementById('cash_amount').setAttribute('max', paid);
-
-//     const paymentAccountEl = document.getElementById('payment_account');
-//     const cashAmountEl = document.getElementById('cash_amount');
-//     const bankAmountEl = document.getElementById('bank_amount');
-//     const cashAccountEl = document.getElementById('cash_account');
-//     const bankAccountEl = document.getElementById('bank_account');
-
-//     if (isSplit) {
-//         //  Clear payment account (single field)
-//         if (paymentAccountEl) {
-//             paymentAccountEl.value = '';
-//             paymentAccountEl.removeAttribute('required');
-//         }
-
-//         // Add required to split fields
-//         if (cashAmountEl) cashAmountEl.setAttribute('required', true);
-//         if (bankAmountEl) bankAmountEl.setAttribute('required', true);
-//         if (cashAccountEl) cashAccountEl.setAttribute('required', true);
-//         if (bankAccountEl) bankAccountEl.setAttribute('required', true);
-
-//         const cashVal = parseFloat(cashAmountEl.value) || 0;
-//         const bankVal = parseFloat(bankAmountEl.value) || 0;
-
-//         if (cashVal === 0 && bankVal === 0) {
-//             cashAmountEl.value = "";
-//             bankAmountEl.value = paid;
-//             bankAutoFill = true;
-//         }
-
-//     } else {
-//         //  Clear split values
-//         if (cashAmountEl) {
-//             cashAmountEl.value = 0;
-//             cashAmountEl.removeAttribute('required');
-//         }
-
-//         if (bankAmountEl) {
-//             bankAmountEl.value = 0;
-//             bankAmountEl.removeAttribute('required');
-//         }
-
-//         if (cashAccountEl) cashAccountEl.removeAttribute('required');
-//         if (bankAccountEl) bankAccountEl.removeAttribute('required');
-
-//         //  Add required to single payment account
-//         // if (paymentAccountEl) paymentAccountEl.setAttribute('required', true);
-//     }
-// }
-
 function toggleSplitPayment() {
     const isSplit = document.getElementById('split_payment').checked;
     const saleType = document.getElementById('sale_type').value;

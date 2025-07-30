@@ -710,7 +710,8 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 				} //end of foreach
 				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
 
-				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
+				$due_amount = number_format((float) $total_grand - (float) @$_REQUEST['paid_ammount'], 2, '.', '');
+
 
 				if ($due_amount > 0) {
 					$payment_status = 0; //pending
@@ -824,7 +825,7 @@ if (isset($_REQUEST['sale_order_client_name']) && empty($_REQUEST['order_return'
 						$x++;
 					} //end of foreach
 					$total_grand = $total_ammount - @$_REQUEST['ordered_discount'];
-					$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
+					$due_amount = number_format((float) $total_grand - (float) @$_REQUEST['paid_ammount'], 2, '.', '');
 					if ($due_amount > 0) {
 						$payment_status = 0; //pending
 
@@ -3363,127 +3364,127 @@ if (isset($_POST['get_branch_data'])) {
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['form_type']) && $_POST['form_type'] === 'manual-bill') {
-    header('Content-Type: application/json');
+	header('Content-Type: application/json');
 
-    $user_date = mysqli_real_escape_string($dbc, $_POST['order_date']); // Expected: YYYY-MM-DD
-    $customer_name = mysqli_real_escape_string($dbc, $_POST['client_name']);
-    $customer_phone = mysqli_real_escape_string($dbc, $_POST['client_contact']);
-    $order_narration = mysqli_real_escape_string($dbc, $_POST['order_narration']);
-    $type = mysqli_real_escape_string($dbc, $_POST['type'] ?? '');
-    $branch_id = intval($_POST['branch_id']);
-    $user_id = intval($_POST['user_id']);
-    $discount = floatval($_POST['ordered_discount']);
-    $total_amount = 0;
-    $grand_total = 0;
+	$user_date = mysqli_real_escape_string($dbc, $_POST['order_date']); // Expected: YYYY-MM-DD
+	$customer_name = mysqli_real_escape_string($dbc, $_POST['client_name']);
+	$customer_phone = mysqli_real_escape_string($dbc, $_POST['client_contact']);
+	$order_narration = mysqli_real_escape_string($dbc, $_POST['order_narration']);
+	$type = mysqli_real_escape_string($dbc, $_POST['type'] ?? '');
+	$branch_id = intval($_POST['branch_id']);
+	$user_id = intval($_POST['user_id']);
+	$discount = floatval($_POST['ordered_discount']);
+	$total_amount = 0;
+	$grand_total = 0;
 
-    // Process submitted products
-    $submitted_products = [];
-    if (isset($_POST['product_ids']) && is_array($_POST['product_ids'])) {
-        foreach ($_POST['product_ids'] as $index => $product_id) {
-            $product_name = $_POST['product_names'][$index];
-            $quantity = floatval($_POST['product_quantites'][$index]);
-            $final_rate = floatval($_POST['product_final_rates'][$index]);
-            $amount = $final_rate * $quantity;
-            $action = $_POST['product_actions'][$index] ?? 'update';
-            $product_uid = $_POST['product_uids'][$index] ?? uniqid('p_', true);
+	// Process submitted products
+	$submitted_products = [];
+	if (isset($_POST['product_ids']) && is_array($_POST['product_ids'])) {
+		foreach ($_POST['product_ids'] as $index => $product_id) {
+			$product_name = $_POST['product_names'][$index];
+			$quantity = floatval($_POST['product_quantites'][$index]);
+			$final_rate = floatval($_POST['product_final_rates'][$index]);
+			$amount = $final_rate * $quantity;
+			$action = $_POST['product_actions'][$index] ?? 'update';
+			$product_uid = $_POST['product_uids'][$index] ?? uniqid('p_', true);
 
-            $submitted_products[] = [
-                'product_id' => $product_id,
-                'product_name' => $product_name,
-                'quantity' => $quantity,
-                'final_rate' => $final_rate,
-                'total' => $amount,
-                'product_uid' => $product_uid,
-                'action' => $action
-            ];
-        }
-    }
+			$submitted_products[] = [
+				'product_id' => $product_id,
+				'product_name' => $product_name,
+				'quantity' => $quantity,
+				'final_rate' => $final_rate,
+				'total' => $amount,
+				'product_uid' => $product_uid,
+				'action' => $action
+			];
+		}
+	}
 
-    // Calculate totals
-    $merged_products = [];
-    foreach ($submitted_products as $product) {
-        $merged_products[] = [
-            'product_id' => $product['product_id'],
-            'product_name' => $product['product_name'],
-            'quantity' => $product['quantity'],
-            'final_rate' => $product['final_rate'],
-            'total' => $product['total'],
-            'product_uid' => $product['product_uid']
-        ];
-        $total_amount += $product['total'];
-    }
-    $grand_total = $total_amount - $discount;
-    $product_details_json = json_encode($merged_products, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+	// Calculate totals
+	$merged_products = [];
+	foreach ($submitted_products as $product) {
+		$merged_products[] = [
+			'product_id' => $product['product_id'],
+			'product_name' => $product['product_name'],
+			'quantity' => $product['quantity'],
+			'final_rate' => $product['final_rate'],
+			'total' => $product['total'],
+			'product_uid' => $product['product_uid']
+		];
+		$total_amount += $product['total'];
+	}
+	$grand_total = $total_amount - $discount;
+	$product_details_json = json_encode($merged_products, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
-    // Check if update or insert
-    $is_update = isset($_POST['product_order_id']) && !empty($_POST['product_order_id']) && is_numeric($_POST['product_order_id']);
-    $product_order_id = $is_update ? intval($_POST['product_order_id']) : null;
+	// Check if update or insert
+	$is_update = isset($_POST['product_order_id']) && !empty($_POST['product_order_id']) && is_numeric($_POST['product_order_id']);
+	$product_order_id = $is_update ? intval($_POST['product_order_id']) : null;
 
-    if ($is_update) {
-        $query = "UPDATE manual_bill SET 
+	if ($is_update) {
+		$query = "UPDATE manual_bill SET 
             timestamp = CONCAT(?, ' ', CURTIME()), 
             customer_name = ?, customer_phone = ?, order_narration = ?, 
             branch_id = ?, user_id = ?, total_amount = ?, discount = ?, grand_total = ?, 
             product_details = ?, type = ?
             WHERE order_id = ?";
 
-        $stmt = mysqli_prepare($dbc, $query);
-        mysqli_stmt_bind_param(
-            $stmt,
-            "ssssiidddssi",
-            $user_date,
-            $customer_name,
-            $customer_phone,
-            $order_narration,
-            $branch_id,
-            $user_id,
-            $total_amount,
-            $discount,
-            $grand_total,
-            $product_details_json,
-            $type,
-            $product_order_id
-        );
-    } else {
-        $query = "INSERT INTO manual_bill (
+		$stmt = mysqli_prepare($dbc, $query);
+		mysqli_stmt_bind_param(
+			$stmt,
+			"ssssiidddssi",
+			$user_date,
+			$customer_name,
+			$customer_phone,
+			$order_narration,
+			$branch_id,
+			$user_id,
+			$total_amount,
+			$discount,
+			$grand_total,
+			$product_details_json,
+			$type,
+			$product_order_id
+		);
+	} else {
+		$query = "INSERT INTO manual_bill (
             timestamp, customer_name, customer_phone, order_narration, 
             branch_id, user_id, total_amount, discount, grand_total, product_details, type
         ) VALUES (CONCAT(?, ' ', CURTIME()), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $stmt = mysqli_prepare($dbc, $query);
-        mysqli_stmt_bind_param(
-            $stmt,
-            "ssssiidddss",
-            $user_date,
-            $customer_name,
-            $customer_phone,
-            $order_narration,
-            $branch_id,
-            $user_id,
-            $total_amount,
-            $discount,
-            $grand_total,
-            $product_details_json,
-            $type
-        );
-    }
+		$stmt = mysqli_prepare($dbc, $query);
+		mysqli_stmt_bind_param(
+			$stmt,
+			"ssssiidddss",
+			$user_date,
+			$customer_name,
+			$customer_phone,
+			$order_narration,
+			$branch_id,
+			$user_id,
+			$total_amount,
+			$discount,
+			$grand_total,
+			$product_details_json,
+			$type
+		);
+	}
 
-    if (mysqli_stmt_execute($stmt)) {
-        $order_id = $is_update ? $product_order_id : mysqli_insert_id($dbc);
-        echo json_encode([
-            'success' => true,
-            'message' => $is_update ? 'Updated successfully.' : 'Saved successfully.',
-            'order_id' => $order_id
-        ]);
-    } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Database error: ' . mysqli_error($dbc)
-        ]);
-    }
+	if (mysqli_stmt_execute($stmt)) {
+		$order_id = $is_update ? $product_order_id : mysqli_insert_id($dbc);
+		echo json_encode([
+			'success' => true,
+			'message' => $is_update ? 'Updated successfully.' : 'Saved successfully.',
+			'order_id' => $order_id
+		]);
+	} else {
+		echo json_encode([
+			'success' => false,
+			'message' => 'Database error: ' . mysqli_error($dbc)
+		]);
+	}
 
-    mysqli_stmt_close($stmt);
-    exit;
+	mysqli_stmt_close($stmt);
+	exit;
 }
 
 
