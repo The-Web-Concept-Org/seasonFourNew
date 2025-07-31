@@ -21,6 +21,12 @@ $branch_id_current = $_SESSION['branch_id'];
     $credit_sale_type = "5days";
     $credit_sale_type_text = "5 days(special)";
   }
+
+  $pro_dropdown_quntity = mysqli_query($dbc, "SELECT p.*, IFNULL(i.quantity_instock, 0) AS quantity_instock
+        FROM product p
+        LEFT JOIN inventory i ON p.product_id = i.product_id AND i.branch_id = $branch_id_current
+        WHERE p.status = 1
+        ORDER BY i.quantity_instock DESC")
   ?>
   <nav class="navbar navbar-expand-lg navbar-light bg-white flex-row border-bottom shadow">
     <div class="container-fluid">

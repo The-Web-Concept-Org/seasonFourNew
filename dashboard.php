@@ -196,7 +196,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                         @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
 
                                                         $total = isset($total_sales) ? $total_sales : 0;
-                                                        echo number_format($total - $total_profit) . "KD";
+                                                        echo number_format($total) . "KD";
                                                         ?>
                                                     </h4>
                                                 </div>

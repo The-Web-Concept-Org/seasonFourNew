@@ -498,7 +498,7 @@ if (isset($_REQUEST['get_products_list'])) {
 			while ($r = mysqli_fetch_assoc($q)) {
 				$getBrand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
 				$getCat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);
-				echo '<option value="' . $r['product_id'] . '">' . $r["product_name"] . ' - ' . @$getBrand["brand_name"] . ' </option>';
+				echo '<option value="' . $r['product_id'] . '">' . $getCat["categories_name"] . ' - ' . $r["product_name"] . ' - ' . @$getBrand["brand_name"] . ' </option>';
 			}
 		} else {
 			echo '<option value="">Not Found</option>';
