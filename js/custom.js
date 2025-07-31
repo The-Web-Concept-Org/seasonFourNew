@@ -358,62 +358,68 @@ $(document).ready(function () {
     }); //ajax call
   }); //main
   $("#get_product_code").on("keyup", function () {
-    var code = $("#get_product_code").val();
-    var credit_sale_type = $("#credit_sale_type").val();
-    var payment_type = $("#payment_type").val();
-    //   var podid=  $('#get_product_name :selected').val();
-    var branch_id = $("#branch_id").val();
-    var purchase_return = $("#purchase_return").val();
-    var delivery_note = $("#delivery_note").val();
-    var gatepass = $("#gatepass").val();
-    var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
+  var code = $("#get_product_code").val().trim();
+  if (!code) return;
 
+  var credit_sale_type = $("#credit_sale_type").val();
+  var payment_type = $("#payment_type").val();
+  var branch_id = $("#branch_id").val();
+  var purchase_return = $("#purchase_return").val();
+  var delivery_note = $("#delivery_note").val();
+  var gatepass = $("#gatepass").val();
+  var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
-    $.ajax({
-      type: "POST",
-      url: "php_action/custom_action.php",
-      data: { get_products_list: code, type: "code" },
-      dataType: "text",
-      success: function (msg) {
-        var res = msg.trim();
-        $("#get_product_name").empty().html(res);
-      },
-    }); //ajax call }
-    $.ajax({
-      type: "POST",
-      url: "php_action/custom_action.php",
-      data: {
-        getPrice: code,
-        type: "code",
-        credit_sale_type: credit_sale_type,
-        payment_type: payment_type,
-        branch_id: branch_id,
-      },
-      dataType: "json",
-      success: function (response) {
-        $("#get_product_price").val(response.price);
-        $("#get_product_sale_price").val(response.price);
-        $("#get_product_detail").val(response.description);
-        $("#get_final_rate").val(response.final_rate);
-        $("#instockQty").html("instock :" + response.qty);
-        console.log(response);
-        if (
-          (!isSaleReturn &&
-            (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
-              purchase_return === "purchase_return") ||
-          (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
-          (delivery_note === "yes") || (gatepass === "gatepass")
-        ) {
-          $("#get_product_quantity").attr("max", response.qty);
-          $("#addProductPurchase").prop("disabled", response.qty <= 0);
-        } else {
-          // For Sale Return, allow adding regardless of stock and set a high max
-          $("#get_product_quantity").attr("max", 99999999999);
-          $("#addProductPurchase").prop("disabled", false);
-        }
-      },
-    }); //ajax call }
+  // First AJAX: get product options
+  $.ajax({
+    type: "POST",
+    url: "php_action/custom_action.php",
+    data: { get_products_list: code, type: "code" },
+    dataType: "text",
+    success: function (msg) {
+      var res = msg.trim();
+      // console.log(res);
+      $("#get_product_name").empty().html(res);
+    },
   });
+
+  // Second AJAX: get price/details
+  $.ajax({
+    type: "POST",
+    url: "php_action/custom_action.php",
+    data: {
+      getPrice: code,
+      type: "code",
+      credit_sale_type: credit_sale_type,
+      payment_type: payment_type,
+      branch_id: branch_id,
+    },
+    dataType: "json",
+    success: function (response) {
+      // console.log(response);
+      $("#get_product_price").val(response.price);
+      $("#get_product_sale_price").val(response.price);
+      $("#get_product_detail").val(response.description);
+      $("#get_final_rate").val(response.final_rate);
+      $("#instockQty").html("instock :" + response.qty);
+
+      if (
+        (!isSaleReturn &&
+          (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) ||
+        (payment_type === "credit_purchase" && purchase_return === "purchase_return") ||
+        (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
+        delivery_note === "yes" || gatepass === "gatepass"
+      ) {
+        $("#get_product_quantity").attr("max", response.qty);
+        $("#addProductPurchase").prop("disabled", response.qty <= 0);
+      } else {
+        // For Sale Return, allow adding regardless of stock
+        $("#get_product_quantity").attr("max", 99999999999);
+        $("#addProductPurchase").prop("disabled", false);
+      }
+    },
+  });
+});
+
 }); /*--------------end of-------------------------------------------------------*/
 function pending_bills(value) {
   $.ajax({
@@ -583,7 +589,7 @@ $("#addProductPurchase").on("click", function () {
 
   setTimeout(function () {
     try {
-      
+
       var currentForm = $btn.closest("form"); // USE $btn INSTEAD OF this
       var get_final_rate =
         currentForm.data("get-final-rate")?.toString() === "true";
@@ -1309,43 +1315,43 @@ $(document).ready(function () {
     var total_price = price * quantity;
     $("#get_product_sale_price").val(total_price);
   }
-// $("#get_product_quantity").on("keydown", function (e) {
-//         if (e.ctrlKey && e.key === "Enter") {
-//             e.preventDefault();
+  // $("#get_product_quantity").on("keydown", function (e) {
+  //         if (e.ctrlKey && e.key === "Enter") {
+  //             e.preventDefault();
 
-//             let inputVal = $(this).val().trim();
+  //             let inputVal = $(this).val().trim();
 
-//             // Only allow numbers, math operators, spaces, and parentheses
-//             if (/^[0-9+\-*/().\s]+$/.test(inputVal)) {
-//                 try {
-//                     let result = eval(inputVal); // Caution: use safely
-//                     if (!isNaN(result)) {
-//                         $(this).val(result);
-//                         calculateQuantity(); // Replace input value with result
-//                     } else {
-//                         alert("Invalid expression");
-//                     }
-//                 } catch (error) {
-//                     alert("Invalid expression");
-//                 }
-//             } else {
-//                 alert("Invalid characters in input");
-//             }
-//         }
-//     });
- 
-$(".quntity_in_meter").on("click", function () {
+  //             // Only allow numbers, math operators, spaces, and parentheses
+  //             if (/^[0-9+\-*/().\s]+$/.test(inputVal)) {
+  //                 try {
+  //                     let result = eval(inputVal); // Caution: use safely
+  //                     if (!isNaN(result)) {
+  //                         $(this).val(result);
+  //                         calculateQuantity(); // Replace input value with result
+  //                     } else {
+  //                         alert("Invalid expression");
+  //                     }
+  //                 } catch (error) {
+  //                     alert("Invalid expression");
+  //                 }
+  //             } else {
+  //                 alert("Invalid characters in input");
+  //             }
+  //         }
+  //     });
+
+  $(".quntity_in_meter").on("click", function () {
     const btnVal = parseFloat($(this).val());
     if (!isNaN(btnVal) && btnVal > 0) {
-        const result = parseFloat((1 / 15 * btnVal).toFixed(3));
-        $("#get_product_quantity").val(result);
-         $('#view_quntity_modal').modal('hide');
-        calculateQuantity();
+      const result = parseFloat((1 / 15 * btnVal).toFixed(3));
+      $("#get_product_quantity").val(result);
+      $('#view_quntity_modal').modal('hide');
+      calculateQuantity();
     } else {
-        alert("Invalid button value");
+      alert("Invalid button value");
     }
-});
-$("#get_product_price, #get_product_quantity").on("input", calculateQuantity);
+  });
+  $("#get_product_price, #get_product_quantity").on("input", calculateQuantity);
 });
 
 $(document).ready(function () {

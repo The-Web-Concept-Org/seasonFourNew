@@ -32,21 +32,57 @@ $(document).ready(function () {
   //    $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
   //  });
 
-  $("#post_list").sortable({
-    placeholder: "ui-state-highlight",
-    update: function (event, ui) {
-      var post_order_ids = new Array();
-      $("#post_list li").each(function () {
-        post_order_ids.push($(this).data("post-id"));
+  // $("#post_list").sortable({
+  //   placeholder: "ui-state-highlight",
+  //   update: function (event, ui) {
+  //     var post_order_ids = new Array();
+  //     $("#post_list li").each(function () {
+  //       post_order_ids.push($(this).data("post-id"));
+  //     });
+  //     $.ajax({
+  //       url: "php_action/panel.php",
+  //       method: "POST",
+  //       data: { sortable_img: "sortable_img", post_order_ids: post_order_ids },
+  //       success: function (data) {},
+  //     });
+  //   },
+  // });
+  $(function () {
+  // Main menu sortable
+  $("#main_menu_list").sortable({
+    update: function () {
+      let main_ids = [];
+      $("#main_menu_list > li").each(function () {
+        main_ids.push($(this).data("id"));
       });
-      $.ajax({
-        url: "php_action/panel.php",
-        method: "POST",
-        data: { sortable_img: "sortable_img", post_order_ids: post_order_ids },
-        success: function (data) {},
+
+      $.post("php_action/panel.php", {
+        sort_main_menu: 1,
+        main_ids: main_ids
       });
-    },
+    }
   });
+
+  // Submenu sortable (apply for each sub list)
+  $(".sub-menu").each(function () {
+    $(this).sortable({
+      connectWith: ".sub-menu", // optional: to drag between same levels
+      update: function () {
+        let submenu_ids = [];
+        let parent_id = $(this).data("parent-id");
+        $(this).find("li").each(function () {
+          submenu_ids.push($(this).data("id"));
+        });
+
+        $.post("php_action/panel.php", {
+          sort_sub_menu: 1,
+          parent_id: parent_id,
+          submenu_ids: submenu_ids
+        });
+      }
+    });
+  });
+});
 }); //end of jquery ready
 
 function deleteData(table, fld, id, url) {

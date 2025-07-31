@@ -271,10 +271,10 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                 <label>Quantity</label>
                                 <input type="text" class="form-control" id="get_product_quantity" value="" min=""
                                     name="quantity">
-                                    <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-quntity-btn"
+                                    <!-- <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-quntity-btn"
                              data-toggle="modal" data-target="#view_quntity_modal">
                             Meters
-                          </button>
+                          </button> -->
                             </div>
                             <div class="col-6 col-sm-1 col-md-1">
                                 <label>Amount</label>

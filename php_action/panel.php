@@ -223,17 +223,34 @@ if (isset($_REQUEST['add_category_name'])) {
 
 }
 
-if (isset($_POST['sortable_img']) && isset($_POST['sortable_img']) != "") {
-	$post_order = isset($_POST["post_order_ids"]) ? $_POST["post_order_ids"] : [];
-	if (count($post_order) > 0) {
-		for ($order_no = 0; $order_no < count($post_order); $order_no++) {
-			$query = "UPDATE menus SET sort_order = '" . ($order_no + 1) . "'   WHERE id = '" . $post_order[$order_no] . "' ";
-			mysqli_query($dbc, $query);
-		}
-		echo true;
-	} else {
-		echo false;
-	}
+// if (isset($_POST['sortable_img']) && isset($_POST['sortable_img']) != "") {
+// 	$post_order = isset($_POST["post_order_ids"]) ? $_POST["post_order_ids"] : [];
+// 	if (count($post_order) > 0) {
+// 		for ($order_no = 0; $order_no < count($post_order); $order_no++) {
+// 			$query = "UPDATE menus SET sort_order = '" . ($order_no + 1) . "'   WHERE id = '" . $post_order[$order_no] . "' ";
+// 			mysqli_query($dbc, $query);
+// 		}
+// 		echo true;
+// 	} else {
+// 		echo false;
+// 	}
+// }
+
+if (isset($_POST['sort_main_menu'])) {
+    foreach ($_POST['main_ids'] as $order => $id) {
+        $sort = $order + 1;
+        mysqli_query($dbc, "UPDATE menus SET sort_order = $sort WHERE id = $id");
+    }
+    exit;
+}
+
+if (isset($_POST['sort_sub_menu'])) {
+    $parent_id = (int)$_POST['parent_id'];
+    foreach ($_POST['submenu_ids'] as $order => $id) {
+        $sort = $order + 1;
+        mysqli_query($dbc, "UPDATE menus SET nav_option_sort = $sort WHERE id = $id AND parent_id = $parent_id");
+    }
+    exit;
 }
 if (!empty($_REQUEST['action']) and $_REQUEST['action'] == "category_ranking") {
 	$query = get($dbc, "menus WHERE id='" . $_REQUEST['value'] . "' ORDER BY sort_order ASC  ");

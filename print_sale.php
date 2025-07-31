@@ -682,10 +682,9 @@
                                             <td class="text-center border"><?= $c ?></td>
                                             <td class="text-left border pl-3">
                                                 <?php if (!empty($order['product_details'])): ?>
-                                                    <?= rtrim(str_ireplace('china', '', $product_name), ' -') ?>
-
+                                                    <?= rtrim(preg_replace('/^no category\s*-\s*/i', '', str_ireplace('china', '', $product_name)), ' -') ?>
                                                 <?php else: ?>
-                                                    <?php if (!empty($cat['categories_name'])): ?>
+                                                    <?php if (!empty($cat['categories_name']) && strtolower($cat['categories_name']) !== 'no category'): ?>
                                                         <?= strtoupper($cat['categories_name']) ?> |
                                                     <?php endif; ?>
                                                     <?= $product_name ?>
@@ -695,7 +694,8 @@
                                                 <?php endif; ?>
                                             </td>
                                             <!-- <td class="text-center border"><?= $quantity ?></td> -->
-                                            <td class="text-center border"><?= ($quantity < 1) ? round($quantity * 15) . ' M' : $quantity ?></td>
+                                            <td class="text-center border">
+                                                <?= ($quantity < 1) ? round($quantity * 15) . ' M' : $quantity ?></td>
                                             <?php if ($shouldShow): ?>
                                                 <td class="text-center border"><?= formatAmountWithoutKD($rate) ?></td>
                                                 <td class="text-center border"><?= formatAmountWithoutKD($rate * $quantity) ?></td>
