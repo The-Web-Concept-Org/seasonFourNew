@@ -300,7 +300,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                     </thead>
                                     <tbody class="table table-bordered" id="purchase_product_tb">
                                         <?php if (isset($_REQUEST['edit_order_id'])):
-                                            $q = mysqli_query($dbc, "SELECT  product.*,brands.*,order_return_item.* FROM order_return_item INNER JOIN product ON product.product_id=order_return_item.product_id INNER JOIN brands ON product.brand_id=brands.brand_id   WHERE order_return_item.order_id='" . base64_decode($_REQUEST['edit_order_id']) . "'");
+                                            $q = mysqli_query($dbc, "SELECT  product.*,brands.*,order_return_item.* FROM order_return_item LEFT JOIN product ON product.product_id=order_return_item.product_id LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE order_return_item.order_id='" . base64_decode($_REQUEST['edit_order_id']) . "'");
 
                                             while ($r = mysqli_fetch_assoc($q)) {
                                                 // print_r($r);

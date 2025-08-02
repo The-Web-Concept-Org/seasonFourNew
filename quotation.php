@@ -238,7 +238,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   </thead>
                   <tbody class="table table-bordered" id="purchase_product_tb">
                     <?php if (isset($_REQUEST['edit_order_id'])):
-                      $q = mysqli_query($dbc, "SELECT  product.*,brands.*,quotation_item.* FROM quotation_item INNER JOIN product ON product.product_id=quotation_item.product_id INNER JOIN brands ON product.brand_id=brands.brand_id   WHERE quotation_item.quotation_id='" . base64_decode($_REQUEST['edit_order_id']) . "'");
+                      $q = mysqli_query($dbc, "SELECT  product.*,brands.*,quotation_item.* FROM quotation_item LEFT JOIN product ON product.product_id=quotation_item.product_id LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE quotation_item.quotation_id='" . base64_decode($_REQUEST['edit_order_id']) . "'");
 
                       while ($r = mysqli_fetch_assoc($q)) {
 
