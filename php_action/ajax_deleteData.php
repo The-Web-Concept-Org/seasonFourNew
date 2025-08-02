@@ -285,6 +285,8 @@ if (isset($_REQUEST['delete_bymanually'])) {
 				}
 			}
 		}
+		$vouchers = fetchRecord($dbc, 'quotations', $row, $id);
+		@deleteFromTable($dbc, "transactions", 'transaction_id', $vouchers['transaction_paid_id']);
 
 		// Delete quotation and its items
 		if (mysqli_query($dbc, "DELETE FROM quotations WHERE $row='$id'")) {
@@ -296,44 +298,44 @@ if (isset($_REQUEST['delete_bymanually'])) {
 			$sts = "error";
 		}
 	} elseif ($table == "lpo") {
-	$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
+		$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1"));
 
-	if ($get_company['stock_manage'] == 1) {
-		$proQ = get($dbc, "lpo_item WHERE lpo_id='" . $id . "' ");
-	}
-
-	//  Get LPO record before deleting (for file name)
-	$vouchers = fetchRecord($dbc, 'lpo', $row, $id);
-	$lpoFile = $vouchers['lpo_file'] ?? '';
-
-	//  Delete LPO record
-	if (mysqli_query($dbc, "DELETE FROM lpo WHERE $row='$id'")) {
-		//  Delete related items
-		mysqli_query($dbc, "DELETE FROM lpo_item WHERE lpo_id='$id'");
-
-		//  Delete uploaded file if exists
-		if (!empty($lpoFile)) {
-			$uploadPath = '../img/uploads/' . $lpoFile;
-			if (file_exists($uploadPath)) {
-				unlink($uploadPath);
-			}
+		if ($get_company['stock_manage'] == 1) {
+			$proQ = get($dbc, "lpo_item WHERE lpo_id='" . $id . "' ");
 		}
 
-		$msg = "LPO and related items deleted, file removed.";
-		$sts = "success";
+		//  Get LPO record before deleting (for file name)
+		$vouchers = fetchRecord($dbc, 'lpo', $row, $id);
+		$lpoFile = $vouchers['lpo_file'] ?? '';
+
+		//  Delete LPO record
+		if (mysqli_query($dbc, "DELETE FROM lpo WHERE $row='$id'")) {
+			//  Delete related items
+			mysqli_query($dbc, "DELETE FROM lpo_item WHERE lpo_id='$id'");
+
+			//  Delete uploaded file if exists
+			if (!empty($lpoFile)) {
+				$uploadPath = '../img/uploads/' . $lpoFile;
+				if (file_exists($uploadPath)) {
+					unlink($uploadPath);
+				}
+			}
+
+			$msg = "LPO and related items deleted, file removed.";
+			$sts = "success";
+		} else {
+			$msg = mysqli_error($dbc);
+			$sts = "error";
+		}
 	} else {
-		$msg = mysqli_error($dbc);
-		$sts = "error";
+		if (deleteFromTable($dbc, $table, $row, $id)) {
+			$msg = ucfirst($table) . " has been deleted.";
+			$sts = "success";
+		} else {
+			$msg = mysqli_error($dbc);
+			$sts = "error";
+		}
 	}
-    }else {
-        if (deleteFromTable($dbc, $table, $row, $id)) {
-            $msg = ucfirst($table) . " has been deleted.";
-            $sts = "success";
-        } else {
-            $msg = mysqli_error($dbc);
-            $sts = "error";
-        }
-    }
 
 
 

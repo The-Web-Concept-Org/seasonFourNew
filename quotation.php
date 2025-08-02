@@ -36,7 +36,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
             <input type="hidden" name="user_id" value="<?= isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>">
 
             <input type="hidden" id="selected_customer_id" value="<?= @$fetchOrder['customer_account'] ?>">
-            <!-- <input type="hidden" id="selected_payment_account_id" value="<?= @$fetchOrder['payment_account'] ?>"> -->
+            <input type="hidden" id="selected_payment_account_id" value="<?= @$fetchOrder['payment_account'] ?>">
             <input type="hidden" id="selected_supplier_id" value="<?= @$fetchOrder['supplier_account'] ?>">
 
             <div class="d-flex mb-3 align-items-center justify-content-end gap-4 px-3">
@@ -311,6 +311,85 @@ if (!empty($_REQUEST['edit_order_id'])) {
                       <td class="table-bordered"> <strong>Net Total :</strong> </td>
                       <td class="table-bordered" id="product_grand_total_amount"><?= @$fetchOrder['grand_total'] ?></td>
                     </tr>
+
+                    <?php if (@$_REQUEST['edit_order_id'] && @$_REQUEST['paid_status'] == 'pending') {
+                      ?>
+                      <div>
+                        <tr>
+                          <td colspan="5" class="table-bordered"></td>
+                          <td class="table-bordered">Paid :</td>
+                          <td class="table-bordered">
+                            <div class="form-group row">
+                              <div class="col-sm-12">
+                                <input type="number" step="0.001" min="0" class="form-control form-control-sm"
+                                  id="paid_ammount" required onkeyup="getRemaingAmount()" name="paid_ammount"
+                                  value="<?= @$fetchOrder['grand_total'] ?>">
+
+
+                              </div>
+                              <!-- <div class="col-sm-6"> -->
+                              <!-- <div class="custom-control custom-switch">
+                              <input type="checkbox" class="custom-control-input" id="full_payment_check">
+                              <label class="custom-control-label" for="full_payment_check">Full Payment</label>
+                            </div> -->
+                            </div>
+                          </td>
+
+
+                        </tr>
+
+                        <tr class="for_cash" style="">
+                          <td colspan="5" class="table-bordered"></td>
+                          <td class="table-bordered">Account :</td>
+                          <td class="table-bordered">
+
+                            <div class="input-group">
+                              <select class="form-control" onchange="getBalance(this.value,'payment_account_bl')"
+                                name="payment_account" id="payment_account" aria-label="Username"
+                                aria-describedby="basic-addon1">
+                                <option value="">Select Account</option>
+                                <?php
+                                $branch_id = $_SESSION['branch_id'];
+                                $user_role = $_SESSION['user_role'];
+
+                                if ($user_role === 'admin') {
+                                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank'";
+                                } else {
+                                  $sql = "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'bank' AND branch_id = '$branch_id'";
+                                }
+
+                                $q = mysqli_query($dbc, $sql);
+
+                                while ($r = mysqli_fetch_assoc($q)):
+                                  ?>
+                                  <option <?= @($fetchOrder['payment_account'] == $r['customer_id']) ? "selected" : "" ?>
+                                    value="<?= $r['customer_id'] ?>">
+                                    <?= $r['customer_name'] ?>
+                                  </option>
+                                <?php endwhile; ?>
+                              </select>
+
+                              <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Balance : <span
+                                    id="payment_account_bl">0</span> </span>
+                              </div>
+                            </div>
+                          </td>
+
+
+                        </tr>
+                        <tr>
+                          <td colspan="5" class="table-bordered"></td>
+                          <td class="table-bordered">Remaing Amount :</td>
+                          <td class="table-bordered"><input type="number" class="form-control form-control-sm"
+                              id="remaining_ammount" required readonly name="remaining_ammount"
+                              value="<?= @$fetchPurchase['due'] ?>">
+                          </td>
+
+                        </tr>
+                      </div>
+                      <?php
+                    } ?>
                   </tfoot>
                 </table>
               </div>
@@ -372,9 +451,9 @@ if (!empty($_REQUEST['edit_order_id'])) {
 
     allowStock.addEventListener('change', function () {
       if (this.value === '0') {
-        delivery_note.value = "no" ;
+        delivery_note.value = "no";
       } else if (this.value === '1') {
-        delivery_note.value = "yes" ;
+        delivery_note.value = "yes";
       }
     });
   });

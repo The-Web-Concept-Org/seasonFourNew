@@ -321,7 +321,7 @@
 
     // Determine invoice details based on type
     if ($_REQUEST['type'] == "purchase") {
-        $nameSHow = 'Supplier';
+        $nameSHow = 'Supplier Name';
         $id_name = "Purchase Id";
         $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
         $unique_id = $order['payment_type'] == "credit_purchase" ? 'SF-CRP-' . $order['purchase_id'] : 'SF25-CP-' . $order['purchase_id'];
@@ -331,7 +331,7 @@
         $invoice_name = $order['payment_type'] == "credit_purchase" ? "credit invoice" : "purchase invoice";
         $order_item = mysqli_query($dbc, "SELECT purchase_item.*,product.* FROM purchase_item INNER JOIN product ON purchase_item.product_id=product.product_id WHERE purchase_item.purchase_id='" . $_REQUEST['id'] . "'");
     } elseif ($_REQUEST['type'] == "gatepass") {
-        $nameSHow = 'Customer';
+        $nameSHow = 'Customer Name';
         $invoice_name = "Gatepass";
         $id_name = "Gatepass Id";
         $order = fetchRecord($dbc, "gatepass", "gatepass_id", $_REQUEST['id']);
@@ -342,7 +342,7 @@
         $table_row = $order['payment_type'] == "gatepass" ? "300px" : "350px";
         $order_type = $order['payment_type'] == "none" ? "Gatepass" : " (Gatepass)";
     } elseif ($_REQUEST['type'] == "order") {
-        $nameSHow = 'Customer';
+        $nameSHow = 'Customer Name';
         $id_name = "Sale Id";
         $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
         $unique_id = 'SF25-S-' . $order['order_id'];
@@ -353,7 +353,7 @@
         $table_row = $order['payment_type'] == "credit" ? "300px" : "350px";
         $order_type = $order['payment_type'] == "none" ? "credit sale" : ($order['payment_type'] == "credit" ? $order['credit_sale_type'] . " (Credit)" : "cash sale");
     } elseif ($_REQUEST['type'] == "quotation") {
-        $nameSHow = 'Customer';
+        $nameSHow = 'Customer Name';
         $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
         if ($order['is_delivery_note'] == 1) {
             $invoice_name = "Delivery Note";
@@ -370,7 +370,7 @@
         $table_row = $order['payment_type'] == "quotation" ? "300px" : "350px";
         $order_type = $order['payment_type'] == "none" ? "Quotation" : " (Quotation)";
     } elseif ($_REQUEST['type'] == "lpo") {
-        $nameSShow = 'Customer';
+        $nameSHow = 'Supplier Name';
         $invoice_name = "LPO";
         $id_name = "LPO Id";
         $order = fetchRecord($dbc, "lpo", "lpo_id", $_REQUEST['id']);
@@ -381,7 +381,7 @@
         $table_row = $order['payment_type'] == "lpo" ? "300px" : "350px";
         $order_type = $order['payment_type'] == "none" ? "LPO" : " (LPO)";
     } elseif ($_REQUEST['type'] == "purchase_return") {
-        $nameSHow = 'Supplier';
+        $nameSHow = 'Supplier Name';
         $id_name = "Purchase Id";
         $order = fetchRecord($dbc, "purchase_return", "purchase_id", $_REQUEST['id']);
         $unique_id = 'SF25-PR-' . $order['purchase_id'];
@@ -391,7 +391,7 @@
         $invoice_name = $order['payment_type'] == "credit_purchase" ? "credit return invoice" : "purchase return invoice";
         $order_item = mysqli_query($dbc, "SELECT purchase_return_item.*,product.* FROM purchase_return_item INNER JOIN product ON purchase_return_item.product_id=product.product_id WHERE purchase_return_item.purchase_id='" . $_REQUEST['id'] . "'");
     } elseif ($_REQUEST['type'] == "order_return") {
-        $nameSHow = 'Customer';
+        $nameSHow = 'Customer Name';
         $id_name = "Sale Id";
         $order = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['id']);
         $unique_id = 'SF25R-S-' . $order['order_id'];
@@ -402,13 +402,13 @@
         $table_row = $order['payment_type'] == "credit" ? "300px" : "350px";
         $order_type = $order['payment_type'] == "none" ? "credit sale" : ($order['payment_type'] == "credit" ? $order['credit_sale_type'] . " (Credit)" : "cash sale");
     } elseif ($_REQUEST['type'] == "manualbill") {
-        $nameSShow = 'Customer_name';
         $id_name = "Id";
         $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
         $unique_id = 'SF25-Id-' . $order['order_id'];
-        $invoice_name = $order['type'];
+        $invoice_name = str_replace('_', ' ', $order['type']);
         $getDate = $order['timestamp'];
         $comment = $order['order_narration'];
+        $nameSHow = $order['type'] == "lpo" ? "Supplier Name" : "Customer Name";
     }
 
     $date = date('d-M-Y h:i A', strtotime(@$order['timestamp'] . " +7 hours"));
@@ -621,7 +621,7 @@
                                         <?php $from = fetchRecord($dbc, "branch", "branch_id", $order['from_branch']); ?>
                                         <p class="text-uppercase"><strong>From Branch:</strong> <?= @$from['branch_name'] ?></p>
                                     <?php else: ?>
-                                        <p class="text-uppercase"><strong>Customer Name:</strong>
+                                        <p class="text-uppercase"><strong><?= $nameSHow ?>:</strong>
                                             <?= @$order['client_name'] ?: @$order['customer_name'] ?></p>
                                     <?php endif; ?>
                                 </div>
@@ -695,7 +695,8 @@
                                             </td>
                                             <!-- <td class="text-center border"><?= $quantity ?></td> -->
                                             <td class="text-center border">
-                                                <?= ($quantity < 1) ? round($quantity * 15) . ' M' : $quantity ?></td>
+                                                <?= ($quantity < 1) ? round($quantity * 15) . ' M' : $quantity ?>
+                                            </td>
                                             <?php if ($shouldShow): ?>
                                                 <td class="text-center border"><?= formatAmountWithoutKD($rate) ?></td>
                                                 <td class="text-center border"><?= formatAmountWithoutKD($rate * $quantity) ?></td>
@@ -721,7 +722,22 @@
                                             <?php endif; ?>
                                             <tr class="tablefooter last-page" style="font-size: 14px; border: none !important;">
                                                 <td colspan="3" class="text-left border-none">
-                                                    <?= amountToWordsKD($order['grand_total']) ?> ONLY
+                                                    <?php
+                                                    $amountWords = amountToWordsKD($order['grand_total']);
+                                                    if (strpos($amountWords, 'KD') !== false) {
+                                                        $parts = explode('KD', $amountWords, 2);
+                                                        $beforeKD = trim($parts[0]) . ' KD';
+                                                        $afterKD = trim($parts[1]);
+
+                                                        if (!empty($afterKD)) {
+                                                            echo $beforeKD . '<br>' . $afterKD . ' ONLY';
+                                                        } else {
+                                                            echo $beforeKD . ' ONLY';
+                                                        }
+                                                    } else {
+                                                        echo $amountWords . ' ONLY';
+                                                    }
+                                                    ?>
                                                 </td>
                                                 <td class="text-sm border">Net Amount:</td>
                                                 <td class="border"><?= formatAmountWithKD($order['grand_total']) ?></td>
@@ -771,9 +787,9 @@
                     </div>
                     <?php if ($pageIndex === $totalPages - 1): ?>
                         <?php if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')): ?>
-                            <div class=" mb-2">
+                            <div class="mb-2">
                                 <div class="row">
-                                    <div class="col-2">
+                                    <div class="col-2 d-flex align-items-start">
                                         <p><strong>Payment Mode:</strong></p>
                                     </div>
                                     <div class="col-1">
@@ -781,8 +797,8 @@
                                     </div>
                                     <div class="col-9"></div>
                                 </div>
-                                <div class="row ">
-                                    <div class="col-2">
+                                <div class="row mt-3">
+                                    <div class="col-2 d-flex align-items-start">
                                         <p><strong>Price Validity:</strong></p>
                                     </div>
                                     <div class="col-1">
