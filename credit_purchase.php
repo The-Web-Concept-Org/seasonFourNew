@@ -183,24 +183,23 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label>Products</label>
                 <input type="hidden" id="add_pro_type" value="add">
                 <select class="form-control searchableSelect" id="get_product_name" name="product_id">
-                  <option value="">Select Product</option>
-                  <?php
-                  $result = mysqli_query($dbc, "SELECT * FROM product WHERE status=1 ");
-                  while ($row = mysqli_fetch_array($result)) {
-                    $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
-                    $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
-                    ?>
+    <option value="">Select Product</option>
+    <?php
+    $result = mysqli_query($dbc, "SELECT * FROM product WHERE status=1 ");
+    while ($row = mysqli_fetch_array($result)) {
+        $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
+        $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
+        ?>
+        <option 
+            data-price="<?= $row["current_rate"] ?>" 
+            <?= (@$r['product_id'] == $row["product_id"]) ? "selected" : "" ?> 
+            value="<?= $row["product_id"] ?>"
+            style="text-transform: capitalize;">
+            <?= @$getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
+        </option>
+    <?php } ?>
+</select>
 
-                    <!-- <option data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
-                      <?= $getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= $getBrand["brand_name"] ?> </option> -->
-
-                    <option class="text-capitalize" data-price="<?= $row["current_rate"] ?>" <?= empty($r['product_id']) ? "" : "selected" ?> value="<?= $row["product_id"] ?>">
-                      <?= @$getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
-                    </option>
-
-
-                  <?php } ?>
-                </select>
                 <span class="text-center w-100" id="instockQty"></span>
               </div>
               <div class="col-1 col-md-1">

@@ -1804,10 +1804,7 @@ if (isset($_REQUEST['getCustomerLimit'])) {
 	$q = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT customer_limit as customer_limit FROM customers WHERE customer_id = '$cust'"));
 	echo $q['customer_limit'];
 }
-
-
 // Add LPO
-
 if (isset($_REQUEST['lpo_form']) && !empty($_REQUEST['lpo_form'])) {
 
 	if (!empty($_REQUEST['product_ids'])) {
@@ -2196,6 +2193,32 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 				$total_grand = $total_ammount - $_REQUEST['ordered_discount'];
 				$due_amount = (float) $total_grand - @(float) $_REQUEST['paid_ammount'];
 
+				$transactions = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['product_order_id']);
+				@$paidAmount = (float) $_REQUEST['paid_ammount'];
+
+				if ($paidAmount > 0) {
+					$credit_data = [
+						'debit' => 0,
+						'credit' => $paidAmount,
+						'customer_id' => $_REQUEST['payment_account'],
+						'transaction_from' => 'Delivery_Sale',
+						'transaction_type' => $_REQUEST['payment_type'],
+						'transaction_remarks' => "Quotation id #" . $last_id,
+						'transaction_date' => $_REQUEST['order_date'],
+					];
+
+					if (!empty($transactions['transaction_paid_id'])) {
+						// Update existing transaction
+						update_data($dbc, 'transactions', $credit_data, 'transaction_id', $transactions['transaction_paid_id']);
+						$transaction_paid_id = $transactions['transaction_paid_id'];
+					} else {
+						// Insert new transaction
+						insert_data($dbc, 'transactions', $credit_data);
+
+						$transaction_paid_id = mysqli_insert_id($dbc);
+					}
+					$payment_status = 1;
+				}
 
 
 				$newOrder = [
@@ -2204,6 +2227,7 @@ if (isset($_REQUEST['quotation_form']) && !empty($_REQUEST['quotation_form'])) {
 					'discount' => $_REQUEST['ordered_discount'],
 					'grand_total' => $total_grand,
 					'due' => $due_amount,
+					'transaction_paid_id' => @$transaction_paid_id,
 				];
 
 
