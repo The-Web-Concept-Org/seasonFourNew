@@ -356,8 +356,9 @@
         $nameSHow = 'Customer Name';
         $order = fetchRecord($dbc, "quotations", "quotation_id", $_REQUEST['id']);
         if ($order['is_delivery_note'] == 1) {
-            $invoice_name = "Delivery Note";
-            $id_name = "Delivery Note Id";
+             
+            $invoice_name = $order['payment_status'] == 1 ? "Sale Invoice" : "Delivery Note";
+            $id_name = $order['payment_status'] == 1 ? "Sale Invoice Id" : "Delivery Note Id";
             $unique_id = 'SF25-DN-' . $order['quotation_id'];
         } else {
             $invoice_name = "Quotation";
@@ -645,7 +646,14 @@
                                         <th class="heder" style="width: 5%;">Qty</th>
                                         <?php
                                         $shouldShow = true;
-                                        if (($_REQUEST['type'] ?? '') === 'gatepass' || ($order['is_delivery_note'] ?? 0) == 1 || ($order['type'] ?? '') === 'delivery_note') {
+                                        if (
+                                            ($_REQUEST['type'] ?? '') === 'gatepass' ||
+                                            (
+                                                ($order['type'] ?? '') === 'delivery_note' ||
+                                                ($order['is_delivery_note'] ?? 0) == 1
+                                            ) &&
+                                            ($order['payment_status'] ?? 0) == 0
+                                        ) {
                                             $shouldShow = false;
                                         }
                                         if (($_REQUEST['type'] ?? '') === 'manualbill' && ($order['type'] ?? '') !== 'delivery_note') {
@@ -744,7 +752,7 @@
                                             </tr>
                                             <?php if (
                                                 $_REQUEST['type'] !== 'lpo' &&
-                                                $_REQUEST['type'] !== 'quotation' &&
+                                                ($_REQUEST['type'] !== 'quotation' || ($order['payment_status'] ?? 0) == 1) && 
                                                 $_REQUEST['type'] !== 'gatepass' &&
                                                 ($_REQUEST['type'] !== 'manualbill' || $order['type'] === 'Sale_Invoice')
                                             ): ?>

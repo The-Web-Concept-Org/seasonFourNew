@@ -178,7 +178,7 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                             <div class="col-md-3 col-6 d-flex align-items-center">
                                                 <div class="mr-1 text-center">
                                                     <span class="circle bg-white p-2 d-inline-block rounded-circle">
-                                                        <i class="fe fe-shopping-bag text-primary fe-20"></i>
+                                                        <i class="fe fe-shopping-bag text-default fe-20"></i>
                                                     </span>
                                                 </div>
                                                 <div>
@@ -196,20 +196,32 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                         @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
 
                                                         $total = isset($total_sales) ? $total_sales : 0;
-                                                        echo number_format($total) . "KD";
+                                                        $quotationQuery = "SELECT SUM(paid) AS total_sales FROM quotations WHERE 1=1 AND is_delivery_note = 1 And payment_status = 1 $branch_filter $date_select";
+                                                        $quotationResult = mysqli_query($dbc, $quotationQuery);
+                                                        @$quotation_sales = mysqli_fetch_assoc($quotationResult)['total_sales'];
+
+                                                        $totalQuotation = isset($quotation_sales) ? $quotation_sales : 0;
+                                                        // echo number_format($totalQuotation) . " KD";
+                                                        
+                                                        // echo number_format($total) . "KD";
+                                                        $combinedSales = $total + $totalQuotation;
+                                                        echo number_format($combinedSales) . " KD";
+
                                                         ?>
                                                     </h4>
                                                 </div>
                                             </div>
                                             <?php
-                                            $branch_filter = '';
-                                            if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                $branch_id = intval($_SESSION['branch_id']);
-                                                $branch_filter = " AND o.branch_id = $branch_id";
-                                            }
+                                           // Common branch ID
+$branch_id = isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id']) ? intval($_SESSION['branch_id']) : 0;
+
+$order_branch_filter = $branch_id ? " AND o.branch_id = $branch_id" : '';
+$quotation_branch_filter = $branch_id ? " AND q.branch_id = $branch_id" : '';
+
 
                                             // Fetch cash in hand, KNET, WAMD from orders based on payment structure
-                                            $query = "
+                                            // First query: from `orders`
+                                            $orderQuery = "
 SELECT
     SUM(CASE 
         WHEN o.split_payment = 0 AND a.customer_name = 'cash in hand' THEN o.grand_total
@@ -228,27 +240,45 @@ SELECT
         WHEN o.split_payment = 1 AND a2.customer_name = 'wamd' THEN o.bank_paid
         ELSE 0
     END) AS wamd_total
-
 FROM orders o
 LEFT JOIN customers a ON o.payment_account = a.customer_id
 LEFT JOIN customers a2 ON o.bank_payment_account = a2.customer_id
 LEFT JOIN customers a3 ON o.cash_payment_account = a3.customer_id
-WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
+WHERE o.payment_type = 'cash' AND 1=1 $order_branch_filter $date_select
 ";
+                                            $orderResult = mysqli_query($dbc, $orderQuery);
+                                            $orderData = mysqli_fetch_assoc($orderResult);
 
-                                            $result = mysqli_query($dbc, $query);
-                                            $data = mysqli_fetch_assoc($result);
+                                             $branch_filter = '';
+                                            if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                $branch_id = intval($_SESSION['branch_id']);
+                                                $branch_filter = " AND branch_id = $branch_id";
+                                            }
+                                            // Second query: from `quotations`
+                                            $quotationQuery = "
+SELECT
+    SUM(CASE WHEN c.customer_name = 'cash in hand' THEN q.paid ELSE 0 END) AS cash_in_hand,
+    SUM(CASE WHEN c.customer_name = 'knet' THEN q.paid ELSE 0 END) AS knet_total,
+    SUM(CASE WHEN c.customer_name = 'wamd' THEN q.paid ELSE 0 END) AS wamd_total
+FROM quotations q
+LEFT JOIN customers c ON q.payment_account = c.customer_id
+WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
+";
+                                            $quotationResult = mysqli_query($dbc, $quotationQuery);
+                                            $quotationData = mysqli_fetch_assoc($quotationResult);
 
-                                            $cashInHand = $data['cash_in_hand'] ?? 0;
-                                            $knetTotal = $data['knet_total'] ?? 0;
-                                            $wamdTotal = $data['wamd_total'] ?? 0;
+                                            // Combine totals
+                                            $cashInHand = ($orderData['cash_in_hand'] ?? 0) + ($quotationData['cash_in_hand'] ?? 0);
+                                            $knetTotal = ($orderData['knet_total'] ?? 0) + ($quotationData['knet_total'] ?? 0);
+                                            $wamdTotal = ($orderData['wamd_total'] ?? 0) + ($quotationData['wamd_total'] ?? 0);
+
                                             ?>
 
                                             <!-- 2. Cash In Hand -->
                                             <div class="col-md-3 col-6 d-flex align-items-center">
                                                 <div class="mr-1 text-center">
-                                                    <span class="circle  p-2 d-inline-block rounded-circle border">
-                                                        <i class="fas fa-hand-holding-usd"></i>
+                                                    <span class="circle p-2 d-inline-block rounded-circle border  bg-white">
+                                                        <i class="fas fa-hand-holding-usd text-default"></i>
                                                     </span>
                                                 </div>
                                                 <div>
@@ -278,7 +308,7 @@ WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
                                                 <div class="mr-1 text-center">
                                                     <span class="circle bg-white p-2 d-inline-block rounded-circle">
                                                         <img src="img/logo/wamd.png" alt="WAMD"
-                                                            style="width: 22px; height: 22px;">
+                                                            style="width: 24px; height: 24px;">
                                                     </span>
                                                 </div>
                                                 <div>
@@ -604,7 +634,7 @@ WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
 "))['total_sales'];
 
                                                     $total = isset($total_sales) ? $total_sales : "0";
-                                                    echo number_format($total) . "KD";
+                                                    echo number_format($combinedSales) . "KD";
 
                                                     ?>
                                                 </h6>
@@ -626,7 +656,7 @@ WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
 "))['total_sales'];
 
                                                     $total = isset($total_sales) ? $total_sales : "0";
-                                                    echo number_format($total) . "KD";
+                                                    echo number_format($combinedSales) . "KD";
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted"></p>
@@ -648,7 +678,7 @@ WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
 "))['total_sales'];
 
                                                     $total = isset($total_sales) ? $total_sales : 0;
-                                                    echo number_format($total) . "KD";
+                                                    echo number_format($combinedSales) . "KD";
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
@@ -668,7 +698,7 @@ WHERE payment_type = 'cash' AND 1=1 $branch_filter $date_select
                                                     @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
                                                     $total_sales = isset($total_sales) ? $total_sales : 0;
 
-                                                    echo number_format($total_sales) . "KD";
+                                                    echo number_format($combinedSales) . "KD";
                                                     ?>
                                                 </h6>
                                                 <p class="text-muted"></p>
