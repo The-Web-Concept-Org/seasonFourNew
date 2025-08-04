@@ -1,104 +1,238 @@
 <!doctype html>
 <html lang="en">
 <?php include_once 'includes/head.php';
-$current_date = date('Y-m-d');
-$d = strtotime("last Day");
+// $current_date = date('Y-m-d');
+// $d = strtotime("last Day");
 
-$yesterday_date = date("Y-m-d", $d);
-$previous_week = strtotime("-1 week +1 day");
-$start_week = strtotime("last sunday midnight", $previous_week);
-$end_week = strtotime("next saturday", $start_week);
+// $yesterday_date = date("Y-m-d", $d);
+// $previous_week = strtotime("-1 week +1 day");
+// $start_week = strtotime("last sunday midnight", $previous_week);
+// $end_week = strtotime("next saturday", $start_week);
 
-$start_week = date("Y-m-d", $start_week);
-$end_week = date("Y-m-d", $end_week);
-$d = strtotime("today");
-$last_start_week = strtotime("last sunday midnight", $d);
-$last_end_week = strtotime("next saturday", $d);
-$start = date("Y-m-d", $last_start_week);
-$end = date("Y-m-d", $last_end_week);
-$start_of_month = date('Y-m-01', strtotime(date('Y-m-d')));
-// Last day of the month.
-$end_of_month = date('Y-m-t', strtotime($current_date));
+// $start_week = date("Y-m-d", $start_week);
+// $end_week = date("Y-m-d", $end_week);
+// $d = strtotime("today");
+// $last_start_week = strtotime("last sunday midnight", $d);
+// $last_end_week = strtotime("next saturday", $d);
+// $start = date("Y-m-d", $last_start_week);
+// $end = date("Y-m-d", $last_end_week);
+// $start_of_month = date('Y-m-01', strtotime(date('Y-m-d')));
+// // Last day of the month.
+// $end_of_month = date('Y-m-t', strtotime($current_date));
 
 
-// 
+// $date_select = '';
+// if (isset($_REQUEST['orderdate']) && $_REQUEST['orderdate'] !== '') {
+//     $selectedOption = $_POST['orderdate'];
+
+//     switch ($selectedOption) {
+//         case 'today':
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '" . date('Y-m-d') . "'";
+//             break;
+
+//         case 'yesterday':
+//             $yesterday = date('Y-m-d', strtotime('-1 day'));
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '$yesterday'";
+//             break;
+
+//         case 'last7days':
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') >= '" . date('Y-m-d', strtotime('-7 days')) . "'";
+//             break;
+
+//         case 'last30days':
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') >= '" . date('Y-m-d', strtotime('-30 days')) . "'";
+//             break;
+
+//         case 'thismonth':
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m') = '" . date('Y-m') . "'";
+//             break;
+
+//         case 'lastmonth':
+//             $lastMonth = date('Y-m', strtotime('last month'));
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m') = '$lastMonth'";
+//             break;
+
+//         default:
+//             // Handle the default case (e.g., when no option is selected)
+//             $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '" . date('Y-m-d') . "'";
+//             break;
+//     }
+// } elseif (isset($_REQUEST['start_date']) && $_REQUEST['start_date'] !== '' && empty($_REQUEST['end_date'])) {
+
+//     $start_date = $_REQUEST['start_date'];
+
+//     $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '$start_date'";
+// } elseif (isset($_REQUEST['start_date']) && $_REQUEST['start_date'] !== '' && isset($_REQUEST['end_date'])) {
+
+//     $start_date = $_REQUEST['start_date'];
+
+//     $end_date = $_REQUEST['end_date'];
+
+//     $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') BETWEEN '$start_date' AND '$end_date'";
+// } else {
+
+//     $date_select = " AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '" . date('Y-m-d') . "'";
+// }
+
+
+$today = date('Y-m-d');
+$yesterday = date('Y-m-d', strtotime('-1 day'));
+
+$thisWeekStart = date('Y-m-d', strtotime('last sunday'));
+$thisWeekEnd = date('Y-m-d', strtotime('next saturday'));
+
+$lastWeekStart = date('Y-m-d', strtotime('last sunday -7 days'));
+$lastWeekEnd = date('Y-m-d', strtotime('last sunday -1 day'));
+
+
 $date_select = '';
 if (isset($_REQUEST['orderdate']) && $_REQUEST['orderdate'] !== '') {
-    $selectedOption = $_POST['orderdate'];
+    $selectedOption = $_REQUEST['orderdate']; // ← use $_REQUEST instead of $_POST
 
     switch ($selectedOption) {
         case 'today':
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '" . date('Y-m-d') . "'";
+            $date_select = "AND DATE(timestamp) = '$today'";
             break;
 
         case 'yesterday':
-            $yesterday = date('Y-m-d', strtotime('-1 day'));
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '$yesterday'";
+            $date_select = "AND DATE(timestamp) = '$yesterday'";
             break;
 
         case 'last7days':
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') >= '" . date('Y-m-d', strtotime('-7 days')) . "'";
+            $from = date('Y-m-d', strtotime('-6 days')); // Last 7 days includes today
+            $date_select = "AND DATE(timestamp) BETWEEN '$from' AND '$today'";
             break;
 
         case 'last30days':
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') >= '" . date('Y-m-d', strtotime('-30 days')) . "'";
+            $from = date('Y-m-d', strtotime('-29 days'));
+            $date_select = "AND DATE(timestamp) BETWEEN '$from' AND '$today'";
             break;
 
         case 'thismonth':
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m') = '" . date('Y-m') . "'";
+            $start_of_month = date('Y-m-01');
+            $end_of_month = date('Y-m-t');
+            $date_select = "AND DATE(timestamp) BETWEEN '$start_of_month' AND '$end_of_month'";
             break;
 
         case 'lastmonth':
-            $lastMonth = date('Y-m', strtotime('last month'));
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m') = '$lastMonth'";
+            $lastMonthStart = date('Y-m-01', strtotime('first day of last month'));
+            $lastMonthEnd = date('Y-m-t', strtotime('last day of last month'));
+            $date_select = "AND DATE(timestamp) BETWEEN '$lastMonthStart' AND '$lastMonthEnd'";
+            break;
+
+        case 'thisweek':
+            $date_select = "AND DATE(timestamp) BETWEEN '$thisWeekStart' AND '$thisWeekEnd'";
+            break;
+
+        case 'lastweek':
+            $date_select = "AND DATE(timestamp) BETWEEN '$lastWeekStart' AND '$lastWeekEnd'";
             break;
 
         default:
-            // Handle the default case (e.g., when no option is selected)
-            $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '" . date('Y-m-d') . "'";
+            $date_select = "AND DATE(timestamp) = '$today'";
             break;
     }
-} elseif (isset($_REQUEST['start_date']) && $_REQUEST['start_date'] !== '' && empty($_REQUEST['end_date'])) {
 
+} elseif (!empty($_REQUEST['start_date']) && empty($_REQUEST['end_date'])) {
     $start_date = $_REQUEST['start_date'];
+    $date_select = "AND DATE(timestamp) = '$start_date'";
 
-    $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '$start_date'";
-} elseif (isset($_REQUEST['start_date']) && $_REQUEST['start_date'] !== '' && isset($_REQUEST['end_date'])) {
-
+} elseif (!empty($_REQUEST['start_date']) && !empty($_REQUEST['end_date'])) {
     $start_date = $_REQUEST['start_date'];
-
     $end_date = $_REQUEST['end_date'];
+    $date_select = "AND DATE(timestamp) BETWEEN '$start_date' AND '$end_date'";
 
-    $date_select = "AND DATE_FORMAT(timestamp, '%Y-%m-%d') BETWEEN '$start_date' AND '$end_date'";
 } else {
-
-    $date_select = " AND DATE_FORMAT(timestamp, '%Y-%m-%d') = '" . date('Y-m-d') . "'";
+    $date_select = "AND DATE(timestamp) = '$today'";
 }
 
 
 
 // Total Profit
 // Calculate today's total profit
-$branch_filter = '';
-if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+// $branch_filter = '';
+// if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+//     $branch_id = intval($_SESSION['branch_id']);
+//     $branch_filter = " AND ord.branch_id = $branch_id";
+// }
+
+// @$total_profit = mysqli_fetch_assoc(mysqli_query($dbc, "
+//     SELECT 
+//         COALESCE(SUM((o.rate - p.rate) * o.quantity), 0) AS total_profit
+//     FROM 
+//         order_item o
+//     LEFT JOIN 
+//         purchase_item p ON o.product_id = p.product_id
+//     LEFT JOIN 
+//         orders ord ON o.order_id = ord.order_id
+//     WHERE 
+//         1=1 $branch_filter $date_select
+// "))['total_profit'];
+
+// $total_profit = isset($total_profit) ? $total_profit : 0;
+
+
+
+
+$orders_branch_filter = '';
+$quotations_branch_filter = '';
+
+if (!empty($_SESSION['branch_id'])) {
     $branch_id = intval($_SESSION['branch_id']);
-    $branch_filter = " AND ord.branch_id = $branch_id";
+    $orders_branch_filter = " AND ord.branch_id = $branch_id";
+    $quotations_branch_filter = " AND qt.branch_id = $branch_id";
 }
 
-@$total_profit = mysqli_fetch_assoc(mysqli_query($dbc, "
-    SELECT 
-        COALESCE(SUM((o.rate - p.rate) * o.quantity), 0) AS total_profit
-    FROM 
-        order_item o
-    LEFT JOIN 
-        purchase_item p ON o.product_id = p.product_id
-    LEFT JOIN 
-        orders ord ON o.order_id = ord.order_id
-    WHERE 
-        1=1 $branch_filter $date_select
-"))['total_profit'];
+function getTotalProfit($dbc, $whereClause, $orders_branch_filter, $quotations_branch_filter)
+{
+    // Profit from orders
+    $order_profit_sql = "
+        SELECT COALESCE(SUM((o.rate - p.rate) * o.quantity), 0) AS total_profit
+        FROM order_item o
+        LEFT JOIN purchase_item p ON o.product_id = p.product_id
+        LEFT JOIN orders ord ON o.order_id = ord.order_id
+        WHERE 1=1 $orders_branch_filter $whereClause
+    ";
+    $order_profit = mysqli_fetch_assoc(mysqli_query($dbc, $order_profit_sql))['total_profit'];
 
-$total_profit = isset($total_profit) ? $total_profit : 0;
+    // Profit from quotations (delivery notes)
+    $quotation_profit_sql = "
+        SELECT COALESCE(SUM((q.rate - p.rate) * q.quantity), 0) AS total_profit
+        FROM quotation_item q
+        LEFT JOIN purchase_item p ON q.product_id = p.product_id
+        LEFT JOIN quotations qt ON q.quotation_id = qt.quotation_id
+        WHERE 1=1 AND qt.is_delivery_note = 1 AND qt.payment_status = 1 $quotations_branch_filter $whereClause
+    ";
+    $quotation_profit = mysqli_fetch_assoc(mysqli_query($dbc, $quotation_profit_sql))['total_profit'];
+
+    return $order_profit + $quotation_profit;
+}
+
+// Example usage
+$total_profit = getTotalProfit($dbc, $date_select, $orders_branch_filter, $quotations_branch_filter);
+
+
+
+$branch_filter = '';
+if (!empty($_SESSION['branch_id'])) {
+    $branch_id = intval($_SESSION['branch_id']);
+    $branch_filter = " AND branch_id = $branch_id";
+}
+function getTotalSales($dbc, $whereClause, $branch_filter)
+{
+    $order_sql = "SELECT COALESCE(SUM(grand_total), 0) AS total_sales FROM orders WHERE 1=1 $branch_filter $whereClause";
+    $quotation_sql = "SELECT COALESCE(SUM(paid), 0) AS total_sales FROM quotations WHERE 1=1 AND is_delivery_note = 1 AND payment_status = 1 $branch_filter $whereClause";
+
+    $order_result = mysqli_fetch_assoc(mysqli_query($dbc, $order_sql))['total_sales'];
+    $quotation_result = mysqli_fetch_assoc(mysqli_query($dbc, $quotation_sql))['total_sales'];
+
+    return $order_result + $quotation_result;
+}
+
+$today_sales = getTotalSales($dbc, " AND DATE(timestamp) = '$today'", $branch_filter);
+$yesterday_sales = getTotalSales($dbc, " AND DATE(timestamp) = '$yesterday'", $branch_filter);
+$this_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$thisWeekStart' AND '$thisWeekEnd'", $branch_filter);
+$last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekStart' AND '$lastWeekEnd'", $branch_filter);
 
 ?>
 <style>
@@ -184,86 +318,66 @@ $total_profit = isset($total_profit) ? $total_profit : 0;
                                                 <div>
                                                     <p class="small text-white mb-0">Today Sales</p>
                                                     <h4 class="mb-0 text-white">
-                                                        <?php
-                                                        $branch_filter = '';
-                                                        if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                            $branch_id = intval($_SESSION['branch_id']);
-                                                            $branch_filter = " AND branch_id = $branch_id";
-                                                        }
-
-                                                        $query = "SELECT SUM(grand_total) AS total_sales FROM orders WHERE 1=1 $branch_filter $date_select";
-                                                        $result = mysqli_query($dbc, $query);
-                                                        @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
-
-                                                        $total = isset($total_sales) ? $total_sales : 0;
-                                                        $quotationQuery = "SELECT SUM(paid) AS total_sales FROM quotations WHERE 1=1 AND is_delivery_note = 1 And payment_status = 1 $branch_filter $date_select";
-                                                        $quotationResult = mysqli_query($dbc, $quotationQuery);
-                                                        @$quotation_sales = mysqli_fetch_assoc($quotationResult)['total_sales'];
-
-                                                        $totalQuotation = isset($quotation_sales) ? $quotation_sales : 0;
-                                                        // echo number_format($totalQuotation) . " KD";
-                                                        
-                                                        // echo number_format($total) . "KD";
-                                                        $combinedSales = $total + $totalQuotation;
-                                                        echo number_format($combinedSales) . " KD";
-
-                                                        ?>
+                                                        <h6 class="h4 mb-0 text-white">
+                                                            <?= getTotalSales($dbc, "$date_select", $branch_filter) ?>
+                                                            KD
+                                                        </h6>
                                                     </h4>
                                                 </div>
                                             </div>
                                             <?php
-                                           // Common branch ID
-$branch_id = isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id']) ? intval($_SESSION['branch_id']) : 0;
+                                            // Common branch ID
+                                            $branch_id = isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id']) ? intval($_SESSION['branch_id']) : 0;
 
-$order_branch_filter = $branch_id ? " AND o.branch_id = $branch_id" : '';
-$quotation_branch_filter = $branch_id ? " AND q.branch_id = $branch_id" : '';
+                                            $order_branch_filter = $branch_id ? " AND o.branch_id = $branch_id" : '';
+                                            $quotation_branch_filter = $branch_id ? " AND q.branch_id = $branch_id" : '';
 
 
                                             // Fetch cash in hand, KNET, WAMD from orders based on payment structure
                                             // First query: from `orders`
                                             $orderQuery = "
-SELECT
-    SUM(CASE 
-        WHEN o.split_payment = 0 AND a.customer_name = 'cash in hand' THEN o.grand_total
-        WHEN o.split_payment = 1 AND a3.customer_name = 'cash in hand' THEN o.cash_paid
-        ELSE 0
-    END) AS cash_in_hand,
+                                                            SELECT
+                                                                SUM(CASE 
+                                                                    WHEN o.split_payment = 0 AND a.customer_name = 'cash in hand' THEN o.grand_total
+                                                                    WHEN o.split_payment = 1 AND a3.customer_name = 'cash in hand' THEN o.cash_paid
+                                                                    ELSE 0
+                                                                END) AS cash_in_hand,
 
-    SUM(CASE 
-        WHEN o.split_payment = 0 AND a.customer_name = 'knet' THEN o.grand_total
-        WHEN o.split_payment = 1 AND a2.customer_name = 'knet' THEN o.bank_paid
-        ELSE 0
-    END) AS knet_total,
+                                                                SUM(CASE 
+                                                                    WHEN o.split_payment = 0 AND a.customer_name = 'knet' THEN o.grand_total
+                                                                    WHEN o.split_payment = 1 AND a2.customer_name = 'knet' THEN o.bank_paid
+                                                                    ELSE 0
+                                                                END) AS knet_total,
 
-    SUM(CASE 
-        WHEN o.split_payment = 0 AND a.customer_name = 'wamd' THEN o.grand_total
-        WHEN o.split_payment = 1 AND a2.customer_name = 'wamd' THEN o.bank_paid
-        ELSE 0
-    END) AS wamd_total
-FROM orders o
-LEFT JOIN customers a ON o.payment_account = a.customer_id
-LEFT JOIN customers a2 ON o.bank_payment_account = a2.customer_id
-LEFT JOIN customers a3 ON o.cash_payment_account = a3.customer_id
-WHERE o.payment_type = 'cash' AND 1=1 $order_branch_filter $date_select
-";
+                                                                SUM(CASE 
+                                                                    WHEN o.split_payment = 0 AND a.customer_name = 'wamd' THEN o.grand_total
+                                                                    WHEN o.split_payment = 1 AND a2.customer_name = 'wamd' THEN o.bank_paid
+                                                                    ELSE 0
+                                                                END) AS wamd_total
+                                                            FROM orders o
+                                                            LEFT JOIN customers a ON o.payment_account = a.customer_id
+                                                            LEFT JOIN customers a2 ON o.bank_payment_account = a2.customer_id
+                                                            LEFT JOIN customers a3 ON o.cash_payment_account = a3.customer_id
+                                                            WHERE o.payment_type = 'cash' AND 1=1 $order_branch_filter $date_select
+                                                            ";
                                             $orderResult = mysqli_query($dbc, $orderQuery);
                                             $orderData = mysqli_fetch_assoc($orderResult);
 
-                                             $branch_filter = '';
+                                            $branch_filter = '';
                                             if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
                                                 $branch_id = intval($_SESSION['branch_id']);
                                                 $branch_filter = " AND branch_id = $branch_id";
                                             }
                                             // Second query: from `quotations`
                                             $quotationQuery = "
-SELECT
-    SUM(CASE WHEN c.customer_name = 'cash in hand' THEN q.paid ELSE 0 END) AS cash_in_hand,
-    SUM(CASE WHEN c.customer_name = 'knet' THEN q.paid ELSE 0 END) AS knet_total,
-    SUM(CASE WHEN c.customer_name = 'wamd' THEN q.paid ELSE 0 END) AS wamd_total
-FROM quotations q
-LEFT JOIN customers c ON q.payment_account = c.customer_id
-WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
-";
+                                                                SELECT
+                                                                    SUM(CASE WHEN c.customer_name = 'cash in hand' THEN q.paid ELSE 0 END) AS cash_in_hand,
+                                                                    SUM(CASE WHEN c.customer_name = 'knet' THEN q.paid ELSE 0 END) AS knet_total,
+                                                                    SUM(CASE WHEN c.customer_name = 'wamd' THEN q.paid ELSE 0 END) AS wamd_total
+                                                                FROM quotations q
+                                                                LEFT JOIN customers c ON q.payment_account = c.customer_id
+                                                                WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
+                                                                ";
                                             $quotationResult = mysqli_query($dbc, $quotationQuery);
                                             $quotationData = mysqli_fetch_assoc($quotationResult);
 
@@ -277,7 +391,8 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
                                             <!-- 2. Cash In Hand -->
                                             <div class="col-md-3 col-6 d-flex align-items-center">
                                                 <div class="mr-1 text-center">
-                                                    <span class="circle p-2 d-inline-block rounded-circle border  bg-white">
+                                                    <span
+                                                        class="circle p-2 d-inline-block rounded-circle border  bg-white">
                                                         <i class="fas fa-hand-holding-usd text-default"></i>
                                                     </span>
                                                 </div>
@@ -446,45 +561,6 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
 
                         <div class="row">
 
-
-                            <div class="col-md-6 col-12 mb-4">
-                                <div class="card bg-primary shadow border-0">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-3 text-center">
-                                                <span class="circle circle-sm bg-white">
-                                                    <i class="fe fe-16 fe-shopping-cart text-default mb-0"></i>
-                                                </span>
-                                            </div>
-                                            <div class="col pr-0 text-white">
-                                                <p class="small  mb-0">Purchase Bill Quantity</p>
-                                                <span class="h3 mb-0 text-white">
-                                                    <?php
-                                                    // Count today's total purchases
-                                                    $branch_filter = '';
-                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                        $branch_id = intval($_SESSION['branch_id']);
-                                                        $branch_filter = " AND branch_id = $branch_id";
-                                                    }
-
-                                                    @$total_purchases = mysqli_fetch_assoc(mysqli_query($dbc, "
-    SELECT 
-        COUNT(*) AS total_purchases
-    FROM 
-        purchase    
-    WHERE 
-        1=1 $branch_filter $date_select
-"))['total_purchases'];
-
-                                                    $total_purchases = isset($total_purchases) ? $total_purchases : 0;
-                                                    echo number_format($total_purchases);
-                                                    ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-md-6 col-12 mb-4">
                                 <div class="card bg-primary shadow border-0">
                                     <div class="card-body">
@@ -506,17 +582,22 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
                                                     }
 
                                                     @$total_orders = mysqli_fetch_assoc(mysqli_query($dbc, "
-    SELECT 
-        COUNT(*) AS total_orders
-    FROM 
-        orders
-    WHERE 
-        1=1 $branch_filter $date_select
-"))['total_orders'];
+                                                                                SELECT 
+                                                                                    COUNT(*) AS total_orders
+                                                                                FROM 
+                                                                                    orders
+                                                                                WHERE 
+                                                                                    1=1 $branch_filter $date_select
+                                                                            "))['total_orders'];
 
                                                     $total_orders = isset($total_orders) ? $total_orders : 0;
-                                                    echo number_format($total_orders);
 
+
+
+                                                    $quotationQuery_orders = "SELECT COUNT(*) AS total_orders_from_quotation FROM quotations WHERE 1=1 AND is_delivery_note = 1 And payment_status = 1 $branch_filter $date_select";
+                                                    $quotationResult_orders = mysqli_query($dbc, $quotationQuery_orders);
+                                                    @$quotation_orders = mysqli_fetch_assoc($quotationResult_orders)['total_orders_from_quotation'];
+                                                    echo number_format($total_orders + $quotation_orders);
                                                     ?>
                                                 </span>
                                             </div>
@@ -524,6 +605,45 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6 col-12 mb-4">
+                                <div class="card bg-primary shadow border-0">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-3 text-center">
+                                                <span class="circle circle-sm bg-white">
+                                                    <i class="fe fe-16 fe-shopping-cart text-default mb-0"></i>
+                                                </span>
+                                            </div>
+                                            <div class="col pr-0 text-white">
+                                                <p class="small  mb-0">Purchase Bill Quantity</p>
+                                                <span class="h3 mb-0 text-white">
+                                                    <?php
+                                                    // Count today's total purchases
+                                                    $branch_filter = '';
+                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
+                                                        $branch_id = intval($_SESSION['branch_id']);
+                                                        $branch_filter = " AND branch_id = $branch_id";
+                                                    }
+
+                                                    @$total_purchases = mysqli_fetch_assoc(mysqli_query($dbc, "
+                                                                                                SELECT 
+                                                                                                    COUNT(*) AS total_purchases
+                                                                                                FROM 
+                                                                                                    purchase    
+                                                                                                WHERE 
+                                                                                                    1=1 $branch_filter $date_select
+                                                                                            "))['total_purchases'];
+
+                                                    $total_purchases = isset($total_purchases) ? $total_purchases : 0;
+                                                    echo number_format($total_purchases);
+                                                    ?>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- <div class="col-md-4 col-12 mb-4">
                                 <div class="card shadow border-0">
                                     <div class="card-body">
@@ -620,44 +740,14 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
                                             <div class="col-6 text-center mb-3 border-right">
                                                 <p class="text-muted mb-1">Today</p>
                                                 <h6 class="mb-1">
-                                                    <?php
-                                                    $branch_filter = '';
-                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                        $branch_id = intval($_SESSION['branch_id']);
-                                                        $branch_filter = " AND branch_id = $branch_id";
-                                                    }
-
-                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "
-    SELECT SUM(grand_total) AS total_sales 
-    FROM orders 
-    WHERE 1=1 $branch_filter $date_select
-"))['total_sales'];
-
-                                                    $total = isset($total_sales) ? $total_sales : "0";
-                                                    echo number_format($combinedSales) . "KD";
-
-                                                    ?>
+                                                    <h6 class="mb-1"><?= number_format($today_sales) ?> KD</h6>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
                                             </div>
                                             <div class="col-6 text-center mb-3">
                                                 <p class="text-muted mb-1">Yesterday</p>
                                                 <h6 class="mb-1">
-                                                    <?= $branch_filter = '';
-                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                        $branch_id = intval($_SESSION['branch_id']);
-                                                        $branch_filter = " AND branch_id = $branch_id";
-                                                    }
-
-                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "
-    SELECT SUM(grand_total) AS total_sales 
-    FROM orders 
-    WHERE 1=1 $branch_filter $date_select
-"))['total_sales'];
-
-                                                    $total = isset($total_sales) ? $total_sales : "0";
-                                                    echo number_format($combinedSales) . "KD";
-                                                    ?>
+                                                    <h6 class="mb-1"><?= number_format($yesterday_sales) ?> KD</h6>
                                                 </h6>
                                                 <p class="text-muted"></p>
                                             </div>
@@ -665,41 +755,15 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
                                             <div class="col-6 text-center border-right">
                                                 <p class="text-muted mb-1">This Week</p>
                                                 <h6 class="mb-1">
-                                                    <?= $branch_filter = '';
-                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                        $branch_id = intval($_SESSION['branch_id']);
-                                                        $branch_filter = " AND branch_id = $branch_id";
-                                                    }
-
-                                                    @$total_sales = mysqli_fetch_assoc(mysqli_query($dbc, "
-    SELECT SUM(grand_total) AS total_sales 
-    FROM orders 
-    WHERE 1=1 $branch_filter $date_select
-"))['total_sales'];
-
-                                                    $total = isset($total_sales) ? $total_sales : 0;
-                                                    echo number_format($combinedSales) . "KD";
-                                                    ?>
+                                                    <h6 class="mb-1"><?= number_format($this_week_sales) ?> KD</h6>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
                                             </div>
                                             <div class="col-6 text-center">
                                                 <p class="text-muted mb-1">Last Week</p>
                                                 <h6 class="mb-1">
-                                                    <?= $branch_filter = '';
-                                                    if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                        $branch_id = intval($_SESSION['branch_id']);
-                                                        $branch_filter = " AND branch_id = $branch_id";
-                                                    }
+                                                    <h6 class="mb-1"><?= number_format($last_week_sales) ?> KD</h6>
 
-                                                    $query = "SELECT SUM(grand_total) AS total_sales FROM orders WHERE 1=1 $branch_filter $date_select";
-                                                    $result = mysqli_query($dbc, $query);
-
-                                                    @$total_sales = mysqli_fetch_assoc($result)['total_sales'];
-                                                    $total_sales = isset($total_sales) ? $total_sales : 0;
-
-                                                    echo number_format($combinedSales) . "KD";
-                                                    ?>
                                                 </h6>
                                                 <p class="text-muted"></p>
                                             </div>
@@ -710,65 +774,50 @@ WHERE q.is_delivery_note = 1 $quotation_branch_filter $date_select
                                     </div> <!-- .card-body -->
                                 </div>
                             </div> <!-- .col -->
-                            <div class="col-md-6 card-height">
+                            <div class="col-md-6">
                                 <div class="table-card  card shadow mb-4 p-4 ">
                                     <div class="eq-card ">
                                         <div class="card-title">
-                                            <strong>Today Bills</strong>
+                                            <strong>Monthly Sale</strong>
                                         </div>
                                         <table class="table">
                                             <thead class="w-100">
                                                 <tr>
-                                                    <th>Sr</th>
-                                                    <th>Bill No</th>
-                                                    <th>Grand Total</th>
-                                                    <th>Profit</th>
+                                                    <th>Month</th>
+                                                    <!-- <th>Bill No</th> -->
+                                                    <th>Total Sale</th>
+                                                    <!-- <th>Total Profit</th> -->
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                // Query to get today's orders along with profit
-                                                $branch_filter = '';
-                                                if (isset($_SESSION['branch_id']) && !empty($_SESSION['branch_id'])) {
-                                                    $branch_id = intval($_SESSION['branch_id']);
-                                                    $branch_filter = " AND ord.branch_id = $branch_id";
+                                                $monthly_sales = [];
+                                                $monthly_profits = [];
+
+
+                                                for ($i = 6; $i >= 0; $i--) {
+                                                    $month_key = date('Y-m', strtotime("-$i months")); // used as array key
+                                                    $month_name = date('F Y', strtotime("-$i months")); // for display
+                                                    $start_date = "$month_key-01";
+                                                    $end_date = date('Y-m-t', strtotime($start_date));
+
+                                                    // Total Sale
+                                                    $monthly_sales[$month_name] = getTotalSales($dbc, "AND DATE(timestamp) BETWEEN '$start_date' AND '$end_date' ", $branch_filter);
+
+                                                    // Total Profit
+                                                    $monthly_profits[$month_name] = getTotalProfit($dbc, "AND DATE(timestamp) BETWEEN '$start_date' AND '$end_date' ", $orders_branch_filter, $quotations_branch_filter);
                                                 }
 
-                                                $query = "
-    SELECT 
-        ord.bill_no AS bill_no,
-        ord.grand_total,
-        COALESCE(SUM((oi.rate - pi.rate) * oi.quantity), 0) AS profit
-    FROM 
-        orders ord
-    LEFT JOIN 
-        order_item oi ON ord.order_id = oi.order_id
-    LEFT JOIN 
-        purchase_item pi ON oi.product_id = pi.product_id
-    WHERE 
-        1=1 $branch_filter $date_select 
-    GROUP BY 
-        ord.order_id
-";
+                                                // Display sales and profit
+                                                foreach (array_reverse($monthly_sales, true) as $month => $sale_total) {
+                                                    $profit_total = $monthly_profits[$month] ?? 0;
 
-                                                $result = mysqli_query($dbc, $query);
-                                                $serial_number = 1;
+                                                    echo "<tr>
+                                                                <td>$month</td>
+                                                                <td>{$sale_total}  KD</td>
+                                                               
+                                                            </tr>";
 
-                                                while ($row = mysqli_fetch_assoc($result)) {
-                                                    $bill_no = $row['bill_no'];
-                                                    $grand_total = $row['grand_total'];
-                                                    $profit = number_format($row['profit']);
-
-                                                    echo "
-        <tr>
-            <td>{$serial_number}</td>
-            <td>{$bill_no}</td>
-            <td>{$grand_total}KD</td>
-            <td>{$profit}KD</td>
-        </tr>
-    ";
-
-                                                    $serial_number++;
                                                 }
 
                                                 ?>

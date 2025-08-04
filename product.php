@@ -7,32 +7,55 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_stock_detail') {
   $current_branch_id = $_SESSION['branch_id'] ?? 0;
 
 
-  $query = "SELECT b.branch_id, b.branch_name, SUM(i.quantity_instock) as stock
-              FROM inventory i
-              JOIN branch b ON i.branch_id = b.branch_id
-              WHERE i.product_id = $product_id
-              GROUP BY i.branch_id
-              HAVING stock > 0";
+  // $query = "SELECT b.branch_id, b.branch_name, SUM(i.quantity_instock) as stock
+  //             FROM inventory i
+  //             JOIN branch b ON i.branch_id = b.branch_id
+  //             WHERE i.product_id = $product_id
+  //             GROUP BY i.branch_id
+  //             HAVING stock > 0";
+  $query = "SELECT 
+    b.branch_id, 
+    b.branch_name, 
+    SUM(i.quantity_instock) AS stock,
+    p.product_name,
+    br.brand_name,
+    c.categories_name
+FROM inventory i
+JOIN branch b ON i.branch_id = b.branch_id
+JOIN product p ON i.product_id = p.product_id
+LEFT JOIN brands br ON p.brand_id = br.brand_id
+LEFT JOIN categories c ON p.category_id = c.categories_id
+WHERE i.product_id = $product_id
+GROUP BY i.branch_id
+HAVING stock > 0
+";
 
   $result = mysqli_query($dbc, $query);
 
-  if (!$result) {
-    echo "Query error: " . mysqli_error($dbc);
-    exit;
-  }
+ if (mysqli_num_rows($result) > 0) {
+    // Get the first row (contains product info)
+    $row = mysqli_fetch_assoc($result);
 
-  if (mysqli_num_rows($result) > 0) {
+    echo "<h5 style='padding-left :200px'>" . htmlspecialchars($row['categories_name']) . " | " . htmlspecialchars($row['product_name']) . " |  " . htmlspecialchars($row['brand_name']) . "</h5>";
+
     echo "<table class='table table-bordered'>";
     echo "<thead><tr><th>Branch Name</th><th>Available Stock</th></tr></thead><tbody>";
-    $total_stock = 0;
-    while ($row = mysqli_fetch_assoc($result)) {
-      $stock =  $row['stock'];
-      $total_stock += $stock;
 
-      echo "<tr>";
-      echo "<td>" . htmlspecialchars($row['branch_name']) . "</td>";
-      echo "<td>" . $stock . "</td>";
-      echo "</tr>";
+    $total_stock = $row['stock']; // first row's stock
+    echo "<tr>";
+    echo "<td>" . htmlspecialchars($row['branch_name']) . "</td>";
+    echo "<td>" . $row['stock'] . "</td>";
+    echo "</tr>";
+
+    // Loop remaining rows
+    while ($row = mysqli_fetch_assoc($result)) {
+        $stock = $row['stock'];
+        $total_stock += $stock;
+
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['branch_name']) . "</td>";
+        echo "<td>" . $stock . "</td>";
+        echo "</tr>";
     }
 
     echo "<tr>";
@@ -40,9 +63,10 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_stock_detail') {
     echo "<td><strong>" . $total_stock . "</strong></td>";
     echo "</tr>";
     echo "</tbody></table>";
-  } else {
-    echo "<p>No stock available in any branch.</p>";
-  }
+} else {
+    echo "<div class='alert alert-warning text-center'>No stock available in any branch.</div>";
+}
+
   exit;
 }
 
