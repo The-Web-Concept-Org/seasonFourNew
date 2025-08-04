@@ -63,7 +63,7 @@
                                     <div class="form-group">
                                         <label for="">Category</label>
                                         <select class="form-control searchableSelect text-capitalize" name="category_id"
-                                            id="category_id">
+                                            >
                                             <option selected disabled>Select Category</option>
                                             <?php $category = mysqli_query($dbc, "SELECT * FROM categories WHERE categories_status = 1");
                                             while ($row = mysqli_fetch_array($category)) { ?>
@@ -81,7 +81,7 @@
                                     <div class="form-group">
                                         <label for="">Brand</label>
                                         <select class="form-control searchableSelect text-capitalize" name="brand_id"
-                                            id="brand_id">
+                                           >
                                             <option selected disabled>Select Brand</option>
                                             <?php $brand = mysqli_query($dbc, "SELECT * FROM brands WHERE brand_status = 1");
                                             while ($row = mysqli_fetch_array($brand)) { ?>
@@ -181,8 +181,8 @@
                                                             categories.categories_name
                                                         FROM inventory
                                                         JOIN product ON inventory.product_id = product.product_id
-                                                        JOIN brands ON product.brand_id = brands.brand_id
-                                                        JOIN categories ON product.category_id = categories.categories_id
+                                                        LEFT JOIN brands ON product.brand_id = brands.brand_id
+                                                        LEFT JOIN categories ON product.category_id = categories.categories_id
                                                         $where
                                                         ORDER BY product.product_name DESC
                                                         ");
