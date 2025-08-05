@@ -762,7 +762,7 @@
                       <div class="col pr-0">
                         <p class="small text-white mb-0">Total Income</p>
                         <span class="h3 mb-0 text-white">
-                          <?= number_format($final_net_profit) ?>
+                          <?= $final_net_profit ?>
                         </span>
                         <!--   <span class="small text-white">+5.5%</span> -->
                       </div>

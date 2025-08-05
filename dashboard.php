@@ -398,7 +398,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                                 </div>
                                                 <div>
                                                     <p class="small text-white mb-0">Cash In Hand</p>
-                                                    <h4 class="mb-0 text-white"><?= number_format($cashInHand) . "KD" ?>
+                                                    <h4 class="mb-0 text-white"><?= $cashInHand . "KD" ?>
                                                     </h4> <!-- Replace with dynamic -->
                                                 </div>
                                             </div>
@@ -413,7 +413,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                                 </div>
                                                 <div>
                                                     <p class="small text-white mb-0">KNET</p>
-                                                    <h4 class="mb-0 text-white"><?= number_format($knetTotal) . "KD" ?>
+                                                    <h4 class="mb-0 text-white"><?= $knetTotal . "KD" ?>
                                                     </h4> <!-- Replace with dynamic -->
                                                 </div>
                                             </div>
@@ -428,7 +428,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                                 </div>
                                                 <div>
                                                     <p class="small text-white mb-0">WAMD</p>
-                                                    <h4 class="mb-0 text-white"><?= number_format($wamdTotal) . "KD" ?>
+                                                    <h4 class="mb-0 text-white"><?= $wamdTotal . "KD" ?>
                                                     </h4>
                                                 </div>
                                             </div>
@@ -487,7 +487,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                                     <span class="h3 mb-0 text-white">
                                                         <?php
 
-                                                        echo number_format($total_profit) . "KD";
+                                                        echo $total_profit . "KD";
                                                         ?>
                                                     </span>
                                                 </span>
@@ -740,14 +740,14 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                             <div class="col-6 text-center mb-3 border-right">
                                                 <p class="text-muted mb-1">Today</p>
                                                 <h6 class="mb-1">
-                                                    <h6 class="mb-1"><?= number_format($today_sales) ?> KD</h6>
+                                                    <h6 class="mb-1"><?= $today_sales ?> KD</h6>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
                                             </div>
                                             <div class="col-6 text-center mb-3">
                                                 <p class="text-muted mb-1">Yesterday</p>
                                                 <h6 class="mb-1">
-                                                    <h6 class="mb-1"><?= number_format($yesterday_sales) ?> KD</h6>
+                                                    <h6 class="mb-1"><?= $yesterday_sales ?> KD</h6>
                                                 </h6>
                                                 <p class="text-muted"></p>
                                             </div>
@@ -755,14 +755,14 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                             <div class="col-6 text-center border-right">
                                                 <p class="text-muted mb-1">This Week</p>
                                                 <h6 class="mb-1">
-                                                    <h6 class="mb-1"><?= number_format($this_week_sales) ?> KD</h6>
+                                                    <h6 class="mb-1"><?= $this_week_sales ?> KD</h6>
                                                 </h6>
                                                 <p class="text-muted mb-2"></p>
                                             </div>
                                             <div class="col-6 text-center">
                                                 <p class="text-muted mb-1">Last Week</p>
                                                 <h6 class="mb-1">
-                                                    <h6 class="mb-1"><?= number_format($last_week_sales) ?> KD</h6>
+                                                    <h6 class="mb-1"><?= $last_week_sales ?> KD</h6>
 
                                                 </h6>
                                                 <p class="text-muted"></p>
