@@ -797,7 +797,6 @@ function getRemaingAmount() {
 function editByid(id, code, price, qty, final_rate, pro_details) {
   // alert(pro_details);
   $("#get_product_name").val(id);
-
   $("#get_product_code").val(code);
   $("#get_product_quantity").val(qty);
   $("#get_final_rate").val(final_rate);
@@ -807,7 +806,7 @@ function editByid(id, code, price, qty, final_rate, pro_details) {
   $("#get_product_detail").val(pro_details);
   $("#add_pro_type").val("update");
   var effect = function () {
-    return $(".searchableSelect").select2().trigger("change");
+    return $(".searchableSelect").trigger("change");
   };
   $.when(effect()).done(function () {
     setTimeout(function () {
