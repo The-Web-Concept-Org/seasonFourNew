@@ -183,22 +183,18 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <label>Products</label>
                 <input type="hidden" id="add_pro_type" value="add">
                 <select class="form-control searchableSelect" id="get_product_name" name="product_id">
-    <option value="">Select Product</option>
-    <?php
-    $result = mysqli_query($dbc, "SELECT * FROM product WHERE status=1 ");
-    while ($row = mysqli_fetch_array($result)) {
-        $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
-        $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
-        ?>
-        <option 
-            data-price="<?= $row["current_rate"] ?>" 
-            <?= (@$r['product_id'] == $row["product_id"]) ? "selected" : "" ?> 
-            value="<?= $row["product_id"] ?>"
-            style="text-transform: capitalize;">
-            <?= @$getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
-        </option>
-    <?php } ?>
-</select>
+                  <option value="">Select Product</option>
+                  <?php
+                  $result = mysqli_query($dbc, "SELECT * FROM product WHERE status=1 ");
+                  while ($row = mysqli_fetch_array($result)) {
+                    $getBrand = fetchRecord($dbc, "brands", "brand_id", $row['brand_id']);
+                    $getCat = fetchRecord($dbc, "categories", "categories_id", $row['category_id']);
+                    ?>
+                    <option data-price="<?= $row["current_rate"] ?>" <?= (@$r['product_id'] == $row["product_id"]) ? "selected" : "" ?> value="<?= $row["product_id"] ?>" style="text-transform: capitalize;">
+                      <?= @$getCat["categories_name"] ?> - <?= $row["product_name"] ?> - <?= @$getBrand["brand_name"] ?>
+                    </option>
+                  <?php } ?>
+                </select>
 
                 <span class="text-center w-100" id="instockQty"></span>
               </div>
@@ -252,7 +248,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                   </thead>
                   <tbody class="table table-bordered" id="purchase_product_tb">
                     <?php if (isset($_REQUEST['edit_purchase_id'])):
-                      $q = mysqli_query($dbc, "SELECT  product.*,brands.*,purchase_item.* FROM purchase_item LEFT JOIN product ON product.product_id=purchase_item.product_id LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE purchase_item.purchase_id='" . base64_decode($_REQUEST['edit_purchase_id']) . "'");
+                      $q = mysqli_query($dbc, "SELECT  product.*,categories.*,brands.*,purchase_item.* FROM purchase_item LEFT JOIN product ON product.product_id=purchase_item.product_id LEFT JOIN categories ON product.category_id=categories.categories_id  LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE purchase_item.purchase_id='" . base64_decode($_REQUEST['edit_purchase_id']) . "'");
 
                       while ($r = mysqli_fetch_assoc($q)) {
 
@@ -270,7 +266,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                           <input type="hidden" id="product_salerate_<?= $r['product_id'] ?>" name="product_salerates[]"
                             value="<?= $r['sale_rate'] ?>">
                           <td><?= $r['product_code'] ?></td>
-                          <td><?= $r['product_name'] ?></td>
+                          <td><?= $r['categories_name'] ?> - <?= $r['product_name'] ?> - <?= $r['brand_name'] ?></td>
 
                           <td><?= $r['rate'] ?></td>
                           <td><?= $r['quantity'] ?></td>

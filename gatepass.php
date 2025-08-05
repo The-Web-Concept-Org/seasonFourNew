@@ -239,7 +239,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                     </thead>
                                     <tbody class="table table-bordered" id="purchase_product_tb">
                                         <?php if (isset($_REQUEST['edit_purchase_id'])):
-                                            $q = mysqli_query($dbc, "SELECT  product.*,brands.*,gatepass_item.* FROM gatepass_item INNER JOIN product ON product.product_id=gatepass_item.product_id INNER JOIN brands ON product.brand_id=brands.brand_id   WHERE gatepass_item.gatepass_id='" . base64_decode($_REQUEST['edit_purchase_id']) . "'");
+                                            $q = mysqli_query($dbc, "SELECT  product.*,categories.*,brands.*,gatepass_item.* FROM gatepass_item LEFT JOIN product ON product.product_id=gatepass_item.product_id LEFT JOIN categories ON product.category_id=categories.categories_id LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE gatepass_item.gatepass_id='" . base64_decode($_REQUEST['edit_purchase_id']) . "'");
 
                                             while ($r = mysqli_fetch_assoc($q)) {
 
@@ -259,7 +259,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                                     <input type="hidden" id="product_salerate_<?= $r['product_id'] ?>"
                                                         name="product_salerates[]" value="<?= $r['sale_rate'] ?>">
                                                     <td><?= $r['product_code'] ?></td>
-                                                    <td><?= $r['product_name'] ?></td>
+                                                     <td><?= $r['categories_name'] ?> - <?= $r['product_name'] ?> - <?= $r['brand_name'] ?></td>
 
                                                     <td><?= $r['rate'] ?></td>
                                                     <td><?= $r['quantity'] ?></td>

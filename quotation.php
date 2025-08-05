@@ -238,7 +238,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                   </thead>
                   <tbody class="table table-bordered" id="purchase_product_tb">
                     <?php if (isset($_REQUEST['edit_order_id'])):
-                      $q = mysqli_query($dbc, "SELECT  product.*,brands.*,quotation_item.* FROM quotation_item LEFT JOIN product ON product.product_id=quotation_item.product_id LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE quotation_item.quotation_id='" . base64_decode($_REQUEST['edit_order_id']) . "'");
+                      $q = mysqli_query($dbc, "SELECT  product.*,categories.*,brands.*,quotation_item.* FROM quotation_item LEFT JOIN product ON product.product_id=quotation_item.product_id LEFT JOIN categories ON product.category_id=categories.categories_id LEFT JOIN brands ON product.brand_id=brands.brand_id   WHERE quotation_item.quotation_id='" . base64_decode($_REQUEST['edit_order_id']) . "'");
 
                       while ($r = mysqli_fetch_assoc($q)) {
 
@@ -257,7 +257,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                           <input type="hidden" id="product_totalrate_<?= $r['product_id'] ?>" name="product_totalrates[]"
                             value="<?= $r['rate'] ?>">
                           <td><?= $r['product_code'] ?></td>
-                          <td><?= $r['product_name'] ?></td>
+                           <td><?= $r['categories_name'] ?> - <?= $r['product_name'] ?> - <?= $r['brand_name'] ?></td>
 
                           <td><?= $r['rate'] ?></td>
                           <td><?= $r['final_rate'] ?></td>
