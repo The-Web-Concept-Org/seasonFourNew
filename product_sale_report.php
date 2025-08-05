@@ -70,12 +70,12 @@
 									<select class="form-control searchableSelect" name="productName" id="productName">
 										<option value="">~~SELECT~~</option>
 										<?php
-										$productSql = "SELECT * FROM product ORDER BY product_name ASC";
+										$productSql = "SELECT * FROM product WHERE status=1  ORDER BY product_name ASC";
 										$productData = $connect->query($productSql);
 
 										while ($row = $productData->fetch_array()) {
 											$product_id = $row['product_id'];
-											$fetchProduct = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM product WHERE product_id='$product_id'"));
+											$fetchProduct = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM product WHERE status=1 AND product_id='$product_id'"));
 											$fetchCategory = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM categories WHERE categories_id='{$fetchProduct['category_id']}'"));
 											$brand = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM brands WHERE brand_id='{$fetchProduct['brand_id']}'"));
 											$category_show = $fetchCategory['categories_name'] ?? '';

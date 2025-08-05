@@ -77,7 +77,7 @@
                    <li>
                      <div class="input-group">
                      <a href="backup.php?action=restore&backupfile=<?=$r?>"><?=$r?></a>
-                       <span class="input-group-btn"> <a href="<?=$file_address?>" download class="btn btn-danger btn-xs center-block"><span class="glyphicon glyphicon-download"></span></a></span>
+                       <span class="input-group-btn"> <a href="<?=$file_address?>" download class="btn btn-danger btn-xs center-block"><span class="glyphicon glyphicon-download"></span>download</a></span>
                      </div>
                    </li>
                  <?php endwhile; ?>
