@@ -17,6 +17,7 @@
    <!-- Icons CSS -->
    <link rel="stylesheet" href="css/fontawesome.min.css">
    <link rel="stylesheet" href="css/feather.css">
+   <link rel="stylesheet" href="css/phoenix-sans.css">
    <link rel="stylesheet" href="css/select2.css">
    <link rel="stylesheet" href="css/dropzone.css">
    <link rel="stylesheet" href="css/uppy.min.css">

@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php include_once 'includes/head.php'; ?>
-<!-- <style type="text/css">
-	thead tr th {
-		font-size: 19px !important;
-		font-weight: bolder !important;
-		color: #000 !important;
-	}
-
-	tbody tr th {
-		font-size: 18px !important;
-		font-weight: bolder !important;
-		color: #000 !important;
-	}
-</style> -->
 <style type="text/css">
 	@media print {
 		* {
@@ -124,9 +111,9 @@
 											<option value="all">All</option>
 											<?php
 											if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-												$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_type = 'expense'");
+												$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'expense'");
 											} else {
-											$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_type = 'expense' AND branch_id = '" . $_SESSION['branch_id'] . "'");
+											$q = mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_type = 'expense' AND branch_id = '" . $_SESSION['branch_id'] . "'");
                                             }
 											
 											
@@ -198,8 +185,8 @@
 										}
 										while ($r = mysqli_fetch_assoc($q)):
 
-											$cust_info = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_id = '$r[customer_id2]'"));
-											$cust_info1 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_id = '$r[customer_id1]'"));
+											$cust_info = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_id = '$r[customer_id2]'"));
+											$cust_info1 = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM customers WHERE customer_status = 1 AND customer_id = '$r[customer_id1]'"));
 
 
 											?>

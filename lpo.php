@@ -262,7 +262,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                     <tr>
                       <td colspan="4" class="table-bordered"></td>
                       <td class="table-bordered"> Discount :</td>
-                      <td class="table-bordered" id="getDiscount"><input onkeyup="getOrderTotal()" type="number"
+                      <td class="table-bordered" id="getDiscount"><input onkeyup="getOrderTotal()" type="text"
                           id="ordered_discount" class="form-control form-control-sm"
                           value="<?= @empty($_REQUEST['edit_order_id']) ? @$fetchPurchase['discount'] : "0" ?>" min="0"
                           name="ordered_discount">
