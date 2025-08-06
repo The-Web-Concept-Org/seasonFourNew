@@ -368,7 +368,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                                                 <div class="">
 
 
-                                                    <input onkeyup="getOrderTotal()" type="number" id="ordered_discount"
+                                                    <input onkeyup="getOrderTotal()" type="text" id="ordered_discount"
                                                         class="form-control form-control-sm "
                                                         value="<?= @empty($_REQUEST['edit_order_id']) ? "0" : $fetchOrder['discount'] ?>"
                                                         min="0" name="ordered_discount">

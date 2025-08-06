@@ -14,6 +14,8 @@
         padding: 0;
         background: white;
         font-family: 'Roboto', 'Arial', sans-serif;
+        /* font-family: 'Phoenix Sans', sans-serif; */
+        color: black
     }
 
     td {
@@ -47,10 +49,11 @@
     }
 
     .company-name {
-        font-size: 24px;
+        font-size: 50px;
         font-weight: bold;
         color: #006400;
         margin: 0;
+        font-family: 'Phoenix Sans', sans-serif !important;
     }
 
     .company-sub {
@@ -71,6 +74,7 @@
     }
 
     .logo {
+        margin-top: 20px;
         width: 180px;
         height: 160px;
         object-fit: contain;
@@ -113,6 +117,22 @@
         left: 10mm;
         right: 10mm;
         width: calc(100% - 20mm);
+        line-height: 0.5;
+    }
+
+    .pdf-only-header.pdf-visible {
+        display: block;
+    }
+
+    .pdf_footer.pdf-visible {
+        position: fixed;
+        bottom: 40mm;
+        left: 10mm;
+        right: 10mm;
+        display: block;
+        height: 100px;
+        z-index: 1000;
+
     }
 
     @media print {
@@ -120,6 +140,14 @@
             margin: 0;
             padding: 0;
             font-family: 'Roboto', 'Arial', sans-serif;
+        }
+
+        .company-name {
+            font-size: 40px;
+            font-weight: bold;
+            color: #006400;
+            margin: 0;
+            font-family: 'Phoenix Sans', sans-serif !important;
         }
 
         .invoice-container {
@@ -144,20 +172,7 @@
             /* Hidden for simple print */
         }
 
-        .pdf-only-header.pdf-visible {
-            display: block;
-        }
 
-        .pdf_footer.pdf-visible {
-            position: fixed;
-            bottom: 50mm;
-            left: 10mm;
-            right: 10mm;
-            display: block;
-            height: 100px;
-            z-index: 1000;
-
-        }
 
         #saveAsPdfBtn,
         #printBtn {
@@ -197,7 +212,6 @@
         position: relative;
         width: 100%;
         padding-bottom: 15mm;
-        /* Reserve space for footer to prevent overlap */
     }
 
     .bg-img {
@@ -272,13 +286,14 @@
         justify-content: space-between;
         font-size: 16px;
         font-weight: bold;
-        border-bottom: 3px solid black;
-        color:black;
+        color: black;
     }
+
     .cheque_instr {
         font-size: 16px;
-        color:black;
-        /* border-top: 3px solid black; */
+        color: black;
+        border-top: 3px solid black;
+        padding-top: 10px;
     }
 
 
@@ -296,41 +311,42 @@
         cursor: pointer;
     }
 
-.footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end; 
-    width: 100%;
-    padding: 10px;
-}
+    .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+    }
 
-.footer-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; 
-    align-items: center; 
-    min-height: 100%; 
-}
+    .footer-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        min-height: 100%;
+    }
 
-.text-center {
-    text-align: center;
-}
+    .text-center {
+        text-align: center;
+    }
 
-.qr {
-    max-width: 100px; 
-    height: auto;
-}
+    .qr {
+        max-width: 100px;
+        height: auto;
+    }
 
-.footer-item span, .footer-item p {
-    margin: 5px 0 0 0; 
-    font-size: 14px;
-    color:black;
-    font-weight: bold; 
-    
-}
-.qr_text{
-    color: #1a5f3a !important;
-}
+    .footer-item span,
+    .footer-item p {
+        margin: 5px 0 0 0;
+        font-size: 14px;
+        color: black;
+        font-weight: bold;
+
+    }
+
+    .qr_text {
+        color: #1a5f3a !important;
+    }
 </style>
 
 <body>
@@ -519,32 +535,57 @@
         return number_format((float) $amount, 3);
     }
 
-    // Collect items for pagination
-    $items = [];
-    if (!empty($order['product_details'])) {
-        $json_items = json_decode($order['product_details'], true);
-        $items = $json_items;
-    } elseif (!empty($order_item) && gettype($order_item) === 'object') {
-        while ($r = mysqli_fetch_assoc($order_item)) {
-            $items[] = $r;
-        }
+
+// Collect items for pagination
+$items = [];
+if (!empty($order['product_details'])) {
+    $json_items = json_decode($order['product_details'], true);
+    $items = $json_items;
+} elseif (!empty($order_item) && gettype($order_item) === 'object') {
+    while ($r = mysqli_fetch_assoc($order_item)) {
+        $items[] = $r;
     }
+}
 
-    // Paginate items (15 per page)
-    $recordsPerPage = 13;
-    $itemChunks = array_chunk($items, $recordsPerPage);
-    $totalPages = count($itemChunks);
+// Paginate items
+$totalItems = count($items);
+
+// Determine initial pagination logic
+$recordsPerPage = ($totalItems > 15) ? 15 : 10; // 15 items per page if > 15, otherwise 10
+$totalPages = ceil($totalItems / $recordsPerPage); // Calculate total pages
+
+// Create chunks
+$itemChunks = [];
+$start = 0;
+for ($i = 0; $i < $totalPages; $i++) {
+    $end = min($start + $recordsPerPage, $totalItems);
+    $chunkSize = $end - $start;
+
+    // Check if this is the last page and it has exactly 15 records
+    if ($i == $totalPages - 1 && $chunkSize == 15 && $totalItems > 15) {
+        // Split the last 15 records into two pages (up to 10 each)
+        $itemChunks[] = array_slice($items, $start, 10); // First part of the split (10 items)
+        $itemChunks[] = array_slice($items, $start + 10, 5); // Second part (remaining 5 items)
+        $start += 15; // Move past the 15 items
+        $totalPages++; // Increment total pages due to the split
+    } else {
+        // Regular chunking with 15 or 10 items, last page limited to remaining or 10
+        $itemChunks[] = array_slice($items, $start, min($recordsPerPage, $totalItems - $start));
+        $start = $end;
+    }
+}
+$totalPages = count($itemChunks); // Recalculate total pages based on final chunks
+?>
+
+<?php for ($i = 0; $i < 1; $i++):
+    if ($i > 0) {
+        $margin = "margin-top:-270px !important";
+        $copy = "Company Copy";
+    } else {
+        $margin = "";
+        $copy = "Customer Copy";
+    }
     ?>
-
-    <?php for ($i = 0; $i < 1; $i++):
-        if ($i > 0) {
-            $margin = "margin-top:-270px !important";
-            $copy = "Company Copy";
-        } else {
-            $margin = "";
-            $copy = "Customer Copy";
-        }
-        ?>
         <?php foreach ($itemChunks as $pageIndex => $pageItems): ?>
             <div class="invoice-container" style="<?= $margin ?>">
                 <div class="pdf-only-header">
@@ -864,7 +905,8 @@
                                         <p><strong>Payment Mode:</strong></p>
                                     </div>
                                     <div class="col-1">
-                                        <p>______________________</p>
+                                        
+                                        <p><span class="pdf-only-header"> CASH </span></p>
                                     </div>
                                     <div class="col-9"></div>
                                 </div>
@@ -873,7 +915,8 @@
                                         <p><strong>Price Validity:</strong></p>
                                     </div>
                                     <div class="col-1">
-                                        <p>______________________</p>
+                                        
+                                        <p><span class="pdf-only-header" > 7 Days </span></p>
                                     </div>
                                     <div class="col-9 w-100">
                                         <div class="row w-100 text-right ml-auto mr-3">
@@ -918,22 +961,22 @@
                             Repairs"</p>
                         <p>"يرجى إصدار الشيك باسم : مؤسسة فصول الأربعة للأجهزة الكهربائية والالكترونيةوتصليحها"</p>
                     </div>
-                   <div class="footer">
-    <div class="footer-item"><span>Receiver's Sign</span></div>
-    <div class="footer-item text-center">
-        <img class="qr" src="img/logo/shwaikh.png" alt="Shwaikh Logo" />
-        <p class="qr_text">الشويخ</p>
-    </div>
-    <div class="footer-item text-center">
-        <img class="qr" src="img/logo/farwaniya.png" alt="Farwaniya Logo" />
-        <p class="qr_text">الفروانية</p>
-    </div>
-    <div class="footer-item text-center">
-        <img class="qr" src="img/logo/zena.png" alt="Zena Logo" />
-        <p class="qr_text">الشويخ الزينة</p>
-    </div>
-    <div class="footer-item"><span>Salesman's Sign</span></div>
-</div>
+                    <div class="footer">
+                        <div class="footer-item"><span>Receiver's Sign</span></div>
+                        <div class="footer-item text-center">
+                            <img class="qr" src="img/logo/shwaikh.png" alt="Shwaikh Logo" />
+                            <p class="qr_text">الشويخ</p>
+                        </div>
+                        <div class="footer-item text-center">
+                            <img class="qr" src="img/logo/farwaniya.png" alt="Farwaniya Logo" />
+                            <p class="qr_text">الفروانية</p>
+                        </div>
+                        <div class="footer-item text-center">
+                            <img class="qr" src="img/logo/zena.png" alt="Zena Logo" />
+                            <p class="qr_text">الشويخ الزينة</p>
+                        </div>
+                        <div class="footer-item"><span>Salesman's Sign</span></div>
+                    </div>
 
 
                 </div>

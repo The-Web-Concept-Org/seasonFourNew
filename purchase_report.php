@@ -184,10 +184,10 @@
 												<?php
 
 												while ($fetchItem = mysqli_fetch_assoc($getItem)):
-													$fetchProduct = fetchRecord($dbc, "product", 'product_id', $fetchItem['product_id']);
-													$fetchCategory = fetchRecord($dbc, "categories", "categories_id", $fetchProduct['category_id']); ?>
-													<p><?= $fetchProduct['product_name'] ?>
-														<small><?= $fetchCategory['categories_name'] ?></small>
+													@$fetchProduct = fetchRecord($dbc, "product", 'product_id', $fetchItem['product_id']);
+													$fetchCategory = fetchRecord($dbc, "categories", "categories_id", @$fetchProduct['category_id']); ?>
+													<p><?= @$fetchProduct['product_name'] ?>
+														<small><?= @$fetchCategory['categories_name'] ?></small>
 													</p>
 												<?php endwhile; ?>
 											</th>
@@ -195,8 +195,8 @@
 												<?php
 												$getItem = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE purchase_id='$r[purchase_id]'");
 												while ($fetchItem = mysqli_fetch_assoc($getItem)):
-													$fetchProduct = fetchRecord($dbc, "product", 'product_id', $fetchItem['product_id']);
-													$fetchCategory = fetchRecord($dbc, "categories", "categories_id", $fetchProduct['category_id']); ?>
+													@$fetchProduct = fetchRecord($dbc, "product", 'product_id', @$fetchItem['product_id']);
+													@$fetchCategory = fetchRecord($dbc, "categories", "categories_id", @$fetchProduct['category_id']); ?>
 													<p><?= $fetchItem['quantity'] ?> <span class="text-right">x</span></p>
 												<?php endwhile; ?>
 											</th>
@@ -204,8 +204,8 @@
 												<?php
 												$getItem = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE purchase_id='$r[purchase_id]'");
 												while ($fetchItem = mysqli_fetch_assoc($getItem)):
-													$fetchProduct = fetchRecord($dbc, "product", 'product_id', $fetchItem['product_id']);
-													$fetchCategory = fetchRecord($dbc, "categories", "categories_id", $fetchProduct['category_id']); ?>
+													@$fetchProduct = fetchRecord($dbc, "product", 'product_id', @$fetchItem['product_id']);
+													@$fetchCategory = fetchRecord($dbc, "categories", "categories_id", @$fetchProduct['category_id']); ?>
 													<p><?= $fetchItem['rate'] ?></p>
 												<?php endwhile; ?>
 											</th>
@@ -213,8 +213,8 @@
 												<?php
 												$getItem = mysqli_query($dbc, "SELECT * FROM purchase_item WHERE purchase_id='$r[purchase_id]'");
 												while ($fetchItem = mysqli_fetch_assoc($getItem)):
-													$fetchProduct = fetchRecord($dbc, "product", 'product_id', $fetchItem['product_id']);
-													$fetchCategory = fetchRecord($dbc, "categories", "categories_id", $fetchProduct['category_id']); ?>
+													@$fetchProduct = fetchRecord($dbc, "product", 'product_id', @$fetchItem['product_id']);
+													@$fetchCategory = fetchRecord($dbc, "categories", "categories_id", @$fetchProduct['category_id']); ?>
 													<p><?= $fetchItem['total'] ?></p>
 												<?php endwhile; ?>
 											</th>
