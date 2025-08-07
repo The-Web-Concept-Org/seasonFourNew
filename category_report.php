@@ -90,7 +90,7 @@
                             <table class="table table-bordered" id="noPaginationTable">
                                 <thead>
                                     <tr>
-                                        <th style="width:8% ;">Sr No.</th>
+                                        <!-- <th style="width:8% ;">Sr No.</th> -->
                                         <th>Category</th>
                                         <th>Name</th>
                                         <th>Brand</th>
@@ -127,7 +127,7 @@
                                     while ($row = mysqli_fetch_assoc($query)) {
                                         ?>
                                         <tr>
-                                            <td><?= $sr ?></td>
+                                            <!-- <td><?= $sr ?></td> -->
                                             <td class="text-capitalize"><?= $row['categories_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['product_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['brand_name'] ?></td>

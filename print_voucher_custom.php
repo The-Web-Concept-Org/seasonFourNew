@@ -17,19 +17,16 @@
             padding: 0;
             background: white;
             font-family: 'Roboto', 'Arial', sans-serif;
-            color: #333;
+            color: black;
         }
 
         .invoice-container {
             width: 100%;
             min-height: 297mm;
-            /* Adjusted for top and bottom margins */
             background: white;
             padding: 10mm;
-            /* 20mm top/bottom padding for margins */
             box-shadow: none;
             position: relative;
-            /* Relative positioning for absolute footer */
             page-break-after: always;
         }
 
@@ -102,7 +99,7 @@
 
         .receipt {
             background: #ffffff;
-            margin-top: 10px;
+            margin-top: 60px;
         }
 
         .receipt .header {
@@ -190,7 +187,7 @@
             font-weight: 500;
         }
 
-        .footer {
+        /* .footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -200,7 +197,7 @@
             font-weight: 600;
             font-size: 16px;
             color: #333;
-        }
+        } */
 
         .footer div {
             display: flex;
@@ -223,6 +220,75 @@
                 padding: 0 30px;
             }
 
+        }
+
+        .pdf_footer {
+            position: absolute;
+            bottom: 0mm;
+            left: 10mm;
+            right: 10mm;
+            display: block;
+            height: 100px;
+            z-index: 1000;
+            line-height: 0.5;
+
+        }
+
+        .return {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .cheque_instr {
+            font-size: 16px;
+            color: black;
+            border-top: 3px solid black;
+            padding-top: 10px;
+        }
+
+
+        p {
+            font-size: 16px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            min-height: 100%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .qr {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .footer-item span,
+        .footer-item p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: black;
+            font-weight: bold;
+
+        }
+
+        .qr_text {
+            color: #1a5f3a !important;
         }
     </style>
 </head>
@@ -463,7 +529,7 @@
             <div class="" style="display: flex; gap: 40px; margin-left: 15px;">
                 <div class="row" style="display: flex; flex: 1;">
                     <div class="label" style="min-width: 100px;">Bank</div>
-                    <div class="value font-weight-bold"><?= $voucher['payment_mode'] ?></div>
+                    <div class="value font-weight-bold text-capitalize" style="margin-left: 42px;"><?= @$vouchers['voucher_bank_name'] ?></div>
                 </div>
                 <div class="row" style="display: flex; flex: 1;">
                     <div class="label" style="min-width: 140px;">Cash / Check No</div>
@@ -476,11 +542,11 @@
             <div class="reference-row" style="display: flex; align-items: center;">
                 <span style="font-weight: 600; min-width: 180px; color: black; font-size: 16px;">Invoice
                     References:</span>
-                <span style="margin-left: 35px"><?= $voucher['invoice_ref'] ?></span>
+                <span style="margin-left: 5px"><?= $voucher['invoice_ref'] ?></span>
             </div>
 
             <!-- Footer Signatures -->
-            <div class="footer">
+            <!-- <div class="footer">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span>Signature:</span>
                     <span style="border-bottom: 2px dashed #000; width: 120px;"></span>
@@ -489,11 +555,42 @@
                     <span>Received By:</span>
                     <span style="border-bottom: 2px dashed #000; width: 120px;"></span>
                 </div>
-            </div>
+            </div> -->
         </div>
 
-        <div style="text-align: center; margin-top: 40px;">Software Developed By <br>
-            <strong> The Web Concept (+965 6699 0815) </strong>
+
+
+        <div class="pdf_footer">
+            <div class="return">
+                <p>Goods can be returned within 14 days only in original packaging & Invoice</p>
+                <p>يمكن إرجاع البضائع خلال ١٤ يوماً مع العبوة والفاتورة</p>
+            </div>
+            <div class="text-center cheque_instr">
+                <p>Please issue The cheque in the name of "Four Seasons Est For Electrical & Electronic Appliances &
+                    Repairs"</p>
+                <p>"يرجى إصدار الشيك باسم : مؤسسة فصول الأربعة للأجهزة الكهربائية والالكترونيةوتصليحها"</p>
+            </div>
+            <div class="footer">
+                <div class="footer-item"><span>Receiver's Sign</span></div>
+                <div class="footer-item text-center">
+                    <img class="qr" src="img/logo/shwaikh.png" alt="Shwaikh Logo" />
+                    <p class="qr_text">الشويخ</p>
+                </div>
+                <div class="footer-item text-center">
+                    <img class="qr" src="img/logo/farwaniya.png" alt="Farwaniya Logo" />
+                    <p class="qr_text">الفروانية</p>
+                </div>
+                <div class="footer-item text-center">
+                    <img class="qr" src="img/logo/zena.png" alt="Zena Logo" />
+                    <p class="qr_text">الشويخ الزينة</p>
+                </div>
+                <div class="footer-item"><span>Salesman's Sign</span></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <p>Software Developed By</p> <br>
+                <strong> The Web Concept (+965 6699 0815) </strong>
+            </div>
         </div>
     </div>
     <script>
