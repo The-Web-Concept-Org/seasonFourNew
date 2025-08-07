@@ -990,11 +990,19 @@
     const urlParams = new URLSearchParams(window.location.search);
     const isPdf = urlParams.get('pdf') === 'true';
 
+    async function loadFont() {
+        const font = new FontFace('Phoenix Sans', 'url(/fonts/phoenix-sans.ttf)');
+        try {
+            await font.load();
+            document.fonts.add(font);
+            console.log('Phoenix Sans loaded successfully');
+            return true;
+        } catch (error) {
+            console.error('Failed to load Phoenix Sans:', error);
+            return false;
+        }
+    }
     function generatePdf() {
-        const companyNames = document.querySelectorAll('.company-name');
-            companyNames.forEach(companyName => {
-                companyName.style.fontFamily = "'Phoenix Sans', sans-serif";
-            });
         const headers = document.querySelectorAll('.pdf-only-header');
         const footers = document.querySelectorAll('.pdf_footer');
         headers.forEach(header => header.classList.add('pdf-visible'));
