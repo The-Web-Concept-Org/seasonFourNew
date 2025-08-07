@@ -62,7 +62,7 @@
 
         .company-header div {
             font-size: 15px;
-            line-height: 0.5;
+            /* line-height: 0.5; */
         }
 
         .company-header::before,
@@ -224,7 +224,7 @@
 
         .pdf_footer {
             position: absolute;
-            bottom: 0mm;
+            bottom: 10mm;
             left: 10mm;
             right: 10mm;
             display: block;
@@ -519,27 +519,34 @@
             </div>
 
             <!-- Amount in Words -->
-            <div class="row" style="margin-left: 1px;">
+            <div class="row" style="margin-left: 1px; margin-top: 20px;">
                 <div class="label">Amount In Words</div>
                 <div class="value font-weight-bold"><?= ucwords(strtolower(amountToWordsKD($voucher['amount']))) ?> Only
                 </div>
             </div>
 
             <!-- Bank Info and Check No in One Row -->
-            <div class="" style="display: flex; gap: 40px; margin-left: 15px;">
-                <div class="row" style="display: flex; flex: 1;">
-                    <div class="label" style="min-width: 100px;">Bank</div>
-                    <div class="value font-weight-bold text-capitalize" style="margin-left: 42px;"><?= @$vouchers['voucher_bank_name'] ?></div>
-                </div>
-                <div class="row" style="display: flex; flex: 1;">
-                    <div class="label" style="min-width: 140px;">Cash / Check No</div>
-                    <div class="value font-weight-bold"><?= @$vouchers['td_check_no'] ?></div>
-                </div>
+            <?php if (!empty($vouchers['voucher_bank_name']) && !empty($vouchers['td_check_no'])): ?>
+    <div class="" style="display: flex; gap: 40px; margin-left: 15px; margin-top: 20px; ">
+        <div class="row" style="display: flex; flex: 1;">
+            <div class="label" style="min-width: 100px;">Bank</div>
+            <div class="value font-weight-bold text-capitalize" style="margin-left: 42px;">
+                <?= htmlspecialchars($vouchers['voucher_bank_name']) ?>
             </div>
+        </div>
+        <div class="row" style="display: flex; flex: 1;">
+            <div class="label" style="min-width: 140px;">Cash / Check No</div>
+            <div class="value font-weight-bold">
+                <?= htmlspecialchars($vouchers['td_check_no']) ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 
 
             <!-- Invoice Reference -->
-            <div class="reference-row" style="display: flex; align-items: center;">
+            <div class="reference-row" style="display: flex; align-items: center; margin-top: 30px;">
                 <span style="font-weight: 600; min-width: 180px; color: black; font-size: 16px;">Invoice
                     References:</span>
                 <span style="margin-left: 5px"><?= $voucher['invoice_ref'] ?></span>
@@ -587,7 +594,7 @@
                 <div class="footer-item"><span>Salesman's Sign</span></div>
             </div>
 
-            <div style="text-align: center; margin-top: 50px;">
+            <div style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
                 <p>Software Developed By</p> <br>
                 <strong> The Web Concept (+965 6699 0815) </strong>
             </div>
