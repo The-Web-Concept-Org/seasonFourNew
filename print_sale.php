@@ -536,56 +536,56 @@
     }
 
 
-// Collect items for pagination
-$items = [];
-if (!empty($order['product_details'])) {
-    $json_items = json_decode($order['product_details'], true);
-    $items = $json_items;
-} elseif (!empty($order_item) && gettype($order_item) === 'object') {
-    while ($r = mysqli_fetch_assoc($order_item)) {
-        $items[] = $r;
+    // Collect items for pagination
+    $items = [];
+    if (!empty($order['product_details'])) {
+        $json_items = json_decode($order['product_details'], true);
+        $items = $json_items;
+    } elseif (!empty($order_item) && gettype($order_item) === 'object') {
+        while ($r = mysqli_fetch_assoc($order_item)) {
+            $items[] = $r;
+        }
     }
-}
 
-// Paginate items
-$totalItems = count($items);
+    // Paginate items
+    $totalItems = count($items);
 
-// Determine initial pagination logic
-$recordsPerPage = ($totalItems > 15) ? 15 : 10; // 15 items per page if > 15, otherwise 10
-$totalPages = ceil($totalItems / $recordsPerPage); // Calculate total pages
+    // Determine initial pagination logic
+    $recordsPerPage = ($totalItems > 15) ? 15 : 10; // 15 items per page if > 15, otherwise 10
+    $totalPages = ceil($totalItems / $recordsPerPage); // Calculate total pages
+    
+    // Create chunks
+    $itemChunks = [];
+    $start = 0;
+    for ($i = 0; $i < $totalPages; $i++) {
+        $end = min($start + $recordsPerPage, $totalItems);
+        $chunkSize = $end - $start;
 
-// Create chunks
-$itemChunks = [];
-$start = 0;
-for ($i = 0; $i < $totalPages; $i++) {
-    $end = min($start + $recordsPerPage, $totalItems);
-    $chunkSize = $end - $start;
-
-    // Check if this is the last page and it has exactly 15 records
-    if ($i == $totalPages - 1 && $chunkSize == 15 && $totalItems > 15) {
-        // Split the last 15 records into two pages (up to 10 each)
-        $itemChunks[] = array_slice($items, $start, 10); // First part of the split (10 items)
-        $itemChunks[] = array_slice($items, $start + 10, 5); // Second part (remaining 5 items)
-        $start += 15; // Move past the 15 items
-        $totalPages++; // Increment total pages due to the split
-    } else {
-        // Regular chunking with 15 or 10 items, last page limited to remaining or 10
-        $itemChunks[] = array_slice($items, $start, min($recordsPerPage, $totalItems - $start));
-        $start = $end;
+        // Check if this is the last page and it has exactly 15 records
+        if ($i == $totalPages - 1 && $chunkSize == 15 && $totalItems > 15) {
+            // Split the last 15 records into two pages (up to 10 each)
+            $itemChunks[] = array_slice($items, $start, 10); // First part of the split (10 items)
+            $itemChunks[] = array_slice($items, $start + 10, 5); // Second part (remaining 5 items)
+            $start += 15; // Move past the 15 items
+            $totalPages++; // Increment total pages due to the split
+        } else {
+            // Regular chunking with 15 or 10 items, last page limited to remaining or 10
+            $itemChunks[] = array_slice($items, $start, min($recordsPerPage, $totalItems - $start));
+            $start = $end;
+        }
     }
-}
-$totalPages = count($itemChunks); // Recalculate total pages based on final chunks
-?>
-
-<?php for ($i = 0; $i < 1; $i++):
-    if ($i > 0) {
-        $margin = "margin-top:-270px !important";
-        $copy = "Company Copy";
-    } else {
-        $margin = "";
-        $copy = "Customer Copy";
-    }
+    $totalPages = count($itemChunks); // Recalculate total pages based on final chunks
     ?>
+
+    <?php for ($i = 0; $i < 1; $i++):
+        if ($i > 0) {
+            $margin = "margin-top:-270px !important";
+            $copy = "Company Copy";
+        } else {
+            $margin = "";
+            $copy = "Customer Copy";
+        }
+        ?>
         <?php foreach ($itemChunks as $pageIndex => $pageItems): ?>
             <div class="invoice-container" style="<?= $margin ?>">
                 <div class="pdf-only-header">
@@ -905,7 +905,7 @@ $totalPages = count($itemChunks); // Recalculate total pages based on final chun
                                         <p><strong>Payment Mode:</strong></p>
                                     </div>
                                     <div class="col-1">
-                                        
+
                                         <p><span class="pdf-only-header"> CASH </span></p>
                                     </div>
                                     <div class="col-9"></div>
@@ -915,8 +915,8 @@ $totalPages = count($itemChunks); // Recalculate total pages based on final chun
                                         <p><strong>Price Validity:</strong></p>
                                     </div>
                                     <div class="col-1">
-                                        
-                                        <p><span class="pdf-only-header" > 7 Days </span></p>
+
+                                        <p><span class="pdf-only-header"> 7 Days </span></p>
                                     </div>
                                     <div class="col-9 w-100">
                                         <div class="row w-100 text-right ml-auto mr-3">
@@ -995,6 +995,10 @@ $totalPages = count($itemChunks); // Recalculate total pages based on final chun
         const footers = document.querySelectorAll('.pdf_footer');
         headers.forEach(header => header.classList.add('pdf-visible'));
         footers.forEach(footer => footer.classList.add('pdf-visible'));
+        const companyNames = document.querySelectorAll('.company-name');
+        companyNames.forEach(companyName => {
+            companyName.style.fontFamily = "'Phoenix Sans', sans-serif !important";
+        });
         setTimeout(() => {
             window.print();
             setTimeout(() => {

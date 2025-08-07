@@ -99,7 +99,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                     <label>Date</label>
                     <input type="text" name="order_date" id="order_date"
                       value="<?= @empty($_REQUEST['edit_order_id']) ? date('Y-m-d') : $fetchOrder['quotation_date'] ?>"
-                      readonly class="form-control">
+                      class="form-control">
                   </div>
                 </div>
               </div>
@@ -346,7 +346,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="input-group">
                               <select class="form-control" onchange="getBalance(this.value,'payment_account_bl')"
                                 name="payment_account" id="payment_account" aria-label="Username"
-                                aria-describedby="basic-addon1">
+                                aria-describedby="basic-addon1" required>
                                 <option value="">Select Account</option>
                                 <?php
                                 $branch_id = $_SESSION['branch_id'];

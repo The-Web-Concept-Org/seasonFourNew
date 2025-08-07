@@ -124,6 +124,17 @@
                             <button type="submit" class="btn btn-admin btn-sm m-1">Edit</button>
                           <?php endif; ?>
                         </form>
+                        <form action="quotation.php" method="POST">
+
+                        <input type="hidden" name="edit_order_id" value="<?= base64_encode($r['quotation_id']) ?>">
+                        <input type="hidden" name="credit_type" value="quotation">
+                        <input type="hidden" name="paid_status" value="pending">
+
+
+                        <?php if (($r['is_delivery_note'] == 1) && ($r['payment_status'] == 1)) : ?>
+                          <button type="submit" class="btn btn-primary btn-sm m-1">Edit</button>
+                        <?php endif; ?>
+                      </form>
                       <?php endif; ?>
                       <form action="quotation.php" method="POST">
 
@@ -132,7 +143,7 @@
                         <input type="hidden" name="paid_status" value="pending">
 
 
-                        <?php if ($r['is_delivery_note'] == 1): ?>
+                        <?php if (($r['is_delivery_note'] == 1) && ($r['payment_status'] != 1)) : ?>
                           <button type="submit" class="btn btn-primary btn-sm m-1">Pay</button>
                         <?php endif; ?>
                       </form>
