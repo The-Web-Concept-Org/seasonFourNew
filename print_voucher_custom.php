@@ -43,10 +43,11 @@
         }
 
         .company-name {
-            font-size: 24px;
+            font-size: 40px;
             font-weight: bold;
             color: #006400;
             margin: 0;
+            font-family: 'Phoenix Sans', sans-serif !important;
         }
 
         .company-sub {

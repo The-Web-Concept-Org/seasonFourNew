@@ -49,22 +49,6 @@
                             <div class="row">
                                 <div class="col-sm-2">
                                     <div class="form-group">
-                                        <label for="">Branch</label>
-                                        <select class="form-control searchableSelect text-capitalize" name="branch_id"
-                                            required>
-                                            <option selected disabled value="">Select Branch</option>
-                                            <?php
-                                            $branch = mysqli_query($dbc, "SELECT * FROM branch WHERE branch_status = 1");
-                                            while ($row = mysqli_fetch_array($branch)) { ?>
-                                                <option class="text-capitalize" value="<?= $row['branch_id'] ?>">
-                                                    <?= $row['branch_name'] ?>
-                                                </option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-2">
-                                    <div class="form-group">
                                         <label for="">Category</label>
                                         <select class="form-control searchableSelect text-capitalize"
                                             name="category_id[]" multiple>
@@ -103,11 +87,10 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered" id="noPaginationTable">
                                 <thead>
                                     <tr>
                                         <th style="width:8% ;">Sr No.</th>
-                                        <!-- <th style="width:5% ;">Pro_Id</th> -->
                                         <th>Category</th>
                                         <th>Name</th>
                                         <th>Brand</th>
@@ -116,7 +99,6 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $branchId = $_GET['branch_id'] ?? '';
                                     $categoryIds = isset($_GET['category_id']) && is_array($_GET['category_id']) ? $_GET['category_id'] : [];
 
                                     $where = "WHERE 1=1 AND status = 1";
@@ -128,53 +110,33 @@
                                         $where .= " AND product.category_id IN ('" . implode("','", $categoryIds) . "')";
                                     }
 
-                                    $branchFilterJoin = !empty($branchId)
-                                        ? "LEFT JOIN inventory ON inventory.product_id = product.product_id AND inventory.branch_id = '" . mysqli_real_escape_string($dbc, $branchId) . "'"
-                                        : "LEFT JOIN inventory ON inventory.product_id = product.product_id";
-
                                     $query = mysqli_query($dbc, "
                                                                                 SELECT 
                                                                                     product.product_name,
                                                                                     product.product_id,
-                                                                                    IFNULL(inventory.quantity_instock, 0) AS quantity_instock,
                                                                                     brands.brand_name,
                                                                                     categories.categories_name
                                                                                 FROM product
                                                                                 JOIN categories ON product.category_id = categories.categories_id
                                                                                 LEFT JOIN brands ON product.brand_id = brands.brand_id
-                                                                                $branchFilterJoin
                                                                                 $where
                                                                                 ORDER BY categories.categories_name ASC
                                                                             ");
 
                                     $sr = 1;
-                                    $totalStock = 0;
                                     while ($row = mysqli_fetch_assoc($query)) {
-
-
                                         ?>
-
                                         <tr>
                                             <td><?= $sr ?></td>
-                                            <!-- <td><?= $row['product_id'] ?></td> -->
                                             <td class="text-capitalize"><?= $row['categories_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['product_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['brand_name'] ?></td>
-                                            <td><?= $row['quantity_instock'] ?></td>
+                                            <td>0</td>
                                         </tr>
                                         <?php
-                                        $totalStock += $row['quantity_instock'];
                                         $sr++;
                                     }
                                     ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center">
-                                            <h3>Total</h3>
-                                        </td>
-                                        <td>
-                                            <h3><?= $totalStock ?></h3>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -185,5 +147,17 @@
     </div>
 </body>
 
-</html>
 <?php include_once 'includes/foot.php'; ?>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#noPaginationTable').DataTable({
+            paging: false,    // Disable pagination
+            searching: false, // Optional: disable search
+            info: false       // Optional: disable "Showing X of Y"
+        });
+    });
+
+</script>
+
+</html>
