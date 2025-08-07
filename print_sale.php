@@ -991,7 +991,7 @@
     const isPdf = urlParams.get('pdf') === 'true';
 
     async function loadFont() {
-        const font = new FontFace('Phoenix Sans', 'url(/fonts/phoenix-sans.ttf)');
+        const font = new FontFace('Phoenix Sans', 'url(../fonts/phoenix-sans.ttf)');
         try {
             await font.load();
             document.fonts.add(font);

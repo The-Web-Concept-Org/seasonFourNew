@@ -309,10 +309,10 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                     <div class="card-body">
                                         <div class="row">
                                             <!-- 1. Today Sales -->
-                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                            <div class="col-md-3 col-6 d-flex align-items-center mb1">
                                                 <div class="mr-1 text-center">
                                                     <span class="circle bg-white p-2 d-inline-block rounded-circle">
-                                                        <i class="fe fe-shopping-bag text-default fe-20"></i>
+                                                        <i class="fe fe-16 fe-shopping-cart text-default mb-0"></i>
                                                     </span>
                                                 </div>
                                                 <div>
@@ -389,7 +389,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                             ?>
 
                                             <!-- 2. Cash In Hand -->
-                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                            <div class="col-md-3 col-6 d-flex align-items-center mb-1">
                                                 <div class="mr-1 text-center">
                                                     <span
                                                         class="circle p-2 d-inline-block rounded-circle border  bg-white">
@@ -404,7 +404,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                             </div>
 
                                             <!-- 3. KNET -->
-                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                            <div class="col-md-3 col-6 d-flex align-items-center mb-1">
                                                 <div class="mr-1 text-center">
                                                     <span class="circle bg-white p-2 d-inline-block rounded-circle">
                                                         <img src="img/logo/knet.png" alt="KNET"
@@ -419,7 +419,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                             </div>
 
                                             <!-- 4. WAMD / Account -->
-                                            <div class="col-md-3 col-6 d-flex align-items-center">
+                                            <div class="col-md-3 col-6 d-flex align-items-center mb-1">
                                                 <div class="mr-1 text-center">
                                                     <span class="circle bg-white p-2 d-inline-block rounded-circle">
                                                         <img src="img/logo/wamd.png" alt="WAMD"
@@ -477,8 +477,8 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                     <div class="card-body">
                                         <div class="row align-items-center">
                                             <div class="col-3 text-center">
-                                                <span class="circle circle-sm bg-white">
-                                                    <i class="fe fe-16 fe-shopping-bag text-default mb-0"></i>
+                                                <span class="circle circle-sm bg-white p-2">
+                                                    <i class="fas fa-chart-line text-default"></i>
                                                 </span>
                                             </div>
                                             <div class="col pr-0">
@@ -611,7 +611,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                         <div class="row align-items-center">
                                             <div class="col-3 text-center">
                                                 <span class="circle circle-sm bg-white">
-                                                    <i class="fe fe-16 fe-shopping-cart text-default mb-0"></i>
+                                                    <i class="fe fe-16 fe-shopping-bag text-default mb-0"></i>
                                                 </span>
                                             </div>
                                             <div class="col pr-0 text-white">
