@@ -991,22 +991,22 @@
     const isPdf = urlParams.get('pdf') === 'true';
 
     function generatePdf() {
+        const companyNames = document.querySelectorAll('.company-name');
+            companyNames.forEach(companyName => {
+                companyName.style.fontFamily = "'Phoenix Sans', sans-serif";
+            });
         const headers = document.querySelectorAll('.pdf-only-header');
         const footers = document.querySelectorAll('.pdf_footer');
         headers.forEach(header => header.classList.add('pdf-visible'));
         footers.forEach(footer => footer.classList.add('pdf-visible'));
 
         setTimeout(() => {
-            const companyNames = document.querySelectorAll('.company-name');
-            companyNames.forEach(companyName => {
-                companyName.style.fontFamily = "'Phoenix Sans', sans-serif !important";
-            });
             window.print();
             setTimeout(() => {
                 headers.forEach(header => header.classList.remove('pdf-visible'));
                 footers.forEach(footer => footer.classList.remove('pdf-visible'));
             }, 100);
-        }, 500);
+        }, 1000);
     }
 
     if (isPdf) {
