@@ -995,17 +995,18 @@
         const footers = document.querySelectorAll('.pdf_footer');
         headers.forEach(header => header.classList.add('pdf-visible'));
         footers.forEach(footer => footer.classList.add('pdf-visible'));
-        const companyNames = document.querySelectorAll('.company-name');
-        companyNames.forEach(companyName => {
-            companyName.style.fontFamily = "'Phoenix Sans', sans-serif !important";
-        });
+
         setTimeout(() => {
+            const companyNames = document.querySelectorAll('.company-name');
+            companyNames.forEach(companyName => {
+                companyName.style.fontFamily = "'Phoenix Sans', sans-serif !important";
+            });
             window.print();
             setTimeout(() => {
                 headers.forEach(header => header.classList.remove('pdf-visible'));
                 footers.forEach(footer => footer.classList.remove('pdf-visible'));
             }, 100);
-        }, 1000);
+        }, 500);
     }
 
     if (isPdf) {
