@@ -1626,3 +1626,52 @@ $('.categorydropdown').on('change', function () {
   const categoryIdForBrand = $(this).val();
   loadBrands(categoryIdForBrand);
 });
+
+
+function setCheckStatus(id) {
+  Swal.fire({
+    title: 'What is the Checks Current Status?',
+    showDenyButton: true,
+    showCancelButton: true,
+    confirmButtonText: `Passed`,
+    denyButtonText: `Failed`,
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: 'php_action/custom_action.php',
+        type: 'post',
+        data: {
+          setCheckStatus: id,
+          status: '1'
+        },
+        dataType: 'json',
+        success: function (res) {
+          sweeetalert(res.msg, res.sts, 1500);
+          if (res.sts == "success") {
+            $("#check_tb").load(location.href + " #check_tb > *");
+            // location.reload();
+          }
+        }
+      });
+    } else if (result.isDenied) {
+      $.ajax({
+        url: 'php_action/custom_action.php',
+        type: 'post',
+        data: {
+          setCheckStatus: id,
+          status: '3'
+        },
+        dataType: 'json',
+        success: function (res) {
+          sweeetalert(res.msg, res.sts, 1500);
+          if (res.sts == "success") {
+            $("#check_tb").load(location.href + " #check_tb > *");
+            //location.reload();
+          }
+        }
+      });
+    } else { }
+  })
+
+}
