@@ -3541,7 +3541,6 @@ if (isset($_POST['category_id_for_brand'])) {
 	while ($r = mysqli_fetch_assoc($q)) {
 		$options .= "<option value='{$r['brand_id']}'>{$r['brand_name']}</option>";
 	}
-
 	echo $options;
 	exit;
 }

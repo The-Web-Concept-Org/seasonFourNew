@@ -201,7 +201,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               <div class="col-1 col-md-1">
                 <label class="invisible d-block">.</label>
                 <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
-                  data-target="#add_product_modal"> <i class="fa fa-plus"></i> </button>
+                  data-target="#add_product_modal" onclick="openAddProductModal()"> <i class="fa fa-plus"></i> </button>
               </div>
               <!-- <div class="col-6 col-sm-2 col-md-2">
                 <label>Product Details</label>

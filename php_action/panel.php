@@ -124,10 +124,14 @@ if (isset($_REQUEST['add_brand_name'])) {
 	];
 	if ($_REQUEST['brand_id'] == '') {
 		if (insert_data($dbc, "brands", $data_array)) {
-			# code...
+			$newBrandId = mysqli_insert_id($dbc);
 			$response = [
 				"msg" => "Brand Added successfully",
-				"sts" => "success"
+				"sts" => "success",
+				"new_brand_id" => $newBrandId, // from mysqli_insert_id()
+				"new_brand_name" => $_REQUEST['add_brand_name'],
+				"new_category_id" => $_REQUEST['category_id'], // this is already selected
+
 			];
 
 		} else {
@@ -164,10 +168,12 @@ if (isset($_REQUEST['add_category_name'])) {
 	];
 	if ($_REQUEST['categories_id'] == '') {
 		if (insert_data($dbc, "categories", $data_array)) {
-			# code...
+			$newCategoryId = mysqli_insert_id($dbc);
 			$response = [
 				"msg" => "categories Added successfully",
-				"sts" => "success"
+				"sts" => "success",
+				'new_category_id' => $newCategoryId,
+				"new_category_name" => $_REQUEST['add_category_name']
 			];
 
 		} else {
@@ -184,24 +190,24 @@ if (isset($_REQUEST['add_category_name'])) {
 			if (mysqli_num_rows($proQ) > 0) {
 
 				while ($product = mysqli_fetch_assoc($proQ)):
-					$current_rate=$fif_rate=$thir_rate=$total=0;
-					$total=(double)$product['product_mm']*(double)$product['product_inch']*(double)$product['product_meter'];
-					$current_rate=($total*(double)@$_REQUEST['category_price'])/54;
-					$current_rate=round($current_rate);
+					$current_rate = $fif_rate = $thir_rate = $total = 0;
+					$total = (double) $product['product_mm'] * (double) $product['product_inch'] * (double) $product['product_meter'];
+					$current_rate = ($total * (double) @$_REQUEST['category_price']) / 54;
+					$current_rate = round($current_rate);
 
-					$purchase_rate=($total*(double)@$_REQUEST['category_purchase'])/54;
-					$purchase_rate=round($purchase_rate);
+					$purchase_rate = ($total * (double) @$_REQUEST['category_purchase']) / 54;
+					$purchase_rate = round($purchase_rate);
 
-					$fif_rate=($total*((double)@$_REQUEST['category_price']+0.05))/54;
-					$fif_rate=round($fif_rate);
+					$fif_rate = ($total * ((double) @$_REQUEST['category_price'] + 0.05)) / 54;
+					$fif_rate = round($fif_rate);
 
-					$thir_rate=($total*((double)@$_REQUEST['category_price']+0.10))/54;
-					$thir_rate=round($thir_rate);
+					$thir_rate = ($total * ((double) @$_REQUEST['category_price'] + 0.10)) / 54;
+					$thir_rate = round($thir_rate);
 					$data_array = [
-						'current_rate'=>@$current_rate,
-						'f_days'=>@$fif_rate,
-						't_days'=>@$thir_rate,
-						'purchase_rate'=>$purchase_rate,
+						'current_rate' => @$current_rate,
+						'f_days' => @$fif_rate,
+						't_days' => @$thir_rate,
+						'purchase_rate' => $purchase_rate,
 					];
 					update_data($dbc, "product", $data_array, "product_id", $product['product_id']);
 
@@ -237,20 +243,20 @@ if (isset($_REQUEST['add_category_name'])) {
 // }
 
 if (isset($_POST['sort_main_menu'])) {
-    foreach ($_POST['main_ids'] as $order => $id) {
-        $sort = $order + 1;
-        mysqli_query($dbc, "UPDATE menus SET sort_order = $sort WHERE id = $id");
-    }
-    exit;
+	foreach ($_POST['main_ids'] as $order => $id) {
+		$sort = $order + 1;
+		mysqli_query($dbc, "UPDATE menus SET sort_order = $sort WHERE id = $id");
+	}
+	exit;
 }
 
 if (isset($_POST['sort_sub_menu'])) {
-    $parent_id = (int)$_POST['parent_id'];
-    foreach ($_POST['submenu_ids'] as $order => $id) {
-        $sort = $order + 1;
-        mysqli_query($dbc, "UPDATE menus SET nav_option_sort = $sort WHERE id = $id AND parent_id = $parent_id");
-    }
-    exit;
+	$parent_id = (int) $_POST['parent_id'];
+	foreach ($_POST['submenu_ids'] as $order => $id) {
+		$sort = $order + 1;
+		mysqli_query($dbc, "UPDATE menus SET nav_option_sort = $sort WHERE id = $id AND parent_id = $parent_id");
+	}
+	exit;
 }
 if (!empty($_REQUEST['action']) and $_REQUEST['action'] == "category_ranking") {
 	$query = get($dbc, "menus WHERE id='" . $_REQUEST['value'] . "' ORDER BY sort_order ASC  ");
