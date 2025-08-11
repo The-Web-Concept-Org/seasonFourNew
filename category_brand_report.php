@@ -215,11 +215,6 @@
                                                      </table>
 </div> <!-- card-body -->
 
-<div class="card-footer text-center">
-    <h1 class="mb-0">
-        <strong>Total: <?= $totalStock ?></strong>
-    </h1>
-</div>
 
                                        
 
