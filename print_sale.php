@@ -906,7 +906,7 @@
                                     </div>
                                     <div class="col-1">
 
-                                        <p><span class="pdf-only-header"> CASH </span></p>
+                                        <p><span class=""> CASH </span></p>
                                     </div>
                                     <div class="col-9"></div>
                                 </div>
@@ -916,7 +916,7 @@
                                     </div>
                                     <div class="col-1">
 
-                                        <p><span class="pdf-only-header"> 7 Days </span></p>
+                                        <p><span class=""> 7 Days </span></p>
                                     </div>
                                     <div class="col-9 w-100">
                                         <div class="row w-100 text-right ml-auto mr-3">

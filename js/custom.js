@@ -27,6 +27,7 @@ $(document).ready(function () {
       },
       success: function (response) {
         if (response.sts == "success") {
+
           $("#formData")[0].reset();
           $("#tableData").load(location.href + " #tableData > *");
           $(".modal").modal("hide");
@@ -108,8 +109,102 @@ $(document).ready(function () {
       },
     }); //ajax call
   }); //main
-  let isSubmitting = false;
+  // for add brand from modal in product add page
+  $("#formData3").on("submit", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
+    var form = $(this);
+    $.ajax({
+      type: "POST",
+      url: form.attr("action"),
+      data: form.serialize(),
+      dataType: "json",
+      beforeSend: function () {
+        $("#formData_btn").prop("disabled", true);
+      },
+      success: function (response) {
+        $("#formData_btn").prop("disabled", false);
+
+        if (response.sts === "success") {
+          form[0].reset();
+          $(".modal").modal("hide");
+          // Just select the existing category by ID
+          if (response.new_category_id) {
+            const $catSelect = $("#categoryDropdownContainer select");
+            $catSelect.val(response.new_category_id).trigger("change");
+          }
+          if (response.new_brand_id && response.new_brand_name) {
+            // Wait for brand list to be populated before setting the brand
+            const checkBrandInterval = setInterval(() => {
+              const brandOptionsLoaded = $('#brandSelect option').length > 1;
+              if (brandOptionsLoaded) {
+                $('#brandSelect').val(response.new_brand_id).trigger('change');
+                clearInterval(checkBrandInterval);
+              }
+            }, 200);
+          }
+          // Sweet alert
+          sweeetalert(response.msg, response.sts, 1500);
+        } else {
+          sweeetalert(response.msg, response.sts, 2000);
+        }
+      }
+    });
+  });
+  // for add category from modal in product add page
+  $("#formData4").on("submit", function (e) {
+    e.preventDefault();
+    var form = $("#formData4");
+
+    $.ajax({
+      type: "POST",
+      url: form.attr("action"),
+      data: form.serialize(),
+      dataType: "json",
+      beforeSend: function () {
+        $("#formData_btn").prop("disabled", true);
+      },
+      success: function (response) {
+        if (response.sts == "success") {
+          $("#formData4")[0].reset();
+          $(".modal").modal("hide");
+
+          Swal.fire({
+            icon: "success",
+            title: response.msg,
+            showConfirmButton: false,
+            timer: 1500,
+          });
+
+          // ✅ Append new option directly to category dropdown
+          if (response.new_category_id && response.new_category_name) {
+            const $dropdown = $("#categoryDropdownContainer select");
+            $dropdown.append(
+              $("<option>", {
+                value: response.new_category_id,
+                text: response.new_category_name,
+                selected: true, // auto-select the newly added category
+              })
+            ).trigger("change"); // trigger change if you're using plugins like Select2
+          }
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: response.msg,
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+
+        $("#formData_btn").prop("disabled", false);
+      }
+
+    });
+  });
+
+
+  let isSubmitting = false;
   $("#sale_order_fm").on("submit", function (e) {
     e.preventDefault();
 
@@ -181,18 +276,12 @@ $(document).ready(function () {
     }
   });
 
-
-  $("#credit_order_client_name").on("change", function () {
-    var value = $("#credit_order_client_name :selected").data("id");
-    var contact = $("#credit_order_client_name :selected").data("contact");
-    $("#customer_account").val(value);
-    $("#client_contact").val(contact);
-  });
-
-  $("#add_product_fm").on("submit", function (e) {
+  $(document).on("submit", "#add_product_fm", function (e) {
     e.preventDefault();
+
     var form = $(this);
     var fd = new FormData(this);
+    var submitBtn = $("#add_product_btn");
 
     $.ajax({
       url: form.attr("action"),
@@ -202,29 +291,127 @@ $(document).ready(function () {
       contentType: false,
       processData: false,
       beforeSend: function () {
-        $("#add_product_btn").prop("disabled", true);
+        submitBtn.prop("disabled", true);
       },
       success: function (response) {
-        console.log("click");
-        sweeetalert(response.msg, response.sts, 1500);
-        $("#add_product_btn").prop("disabled", false);
-        var product_add_from = $("#product_add_from").val();
-        if (product_add_from == "modal") {
-          $("#get_product_name").load(location.href + " #get_product_name > *");
-          $("#add_product_modal").modal("hide");
-        }
+        submitBtn.prop("disabled", false);
 
-        console.log(response.sts);
-        if (response.sts == "success") {
-          $("#add_product_fm").each(function () {
-            this.reset();
-            location.reload();
+        // From modal
+        if ($("#product_add_from").val() === "modal") {
+          Swal.fire({
+            icon: response.sts,
+            title: response.msg,
+            timer: 1500,
+            showConfirmButton: false,
           });
+          if (response.sts === "success") {
+            // Close modal and optionally reload part of page
+            $("#add_product_modal").hide();
+            $(".modal-backdrop").remove();
+            $("body").removeClass("modal-open").css("padding-right", "");
+
+            $('.navbar').show();
+            // Example: reload product dropdown or list
+            // $("#get_product_name").load(location.href + " #get_product_name > *");
+            $("#get_product_name").load(location.href + " #get_product_name > *", function () {
+              //var code=  $('#get_product_code').val();
+              var code = $("#get_product_name :selected").val();
+              var payment_type = $("#payment_type").val();
+              var credit_sale_type = $("#credit_sale_type").val();
+              var price_type = $("#price_type").val();
+              var branch_id = $("#branch_id").val();
+              var purchase_return = $("#purchase_return").val();
+              var delivery_note = $("#delivery_note").val();
+              var gatepass = $("#gatepass").val();
+              var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
+
+              $.ajax({
+                type: "POST",
+                url: "php_action/custom_action.php",
+                data: { get_products_list: code, type: "product" },
+                dataType: "text",
+                success: function (msg) {
+                  var res = msg.trim();
+                  $("#get_product_code").val(res);
+                },
+              }); //ajax call }
+              function fetchProductPrice(price_type) {
+                $.ajax({
+                  type: "POST",
+                  url: "php_action/custom_action.php",
+                  data: {
+                    getPrice: code,
+                    type: "product",
+                    credit_sale_type: credit_sale_type,
+                    payment_type: payment_type,
+                    price_type: price_type,
+                    branch_id: branch_id, // Pass either "purchase" or "sale"
+                  },
+                  dataType: "json",
+                  success: function (response) {
+                    // alert(response.price);
+                    $("#get_product_price").val(response.price);
+                    $("#get_product_sale_price").val(response.price);
+                    $("#get_product_detail").val(response.description);
+                    $("#get_final_rate").val(response.final_rate);
+                    $("#instockQty").html("instock :" + response.qty);
+                    // console.log(response);
+                    if (
+                      (!isSaleReturn &&
+                        (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
+                          purchase_return === "purchase_return") ||
+                      (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
+                      (delivery_note === "yes") || (gatepass === "gatepass")
+                    ) {
+                      $("#get_product_quantity").attr("max", response.qty);
+                      $("#addProductPurchase").prop("disabled", response.qty <= 0);
+                    } else {
+                      // For Sale Return, allow adding regardless of stock and set a high max
+                      $("#get_product_quantity").attr("max", 99999999999);
+                      $("#addProductPurchase").prop("disabled", false);
+                    }
+                  },
+                });
+              }
+
+              // Call the function for both purchase and sale prices
+              fetchProductPrice(price_type);
+
+            });
+
+
+          }
+        } else {
+          // Standalone page behavior
+          Swal.fire({
+            icon: response.sts,
+            title: response.msg,
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          if (response.sts === "success") {
+            // Reset form and reload whole page
+            form[0].reset();
+            location.reload();
+          }
         }
       },
-    }); //ajax call
-  }); //main
+      error: function () {
+        submitBtn.prop("disabled", false);
+        Swal.fire("Error", "Something went wrong", "error");
+      }
+    });
+  });
 
+
+
+  $("#credit_order_client_name").on("change", function () {
+    var value = $("#credit_order_client_name :selected").data("id");
+    var contact = $("#credit_order_client_name :selected").data("contact");
+    $("#customer_account").val(value);
+    $("#client_contact").val(contact);
+  });
   $("#voucher_general_fm").on("submit", function (e) {
     e.preventDefault();
     var form = $("#voucher_general_fm");
@@ -358,67 +545,67 @@ $(document).ready(function () {
     }); //ajax call
   }); //main
   $("#get_product_code").on("keyup", function () {
-  var code = $("#get_product_code").val().trim();
-  if (!code) return;
+    var code = $("#get_product_code").val().trim();
+    if (!code) return;
 
-  var credit_sale_type = $("#credit_sale_type").val();
-  var payment_type = $("#payment_type").val();
-  var branch_id = $("#branch_id").val();
-  var purchase_return = $("#purchase_return").val();
-  var delivery_note = $("#delivery_note").val();
-  var gatepass = $("#gatepass").val();
-  var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
+    var credit_sale_type = $("#credit_sale_type").val();
+    var payment_type = $("#payment_type").val();
+    var branch_id = $("#branch_id").val();
+    var purchase_return = $("#purchase_return").val();
+    var delivery_note = $("#delivery_note").val();
+    var gatepass = $("#gatepass").val();
+    var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
 
-  // First AJAX: get product options
-  $.ajax({
-    type: "POST",
-    url: "php_action/custom_action.php",
-    data: { get_products_list: code, type: "code" },
-    dataType: "text",
-    success: function (msg) {
-      var res = msg.trim();
-      // console.log(res);
-      $("#get_product_name").empty().html(res);
-    },
+    // First AJAX: get product options
+    $.ajax({
+      type: "POST",
+      url: "php_action/custom_action.php",
+      data: { get_products_list: code, type: "code" },
+      dataType: "text",
+      success: function (msg) {
+        var res = msg.trim();
+        // console.log(res);
+        $("#get_product_name").empty().html(res);
+      },
+    });
+
+    // Second AJAX: get price/details
+    $.ajax({
+      type: "POST",
+      url: "php_action/custom_action.php",
+      data: {
+        getPrice: code,
+        type: "code",
+        credit_sale_type: credit_sale_type,
+        payment_type: payment_type,
+        branch_id: branch_id,
+      },
+      dataType: "json",
+      success: function (response) {
+        // console.log(response);
+        $("#get_product_price").val(response.price);
+        $("#get_product_sale_price").val(response.price);
+        $("#get_product_detail").val(response.description);
+        $("#get_final_rate").val(response.final_rate);
+        $("#instockQty").html("instock :" + response.qty);
+
+        if (
+          (!isSaleReturn &&
+            (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) ||
+          (payment_type === "credit_purchase" && purchase_return === "purchase_return") ||
+          (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
+          delivery_note === "yes" || gatepass === "gatepass"
+        ) {
+          $("#get_product_quantity").attr("max", response.qty);
+          $("#addProductPurchase").prop("disabled", response.qty <= 0);
+        } else {
+          // For Sale Return, allow adding regardless of stock
+          $("#get_product_quantity").attr("max", 99999999999);
+          $("#addProductPurchase").prop("disabled", false);
+        }
+      },
+    });
   });
-
-  // Second AJAX: get price/details
-  $.ajax({
-    type: "POST",
-    url: "php_action/custom_action.php",
-    data: {
-      getPrice: code,
-      type: "code",
-      credit_sale_type: credit_sale_type,
-      payment_type: payment_type,
-      branch_id: branch_id,
-    },
-    dataType: "json",
-    success: function (response) {
-      // console.log(response);
-      $("#get_product_price").val(response.price);
-      $("#get_product_sale_price").val(response.price);
-      $("#get_product_detail").val(response.description);
-      $("#get_final_rate").val(response.final_rate);
-      $("#instockQty").html("instock :" + response.qty);
-
-      if (
-        (!isSaleReturn &&
-          (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) ||
-        (payment_type === "credit_purchase" && purchase_return === "purchase_return") ||
-        (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
-        delivery_note === "yes" || gatepass === "gatepass"
-      ) {
-        $("#get_product_quantity").attr("max", response.qty);
-        $("#addProductPurchase").prop("disabled", response.qty <= 0);
-      } else {
-        // For Sale Return, allow adding regardless of stock
-        $("#get_product_quantity").attr("max", 99999999999);
-        $("#addProductPurchase").prop("disabled", false);
-      }
-    },
-  });
-});
 
 }); /*--------------end of-------------------------------------------------------*/
 function pending_bills(value) {
