@@ -140,10 +140,10 @@
 
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered" id="datatableforcatbrand">
                                 <thead>
                                     <tr>
-                                        <th style="width:5% ;">Pro_Id</th>
+                                        <!-- <th style="width:5% ;">Pro_Id</th> -->
                                         <th>Category</th>
                                         <th>Name</th>
                                         <th>Brand</th>
@@ -193,7 +193,7 @@
                                     while ($row = mysqli_fetch_assoc($query)) {
                                         ?>
                                         <tr>
-                                            <td><?= $row['product_id'] ?></td>
+                                            <!-- <td><?= $row['product_id'] ?></td> -->
                                             <td class="text-capitalize"><?= $row['categories_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['product_name'] ?></td>
                                             <td class="text-capitalize"><?= $row['brand_name'] ?></td>
@@ -204,20 +204,24 @@
                                         $sr++;
                                     }
                                     ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center">
-                                            <h3>Total</h3>
-                                        </td>
-                                        <td>
-                                            <h3><?= $totalStock ?></h3>
-                                        </td>
-                                    </tr>
+                                    
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 <?php } ?>
+                                                                 
+                                                
+                                                     </table>
+</div> <!-- card-body -->
 
+<div class="card-footer text-center">
+    <h1 class="mb-0">
+        <strong>Total: <?= $totalStock ?></strong>
+    </h1>
+</div>
+
+                                       
 
             </div> <!-- .container-fluid -->
 
@@ -225,6 +229,18 @@
     </div> <!-- .wrapper -->
 
 </body>
-
-</html>
 <?php include_once 'includes/foot.php'; ?>
+<script type="text/javascript">
+   $(document).ready(function () {
+    if ($('#datatableforcatbrand').length) {
+        $('#datatableforcatbrand').DataTable({
+            paging: false,
+            searching: false,
+            info: false
+        });
+    }
+});
+
+
+</script>
+</html>
