@@ -152,7 +152,7 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   <div class="col-sm-2 mt-3">
                     <label for="">Product Category</label>
                     <div id="categoryDropdownContainer">
-                      <select class="form-control searchableSelect" name="category_id" id="tableData1" size="1">
+                      <select class="form-control searchableSelect categorydropdown" name="category_id" id="tableData1" size="1">
                         <option value="">Select Category</option>
                         <?php
                         $result = mysqli_query($dbc, "select * from categories");
@@ -183,15 +183,15 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                   <div class="col-sm-2 mt-3">
                     <label for="">Product Brand</label>
                     <div id="brandDropdownContainer">
-                      <select class="form-control searchableSelect tableData" name="brand_id" id="brandSelect" size="1">
+                      <select class="form-control searchableSelect tableData brandAccordingCategory" name="brand_id" id="brandSelect" size="1">
                         <option value="">Select Brand</option>
                       </select>
                     </div>
                   </div>
                   <div class="col-1 col-md-1 mt-3">
                     <label class="invisible d-block">.</label>
-                    <button type="button" class="btn btn-success btn-sm hide_btn_forModal" id="addBrandBtn" data-toggle="modal"
-                      data-target="#add_brand_modal">
+                    <button type="button" class="btn btn-success btn-sm hide_btn_forModal" id="addBrandBtn"
+                      data-toggle="modal" data-target="#add_brand_modal">
                       <i class="fa fa-plus"></i>
                     </button>
                   </div>
@@ -545,41 +545,12 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
   }
 
   $(document).ready(function () {
-    // Load brands based on selected category
-    $('#tableData1').on('change', function () {
-      const categoryIdForBrand = $(this).val();
-
-      $('#brandSelect').html('<option>Select Brand</option>').prop('disabled', true);
-
-      if (categoryIdForBrand) {
-        $.ajax({
-          url: 'php_action/custom_action.php',
-          method: 'POST',
-          data: { category_id_for_brand: categoryIdForBrand },
-          success: function (response) {
-            $('#brandSelect').html(response).prop('disabled', false);
-
-            <?php if (isset($_REQUEST['edit_product_id'])): ?>
-              // Pre-select brand in edit mode
-              $('#brandSelect').val('<?= $fetchproduct['brand_id'] ?>');
-            <?php endif; ?>
-          },
-          error: function () {
-            $('#brandSelect').html('<option>Error loading brands</option>');
-          }
-        });
-      } else {
-        $('#brandSelect').html('<option value="">Select Brand</option>').prop('disabled', true);
-      }
-    });
-
-    // Only trigger change if in edit mode
+    // In edit mode
     <?php if (isset($_REQUEST['edit_product_id'])): ?>
-      $('#tableData1').trigger('change');
-    <?php endif; ?>
-
-    // loader
-    $('#loader').hide();
+      loadBrands('<?= $fetchproduct['category_id'] ?>', '<?= $fetchproduct['brand_id'] ?>');
+<?php endif; ?>
+      // loader
+      $('#loader').hide();
     $('#productTableWrapper').show();
   });
 </script>

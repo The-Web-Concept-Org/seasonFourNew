@@ -66,15 +66,133 @@
         </button>
       </div>
       <div class="modal-body" id="addProductModalBody">
-        <div class="text-center p-4">
-          <i class="fa fa-spinner fa-spin fa-2x"></i>
-        </div>
+        <form action="php_action/custom_action.php" id="add_product_fm" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="product_module">
+          <input type="hidden" name="product_id" value="<?= @base64_encode($fetchproduct['product_id']) ?>">
+          <input type="hidden" id="product_add_from" value="modal">
+
+
+          <div class="form-group row">
+            <div class="col-md-2 mt-3">
+              <label>Product ID#</label>
+              <?php
+              $result = mysqli_query($dbc, "SELECT product_code FROM product WHERE product_code LIKE 'SF%' ORDER BY CAST(SUBSTRING(product_code, 3) AS UNSIGNED) DESC LIMIT 1");
+              $data = mysqli_fetch_assoc($result);
+
+              if ($data && isset($data['product_code'])) {
+                $latest_code = $data['product_code'];
+                $number_only = (int) substr($latest_code, 2);
+                $number_only = $number_only + 1;
+              }
+              ?>
+              <input type="text" name="next_increment" id="next_increment"
+                value="SF25-PROD-<?= @empty($_REQUEST['edit_product_id']) ? $number_only : preg_replace('/\D/', '', $fetchproduct['product_code']) ?>"
+                readonly class="form-control">
+            </div>
+
+            <div class="col-sm-2 mt-3">
+              <label for="">Product Category</label>
+              <div id="categoryDropdownContainer">
+                <select class="form-control searchableSelect categorydropdown" name="category_id" id="" size="1">
+                  <option value="">Select Category</option>
+                  <?php
+                  $result = mysqli_query($dbc, "select * from categories");
+                  while ($row = mysqli_fetch_array($result)) {
+                    ?>
+                    <option data-price="<?= $row["category_price"] ?>" <?= @($fetchproduct['category_id'] != $row["categories_id"]) ? "" : "selected" ?> value="<?= $row["categories_id"] ?>">
+                      <?= $row["categories_name"] ?>-<?= $row["category_price"] ?>
+                    </option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-2 mt-3">
+              <label for="">Product Brand</label>
+              <div id="brandDropdownContainer">
+                <select class="form-control searchableSelect tableData brandAccordingCategory" name="brand_id" id=""
+                  size="1">
+                  <option value="">Select Brand</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-2 mb-3 mt-3 mb-sm-0">
+              <?php
+              // Fetch latest product code starting with 'SF'
+              $result = mysqli_query($dbc, "SELECT product_code FROM product WHERE product_code LIKE 'SF%' ORDER BY CAST(SUBSTRING(product_code, 3) AS UNSIGNED) DESC LIMIT 1");
+              $data = mysqli_fetch_assoc($result);
+
+              // Parse and increment
+              if ($data && isset($data['product_code'])) {
+                $latest_code = strtoupper($data['product_code']); // Ensure the prefix is uppercase
+                $prefix = 'SF';
+                $number_part = (int) substr($latest_code, strlen($prefix));
+                $next_number = $number_part + 1;
+                $next_product_code = $prefix . $next_number;
+              }
+
+
+              // Use existing code if editing
+              $input_value = !empty($_REQUEST['edit_product_id']) ? htmlspecialchars($fetchproduct['product_code']) : $next_product_code;
+              ?>
+
+              <label for="product_code">Product Code</label>
+              <input type="text" class="form-control text-uppercase" id="product_code" name="product_code"
+                value="<?= $input_value ?>" readonly required>
+            </div>
+
+            <div class="col-sm-3 mb-3 mt-3 mb-sm-0">
+              <label for="">Product Name</label>
+              <input type="text" class="form-control" id="product_name" placeholder="Product Name" name="product_name"
+                required value="<?= htmlspecialchars(@$fetchproduct['product_name'], ENT_QUOTES) ?>">
+
+            </div>
+
+            <div class="col-sm-3 mt-3 mb-sm-0">
+              <label for="">Product Description</label>
+
+              <textarea class="form-control" name="product_description"
+                placeholder="Product Description"><?= @$fetchproduct['product_description'] ?></textarea>
+            </div>
+            <div class="col-sm-2 mt-3 mb-sm-0">
+              <label for="">Purchase Rate</label>
+              <input type="text" class="form-control" id="purchase_rate" placeholder=" Rate" name="purchase_rate"
+                required value="<?= @$fetchproduct['purchase_rate'] ?>">
+            </div>
+            <div class="col-sm-2 mt-3 mb-sm-0">
+              <label for="">Sale Rate</label>
+              <input type="text" class="form-control" id="" placeholder=" Rate" name="current_rate" required
+                value="<?= @$fetchproduct['current_rate'] ?>">
+            </div>
+            <div class="col-sm-2 mt-3 mb-sm-0">
+              <label for="">Final Rate</label>
+              <input type="text" class="form-control" id="final_rate" placeholder=" Rate" name="final_rate" required
+                value="<?= @$fetchproduct['final_rate'] ?>">
+            </div>
+            <div class="col-sm-1 mt-3">
+              <label for="">MOQ Alert</label>
+              <input type="text" required class="form-control"
+                value="<?= (empty($fetchproduct)) ? 5 : $fetchproduct['alert_at'] ?>" id="alert_at"
+                placeholder="Product Stock Alert" name="alert_at">
+            </div>
+
+            <div class="col-sm-2 mt-3 mb-sm-0">
+
+              <label for="">Status</label>
+              <select class="form-control" required name="availability" id="availability">
+                <option value="1">Available</option>
+                <option value="0">Not Available</option>
+              </select>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-admin float-right" type="submit" id="add_product_btn">ADD</button>
+          </div>
+        </form>
       </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
-      <!-- <button class="btn btn-admin float-right" type="submit" form="add_product_fm" id="add_product_btn">Save</button> -->
-    </div>
+
   </div>
 </div>
 </div>
@@ -436,41 +554,6 @@
     </div>
   </div>
 </div>
-
-<script>
-  function openAddProductModal() {
-    let isModalLoading = false; // Prevent multiple calls
-    if (isModalLoading) return;
-    isModalLoading = true;
-
-    $('#addProductModalBody').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
-
-    $.ajax({
-      url: 'product.php?act=add',
-      method: 'GET',
-      dataType: 'html',
-      success: function (response) {
-        // Neutralize <script src="..."> tags to prevent _evalUrl
-        const safeResponse = response.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, (match) => {
-          return match.replace(/src=["'][^"']*["']/gi, ''); // Remove src attribute
-        });
-        $('#addProductModalBody').html(safeResponse);
-        $('#product_add_from').val('modal');
-        $('.navbar').hide();
-        $('.hide_btn_forModal').hide();
-        isModalLoading = false;
-      },
-      error: function () {
-        $('#addProductModalBody').html('<div class="text-danger text-center p-3">Error loading product form.</div>');
-        isModalLoading = false;
-      }
-    });
-    $('#add_product_modal').on('hidden.bs.modal', function () {
-      $('.navbar').show();
-    });
-  }
-
-</script>
 <script src="js/jquery.min.js"></script>
 <script src="js/popper.min.js"></script>
 <script src="js/moment.min.js"></script>
