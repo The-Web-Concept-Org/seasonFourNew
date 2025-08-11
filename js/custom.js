@@ -276,7 +276,7 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on("submit", "#add_product_fm", function (e) {
+  $("#add_product_fm").on("submit", function (e) {
     e.preventDefault();
 
     var form = $(this);
@@ -294,102 +294,24 @@ $(document).ready(function () {
         submitBtn.prop("disabled", true);
       },
       success: function (response) {
+        // Standalone page behavior
+        Swal.fire({
+          icon: response.sts,
+          title: response.msg,
+          timer: 1500,
+          showConfirmButton: false,
+        });
         submitBtn.prop("disabled", false);
 
         // From modal
         if ($("#product_add_from").val() === "modal") {
-          Swal.fire({
-            icon: response.sts,
-            title: response.msg,
-            timer: 1500,
-            showConfirmButton: false,
-          });
           if (response.sts === "success") {
-            // Close modal and optionally reload part of page
-            $("#add_product_modal").hide();
-            $(".modal-backdrop").remove();
-            $("body").removeClass("modal-open").css("padding-right", "");
-
-            $('.navbar').show();
-            // Example: reload product dropdown or list
-            // $("#get_product_name").load(location.href + " #get_product_name > *");
+            $("#add_product_modal").modal('hide');
             $("#get_product_name").load(location.href + " #get_product_name > *", function () {
-              //var code=  $('#get_product_code').val();
-              var code = $("#get_product_name :selected").val();
-              var payment_type = $("#payment_type").val();
-              var credit_sale_type = $("#credit_sale_type").val();
-              var price_type = $("#price_type").val();
-              var branch_id = $("#branch_id").val();
-              var purchase_return = $("#purchase_return").val();
-              var delivery_note = $("#delivery_note").val();
-              var gatepass = $("#gatepass").val();
-              var isSaleReturn = $("#order_return").val() === "order_return"; // Detect Sale Return form
-
-              $.ajax({
-                type: "POST",
-                url: "php_action/custom_action.php",
-                data: { get_products_list: code, type: "product" },
-                dataType: "text",
-                success: function (msg) {
-                  var res = msg.trim();
-                  $("#get_product_code").val(res);
-                },
-              }); //ajax call }
-              function fetchProductPrice(price_type) {
-                $.ajax({
-                  type: "POST",
-                  url: "php_action/custom_action.php",
-                  data: {
-                    getPrice: code,
-                    type: "product",
-                    credit_sale_type: credit_sale_type,
-                    payment_type: payment_type,
-                    price_type: price_type,
-                    branch_id: branch_id, // Pass either "purchase" or "sale"
-                  },
-                  dataType: "json",
-                  success: function (response) {
-                    // alert(response.price);
-                    $("#get_product_price").val(response.price);
-                    $("#get_product_sale_price").val(response.price);
-                    $("#get_product_detail").val(response.description);
-                    $("#get_final_rate").val(response.final_rate);
-                    $("#instockQty").html("instock :" + response.qty);
-                    // console.log(response);
-                    if (
-                      (!isSaleReturn &&
-                        (!payment_type === "cash_in_hand" || !payment_type === "credit_sale")) || (payment_type === "credit_purchase" &&
-                          purchase_return === "purchase_return") ||
-                      (payment_type === "cash_purchase" && purchase_return === "purchase_return") ||
-                      (delivery_note === "yes") || (gatepass === "gatepass")
-                    ) {
-                      $("#get_product_quantity").attr("max", response.qty);
-                      $("#addProductPurchase").prop("disabled", response.qty <= 0);
-                    } else {
-                      // For Sale Return, allow adding regardless of stock and set a high max
-                      $("#get_product_quantity").attr("max", 99999999999);
-                      $("#addProductPurchase").prop("disabled", false);
-                    }
-                  },
-                });
-              }
-
-              // Call the function for both purchase and sale prices
-              fetchProductPrice(price_type);
-
+              getProductName();
             });
-
-
           }
         } else {
-          // Standalone page behavior
-          Swal.fire({
-            icon: response.sts,
-            title: response.msg,
-            timer: 1500,
-            showConfirmButton: false,
-          });
-
           if (response.sts === "success") {
             // Reset form and reload whole page
             form[0].reset();
@@ -652,6 +574,9 @@ function loadProducts(id) {
 }
 
 $("#get_product_name").on("change", function () {
+  getProductName();
+});
+function getProductName() {
   //var code=  $('#get_product_code').val();
   var code = $("#get_product_name :selected").val();
   var payment_type = $("#payment_type").val();
@@ -715,7 +640,7 @@ $("#get_product_name").on("change", function () {
   // Call the function for both purchase and sale prices
   fetchProductPrice(price_type);
 
-});
+}
 $("#product_code").on("change", function () {
   //var code=  $('#get_product_code').val();
   var code = $("#product_code").val();
@@ -1670,3 +1595,34 @@ function getdata(orderId, type) {
     }
   });
 }
+
+function loadBrands(categoryIdForBrand, preselectBrandId = null) {
+  $('.brandAccordingCategory').html('<option>Select Brand</option>').prop('disabled', true);
+
+  if (categoryIdForBrand) {
+    $.ajax({
+      url: 'php_action/custom_action.php',
+      method: 'POST',
+      data: { category_id_for_brand: categoryIdForBrand },
+      success: function (response) {
+        $('.brandAccordingCategory').html(response).prop('disabled', false);
+
+        // Pre-select brand if an ID is given
+        if (preselectBrandId) {
+          $('.brandAccordingCategory').val(preselectBrandId);
+        }
+      },
+      error: function () {
+        $('.brandAccordingCategory').html('<option>Error loading brands</option>');
+      }
+    });
+  } else {
+    $('.brandAccordingCategory').html('<option value="">Select Brand</option>').prop('disabled', true);
+  }
+}
+
+// Load brands based on selected category
+$('.categorydropdown').on('change', function () {
+  const categoryIdForBrand = $(this).val();
+  loadBrands(categoryIdForBrand);
+});
