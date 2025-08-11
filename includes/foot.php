@@ -72,7 +72,7 @@
           <input type="hidden" id="product_add_from" value="modal">
 
 
-          <div class="form-group row">
+          <div class="form-group row mx-auto justify-content-center">
             <div class="col-md-2 mt-3">
               <label>Product ID#</label>
               <?php
@@ -147,7 +147,7 @@
 
             </div>
 
-            <div class="col-sm-3 mt-3 mb-sm-0">
+            <div class="col-sm-2 mt-3 mb-sm-0">
               <label for="">Product Description</label>
 
               <textarea class="form-control" name="product_description"
