@@ -1,4 +1,4 @@
-<div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
+<!-- <div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
@@ -44,16 +44,16 @@
                 <small><strong>Save Sale And Purchase</strong></small>
                 <div class="my-0 small">alt+s</div>
               </div>
-            </div> <!-- / .row -->
+            </div> 
           </div>
-        </div> <!-- / .list-group -->
+        </div> 
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Clear All</button>
       </div>
     </div>
   </div>
-</div>
+</div> -->
 <!-- Add Product Modal -->
 <div class="modal fade" id="add_product_modal" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel"
   aria-hidden="true">
