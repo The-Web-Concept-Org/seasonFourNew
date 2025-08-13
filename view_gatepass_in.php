@@ -34,6 +34,7 @@
 
             // Update gatepass status
             mysqli_query($dbc, "UPDATE gatepass SET stock_status='$action' WHERE gatepass_id='$gatepass_id'");
+            echo "<script>window.location.reload();</script>";
             $_SESSION['msg'] = "Gatepass has been $action successfully.";
         }
 
