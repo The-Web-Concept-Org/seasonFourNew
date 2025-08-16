@@ -495,6 +495,7 @@ if (isset($_REQUEST['get_products_list'])) {
 	if ($_REQUEST['type'] == "code") {
 		$q = mysqli_query($dbc, "SELECT * FROM product WHERE product_code LIKE '%" . $_REQUEST['get_products_list'] . "%' AND status=1 ");
 		if (mysqli_num_rows($q) > 0) {
+			echo '<option value="">Select Product</option>';
 			while ($r = mysqli_fetch_assoc($q)) {
 				$getBrand = fetchRecord($dbc, "brands", "brand_id", $r['brand_id']);
 				$getCat = fetchRecord($dbc, "categories", "categories_id", $r['category_id']);

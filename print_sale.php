@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 <?php include_once 'includes/head.php'; ?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
     @page {
         size: A4;
@@ -707,7 +705,9 @@
                 </div>
                 <div class="invo">
                     <h2 class="text-uppercase"><?= $invoice_name ?>
-                        <!-- (Page <?= $pageIndex + 1 ?> of <?= $totalPages ?>) -->
+                        <?php if ($totalPages > 1) { ?>
+                            (Page <?= $pageIndex + 1 ?> of <?= $totalPages ?>)
+                        <?php } ?>
                     </h2>
                     <?php if ($pageIndex === 0): ?>
                         <div style="margin-top: 20px; text-align: end;">
@@ -991,18 +991,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const isPdf = urlParams.get('pdf') === 'true';
 
-    async function loadFont() {
-        const font = new FontFace('Phoenix Sans', 'url(../fonts/phoenix-sans.ttf)');
-        try {
-            await font.load();
-            document.fonts.add(font);
-            console.log('Phoenix Sans loaded successfully');
-            return true;
-        } catch (error) {
-            console.error('Failed to load Phoenix Sans:', error);
-            return false;
-        }
-    }
+
     function generatePdf() {
         const headers = document.querySelectorAll('.pdf-only-header');
         const footers = document.querySelectorAll('.pdf_footer');
