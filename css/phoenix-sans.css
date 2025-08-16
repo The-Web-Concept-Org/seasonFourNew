@@ -1,10 +1,8 @@
 @charset "UTF-8";
 @font-face {
   font-family: 'Phoenix Sans';
-  src: 
-       url('../fonts/phoenix-sans.ttf') format('truetype');
+  src: url('../fonts/PHOES___.TTF') format('truetype');
+  src: url('../fonts/PHOESI__.TTF') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
-
-

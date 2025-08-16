@@ -468,7 +468,7 @@ $(document).ready(function () {
   }); //main
   $("#get_product_code").on("keyup", function () {
     var code = $("#get_product_code").val().trim();
-    if (!code) return;
+    // if (!code) return;
 
     var credit_sale_type = $("#credit_sale_type").val();
     var payment_type = $("#payment_type").val();
