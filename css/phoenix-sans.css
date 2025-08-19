@@ -2,7 +2,7 @@
 @font-face {
   font-family: 'Phoenix Sans';
   src: url('../fonts/PHOES___.TTF') format('truetype');
-  src: url('../fonts/PHOESI__.TTF') format('truetype');
+  /* src: url('../fonts/PHOESI__.TTF') format('truetype'); */
   font-weight: normal;
   font-style: normal;
 }

@@ -322,7 +322,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             <div class="form-group row">
                               <div class="col-sm-12">
                                 <input type="number" step="0.001" min="0" class="form-control form-control-sm"
-                                  id="paid_ammount" required onkeyup="getRemaingAmount()" name="paid_ammount"
+                                  id="paid_ammount" required onkeyup="getRemaingAmount()" name="paid_ammount" readonly
                                   value="<?= @$fetchOrder['grand_total'] ?>">
 
 
