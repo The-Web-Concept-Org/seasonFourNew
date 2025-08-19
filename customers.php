@@ -226,31 +226,31 @@ if (@$getCustomer) {
 									<thead>
 										<tr class="">
 											<?php if (@$_REQUEST['type'] == 'expense') { ?>
-												<th class="text-dark"> ID</th>
+												<th class=""> ID</th>
 											<?php } ?>
 											<?php if (@$_REQUEST['type'] !== 'expense') { ?>
-												<th class="text-dark">Date</th>
-												<th class="text-dark">Name</th>
-												<th class="text-dark">Phone</th>
+												<th class="">Date</th>
+												<th class="">Name</th>
+												<th class="">Phone</th>
 											<?php } ?>
 											<?php if (@$_REQUEST['type'] == 'expense') { ?>
-												<th class="text-dark">Date</th>
-												<th class="text-dark">Name</th>
-												<th class="text-dark">Status</th>
+												<th class="">Date</th>
+												<th class="">Name</th>
+												<th class="">Status</th>
 											<?php } ?>
 											<?php if (@$_REQUEST['type'] !== 'expense') { ?>
 												<?php if (@$_REQUEST['type'] == 'supplier') { ?>
-													<th class="text-dark">Representatives </th>
+													<th class="">Representatives </th>
 												<?php } ?>
 												<?php if (@$_REQUEST['type'] !== 'supplier') { ?>
-													<th class="text-dark">Address</th>
+													<th class="">Address</th>
 													<?php if ($_REQUEST['type'] == 'customer'): ?>
-														<th class="text-dark"> Credit LIMIT</th>
+														<th class=""> Credit LIMIT</th>
 													<?php endif; ?>
-													<th class="text-dark">Status</th>
+													<th class="">Status</th>
 												<?php } ?>
 											<?php } ?>
-											<th class="text-dark">Action</th>
+											<th class="">Action</th>
 
 
 

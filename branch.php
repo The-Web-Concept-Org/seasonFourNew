@@ -76,13 +76,13 @@
                                 <table class="table example1" id="myTable">
                                     <thead>
                                         <tr>
-                                            <th class="text-dark">Sr</th>
-                                            <th class="text-dark">Branch Name</th>
-                                            <th class="text-dark">Branch Email</th>
-                                            <th class="text-dark">Branch Phone</th>
-                                            <th class="text-dark">Branch Address</th>
-                                            <th class="text-dark">Branch Status</th>
-                                            <th class="text-dark">Action</th>
+                                            <th class="">Sr</th>
+                                            <th class="">Branch Name</th>
+                                            <th class="">Branch Email</th>
+                                            <th class="">Branch Phone</th>
+                                            <th class="">Branch Address</th>
+                                            <th class="">Branch Status</th>
+                                            <th class="">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>

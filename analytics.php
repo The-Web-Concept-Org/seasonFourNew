@@ -907,9 +907,9 @@
               <div class="table col-sm-12 text-center">
                 <table width="100%">
                   <thead>
-                    <th class="text-dark" width="33.3%">Sr No.</th>
-                    <th class="text-dark" width="33.3%">Account Details</th>
-                    <th class="text-dark" width="33.3%">Balance</th>
+                    <th class="" width="33.3%">Sr No.</th>
+                    <th class="" width="33.3%">Account Details</th>
+                    <th class="" width="33.3%">Balance</th>
                   </thead>
                   <tbody>
                     <?php

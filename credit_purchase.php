@@ -237,13 +237,12 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                 <table class="table  saleTable" id="myDiv">
                   <thead class="table-bordered">
                     <tr>
-                      <th class="text-dark">Code</th>
-                      <th class="text-dark">Product Name</th>
-                      <!-- <th class="text-dark">Product Details</th> -->
-                      <th class="text-dark">Unit Price</th>
-                      <th class="text-dark">Quantity</th>
-                      <th class="text-dark" style="width: 18%;">Amount</th>
-                      <th class="text-dark" style="width: 30%;">Action</th>
+                      <th class="">Code</th>
+                      <th class="">Product Name</th>
+                      <th class="">Unit Price</th>
+                      <th class="">Quantity</th>
+                      <th class="" style="width: 18%;">Amount</th>
+                      <th class="" style="width: 30%;">Action</th>
                     </tr>
                   </thead>
                   <tbody class="table table-bordered" id="purchase_product_tb">

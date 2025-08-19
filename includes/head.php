@@ -1,6 +1,5 @@
  <?php include_once 'php_action/core.php';
   @$get_company = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM company ORDER BY id DESC LIMIT 1 "));
-
   ?>
 
  <head>

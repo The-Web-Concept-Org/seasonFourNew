@@ -704,9 +704,12 @@
                     </div>
                 </div>
                 <div class="invo">
-                    <h2 class="text-uppercase"><?= $invoice_name ?>
+                    <h2 class="text-uppercase" style="position: relative; text-align: center;">
+                        <span><?= $invoice_name ?></span>
                         <?php if ($totalPages > 1) { ?>
-                            (Page <?= $pageIndex + 1 ?> of <?= $totalPages ?>)
+                            <span style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 0.6em;">
+                                (Page <?= $pageIndex + 1 ?> of <?= $totalPages ?>)
+                            </span>
                         <?php } ?>
                     </h2>
                     <?php if ($pageIndex === 0): ?>
