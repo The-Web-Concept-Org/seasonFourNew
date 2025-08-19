@@ -304,12 +304,11 @@ $btn_name = isset($_REQUEST['edit_categories_id']) ? "Update" : "Add";
             <table class="table dataTable" id="tableData">
               <thead>
                 <tr>
-                  <th class="text-dark">Sr</th>
-                  <th class="text-dark"> Name</th>
-                  <!-- <th class="text-dark">Sale Price</th> -->
-                  <th class="text-dark">Country</th>
-                  <th class="text-dark">Status</th>
-                  <th class="text-dark">Action</th>
+                  <th class="">Sr</th>
+                  <th class=""> Name</th>
+                  <th class="">Country</th>
+                  <th class="">Status</th>
+                  <th class="">Action</th>
                 </tr>
               </thead>
               <tbody>

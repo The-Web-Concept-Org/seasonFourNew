@@ -45,15 +45,15 @@
 
               <thead>
                 <tr>
-                  <th class="text-dark">Date</th>
-                  <th class="text-dark">Quotation Id</th>
-                  <th class="text-dark">Customer Name</th>
-                  <th class="text-dark">Amount</th>
-                  <th class="text-dark">Comment</th>
-                  <th class="text-dark">Type</th>
-                  <th class="text-dark">File</th>
-                  <th class="text-dark">Status</th>
-                  <th class="text-dark">Action</th>
+                  <th class="">Date</th>
+                  <th class="">Quotation Id</th>
+                  <th class="">Customer Name</th>
+                  <th class="">Amount</th>
+                  <th class="">Comment</th>
+                  <th class="">Type</th>
+                  <th class="">File</th>
+                  <th class="">Status</th>
+                  <th class="">Action</th>
                 </tr>
               </thead>
               <tbody>

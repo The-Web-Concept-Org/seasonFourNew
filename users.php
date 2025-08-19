@@ -136,15 +136,15 @@
 								<table class="table example1" id="myTable">
 									<thead>
 										<tr>
-											<th class="text-dark">Sr</th>
-											<th class="text-dark">Username</th>
-											<th class="text-dark">Email</th>
-											<th class="text-dark">Phone</th>
-											<th class="text-dark">Address</th>
-											<th class="text-dark">User Role</th>
-											<th class="text-dark">Status</th>
-											<th class="text-dark">Action</th>
-											<th class="text-dark">Set Privileges </th>
+											<th class="">Sr</th>
+											<th class="">Username</th>
+											<th class="">Email</th>
+											<th class="">Phone</th>
+											<th class="">Address</th>
+											<th class="">User Role</th>
+											<th class="">Status</th>
+											<th class="">Action</th>
+											<th class="">Set Privileges </th>
 										</tr>
 									</thead>
 									<tbody>

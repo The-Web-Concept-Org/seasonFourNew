@@ -335,18 +335,18 @@ $btn_name = isset($_REQUEST['edit_product_id']) ? "Update" : "Add";
                 <table class="table dataTable col-12" style="width: 100%" id="product_tb">
                   <thead>
                     <tr>
-                      <th class="text-dark">Code</th>
-                      <th class="text-dark">Name</th>
-                      <th class="text-dark" style="width: 20%;">Description</th>
-                      <th class="text-dark" style="min-width: 5%;">Category</th>
-                      <th class="text-dark" style="width: 15%;">Brand</th>
+                      <th class="">Code</th>
+                      <th class="">Name</th>
+                      <th class="" style="width: 20%;">Description</th>
+                      <th class="" style="min-width: 5%;">Category</th>
+                      <th class="" style="width: 15%;">Brand</th>
                       <?php if ($UserData['user_role'] == 'admin'): ?>
-                        <th class="text-dark" style="width: 20%;">Purchase Rate</th>
+                        <th class="" style="width: 20%;">Purchase Rate</th>
                       <?php endif; ?>
-                      <th class="text-dark" style="width: 15%;">Sale Rate</th>
-                      <th class="text-dark" style="width: 15%;">Final Rate</th>
-                      <th class="text-dark" style="width: 15%;">Quantity</th>
-                      <th class="d-print-none text-dark" style="width: 15%;">Action</th>
+                      <th class="" style="width: 15%;">Sale Rate</th>
+                      <th class="" style="width: 15%;">Final Rate</th>
+                      <th class="" style="width: 15%;">Quantity</th>
+                      <th class="d-print-none" style="width: 15%;">Action</th>
                     </tr>
                   </thead>
                   <tbody>

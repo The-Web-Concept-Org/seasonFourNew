@@ -73,10 +73,10 @@ if (isset($_REQUEST['edit_expense_id'])) {
 			<table class="table dataTable" id="tableData">
 				<thead>
 			<tr>	
-				<th class="text-dark">ID</th>
-				<th class="text-dark">expenses Name</th>
-				<th class="text-dark">Status</th>
-				<th class="text-dark">Action</th>
+				<th class="">ID</th>
+				<th class="">expenses Name</th>
+				<th class="">Status</th>
+				<th class="">Action</th>
 			</tr>
 			</thead>
 			<tbody>

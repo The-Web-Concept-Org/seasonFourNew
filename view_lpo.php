@@ -44,13 +44,13 @@
             <table class="table  dataTable" id="view_purchase_tb">
               <thead>
                 <tr>
-                  <th class="text-dark"> Date</th>
-                  <th class="text-dark">LPO Id</th>
-                  <th class="text-dark">Supplier Name</th>
-                  <th class="text-dark">Comment</th>
-                  <th class="text-dark">Amount</th>
-                  <th class="text-dark">File</th>
-                  <th class="text-dark">Action</th>
+                  <th class=""> Date</th>
+                  <th class="">LPO Id</th>
+                  <th class="">Supplier Name</th>
+                  <th class="">Comment</th>
+                  <th class="">Amount</th>
+                  <th class="">File</th>
+                  <th class="">Action</th>
                 </tr>
               </thead>
               <tbody>

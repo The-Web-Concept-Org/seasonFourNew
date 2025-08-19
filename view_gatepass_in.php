@@ -58,14 +58,13 @@
                         <table class="table  dataTable" id="view_purchase_tb">
                             <thead>
                                 <tr>
-                                    <th class="text-dark"> Date</th>
-                                    <th class="text-dark"> Gatepass Id</th>
-                                    <th class="text-dark">From Branch</th>
-                                    <th class="text-dark">To Branch</th>
-                                    <th class="text-dark">Comment</th>
-                                    <!-- <th class="text-dark">File</th> -->
-                                    <th class="text-dark">Status</th>
-                                    <th class="text-dark">Action</th>
+                                    <th class=""> Date</th>
+                                    <th class=""> Gatepass Id</th>
+                                    <th class="">From Branch</th>
+                                    <th class="">To Branch</th>
+                                    <th class="">Comment</th>
+                                    <th class="">Status</th>
+                                    <th class="">Action</th>
                                 </tr>
                             </thead>
                             <tbody>

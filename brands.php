@@ -317,12 +317,12 @@ $btn_name = isset($_REQUEST['edit_brand_id']) ? "Update" : "Add";
             <table class="table dataTable" id="tableData">
               <thead>
                 <tr>
-                  <th class="text-dark">ID</th>
-                  <th class="text-dark">Brand Category</th>
-                  <th class="text-dark">Brands Name</th>
-                  <th class="text-dark">Country</th>
-                  <th class="text-dark">Status</th>
-                  <th class="text-dark">Action</th>
+                  <th class="">ID</th>
+                  <th class="">Brand Category</th>
+                  <th class="">Brands Name</th>
+                  <th class="">Country</th>
+                  <th class="">Status</th>
+                  <th class="">Action</th>
                 </tr>
               </thead>
               <tbody>

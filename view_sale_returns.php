@@ -43,14 +43,14 @@
             <table class="table  dataTable" id="view_orders_tb">
               <thead>
                 <tr>
-                  <th class="text-dark"> Date</th>
-                  <th class="text-dark">Return Id</th>
-                  <th class="text-dark">Customer Name</th>
-                  <th class="text-dark">Amount</th>
-                  <th class="text-dark">Comment</th>
-                  <th class="text-dark">Sale Type</th>
-                  <th class="text-dark">File</th>
-                  <th class="text-dark">Action</th>
+                  <th class=""> Date</th>
+                  <th class="">Return Id</th>
+                  <th class="">Customer Name</th>
+                  <th class="">Amount</th>
+                  <th class="">Comment</th>
+                  <th class="">Sale Type</th>
+                  <th class="">File</th>
+                  <th class="">Action</th>
                 </tr>
               </thead>
               <tbody>
