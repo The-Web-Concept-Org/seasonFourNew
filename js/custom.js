@@ -880,6 +880,8 @@ function getOrderTotal() {
 
   if (payment_type == "cash_in_hand" || payment_type == "cash_purchase") {
     $("#paid_ammount").val(grand_total);
+    $("#bank_amount").val(grand_total);
+    $("#cash_amount").val('');
     $("#paid_ammount").attr("max", grand_total);
     $("#paid_ammount").prop("required", true);
     if (payment_type == "cash_in_hand") {
@@ -1378,11 +1380,11 @@ let saleType = (value) => {
 
   if (value == "cash") {
     let total_amount = $("#product_grand_total_amount").text();
-    $("#paid_ammount").val(total_amount.trim());
+    let paid = $("#paid_ammount").val();
     $("#paid_ammount").attr("readonly", false);
     $("#payment_account").attr("required", true);
     $("#credit_order_client_name").attr("required", false);
-    $("#remaining_ammount").val(0);
+    $("#remaining_ammount").val(total_amount - paid);
     $("#payment_type").val("cash_in_hand");
     $("#form_type").val("cash_in_hand");
     $(".return_days-div").hide();
