@@ -188,7 +188,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               </div> -->
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Unit Price</label>
-                <input type="number" class="form-control" id="get_product_price">
+                <input type="number" class="form-control" id="get_product_price" step="0.01" >
               </div>
               <div class="col-6 col-sm-2 col-md-1">
                 <label>Quantity</label>
@@ -197,7 +197,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
               <div class="col-6 col-sm-1 col-md-1">
                 <label>Amount</label>
                 <input type="number" <?= ($_SESSION['user_role'] == "admin") ? "" : "readonly" ?> class="form-control"
-                  id="get_product_sale_price">
+                  id="get_product_sale_price" step="0.01" >
               </div>
 
               <div class="col-sm-1">
