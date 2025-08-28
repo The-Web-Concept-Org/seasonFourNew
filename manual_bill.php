@@ -153,7 +153,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                             <div class="col-6 col-sm-2 col-md-2">
                                 <label>Final Price</label>
-                                <input type="number" min="0" class="form-control" id="get_final_rate" name="final_rate">
+                                <input type="number" min="0" class="form-control" id="get_final_rate" name="final_rate" step="0.01" >
                             </div>
                             <div class="col-6 col-sm-2 col-md-2">
                                 <label>Quantity</label>
@@ -162,7 +162,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                             </div>
                             <div class="col-6 col-sm-1 col-md-2">
                                 <label>Amount</label>
-                                <input type="number" class="form-control" id="get_product_sale_price">
+                                <input type="number" class="form-control" id="get_product_sale_price" step="0.01" >
                             </div>
                             <div class="col-sm-1">
                                 <br>
