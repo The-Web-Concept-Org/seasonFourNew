@@ -1414,11 +1414,13 @@ let saleType = (value) => {
     $(".cash-sale-div2").hide();
     $("#account_row").hide();
     $("#split_payment_container").hide();
-    toggleSplitPayment(false);
-    console.log(total_amount);
-
+    if (typeof toggleSplitPayment === "function") {
+      toggleSplitPayment(false);
+    }
   }
-  toggleSplitPayment();
+  if (typeof toggleSplitPayment === "function") {
+    toggleSplitPayment();
+  }
 };
 $(document).ready(function () {
   $("#sale_type").change();
