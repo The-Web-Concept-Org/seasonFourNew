@@ -319,8 +319,16 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                                     <p class="small text-white mb-0">Today Sales</p>
                                                     <h4 class="mb-0 text-white">
                                                         <h6 class="h4 mb-0 text-white">
-                                                            <?= getTotalSales($dbc, "$date_select", $branch_filter) ?>
-                                                            KD
+                                                            <?php $sales_return = mysqli_fetch_array(mysqli_query(
+                                                                $dbc,
+                                                                "SELECT COUNT(*) AS total_order_return, SUM(grand_total) AS total_sales_return 
+                                                                        FROM orders_return 
+                                                                        WHERE order_date $date_select $branch_filter"
+                                                            ));
+                                                            $total_sales = getTotalSales($dbc, "$date_select", $branch_filter);
+                                                            $total_after_return = $total_sales - ($sales_return['total_sales_return'] ?? 0);
+                                                            ?>
+                                                            <?php echo $total_after_return; ?> KD
                                                         </h6>
                                                     </h4>
                                                 </div>
@@ -331,6 +339,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
 
                                             $order_branch_filter = $branch_id ? " AND o.branch_id = $branch_id" : '';
                                             $quotation_branch_filter = $branch_id ? " AND q.branch_id = $branch_id" : '';
+                                            $return_branch_filter = $branch_id ? " AND r.branch_id = $branch_id" : '';
 
 
                                             // Fetch cash in hand, KNET, WAMD from orders based on payment structure
@@ -381,10 +390,37 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
                                             $quotationResult = mysqli_query($dbc, $quotationQuery);
                                             $quotationData = mysqli_fetch_assoc($quotationResult);
 
+
+                                            // Fetch returns (same as orders)
+                                            
+                                            $returnQuery = "
+                                                                SELECT
+                                                                    SUM(CASE 
+                                                                        WHEN c.customer_name = 'cash in hand' THEN r.grand_total
+                                                                        ELSE 0
+                                                                    END) AS cash_in_hand_return,
+
+                                                                    SUM(CASE 
+                                                                        WHEN c.customer_name = 'knet' THEN r.grand_total
+                                                                        ELSE 0
+                                                                    END) AS knet_total_return,
+
+                                                                    SUM(CASE 
+                                                                        WHEN c.customer_name = 'wamd' THEN r.grand_total
+                                                                        ELSE 0
+                                                                    END) AS wamd_total_return
+                                                                FROM orders_return r
+                                                                LEFT JOIN customers c  ON r.payment_account = c.customer_id
+                                                                WHERE 1=1 $return_branch_filter  $date_select
+                                                            ";
+
+                                            $returnResult = mysqli_query($dbc, $returnQuery);
+                                            $returnData = mysqli_fetch_assoc($returnResult);
                                             // Combine totals
-                                            $cashInHand = ($orderData['cash_in_hand'] ?? 0) + ($quotationData['cash_in_hand'] ?? 0);
-                                            $knetTotal = ($orderData['knet_total'] ?? 0) + ($quotationData['knet_total'] ?? 0);
-                                            $wamdTotal = ($orderData['wamd_total'] ?? 0) + ($quotationData['wamd_total'] ?? 0);
+                                            $cashInHand = ($orderData['cash_in_hand'] ?? 0) + ($quotationData['cash_in_hand'] ?? 0) - ($returnData['cash_in_hand_return'] ?? 0);
+                                            $knetTotal = ($orderData['knet_total'] ?? 0) + ($quotationData['knet_total'] ?? 0) - ($returnData['knet_total_return'] ?? 0);
+                                            $wamdTotal = ($orderData['wamd_total'] ?? 0) + ($quotationData['wamd_total'] ?? 0) - ($returnData['wamd_total_return'] ?? 0);
+
 
                                             ?>
 
@@ -899,7 +935,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
 
                     </div> <!-- .container-fluid -->
 
-                   
+
         </main> <!-- main -->
     </div> <!-- .wrapper -->
 
@@ -954,7 +990,7 @@ $last_week_sales = getTotalSales($dbc, " AND DATE(timestamp) BETWEEN '$lastWeekS
             <!--/.Content-->
         </div>
     </div>
-    
+
     <!--Modal: modalCookie-->
     <script src="js/jquery.min.js"></script>
     <script src="js/popper.min.js"></script>
