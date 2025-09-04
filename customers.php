@@ -55,7 +55,8 @@ if (@$getCustomer) {
 						<div class="card card-info">
 							<div class="card-header text-center h4">
 								<?= ($_REQUEST['type'] == 'bank') ? 'Account' : ucfirst($_REQUEST['type']) ?>
-								Information</div>
+								Information
+							</div>
 							<div class=" card-body">
 								<form action="php_action/custom_action.php" method="post" id="formData">
 									<input type="hidden" name="add_manually_user" value="<?= @$_REQUEST['type'] ?>">
@@ -115,9 +116,6 @@ if (@$getCustomer) {
 
 										<div
 											class="<?= ($_REQUEST['type'] == 'customer' || $_REQUEST['type'] == 'supplier') ? 'col-12' : 'col-sm-6' ?> mt-3">
-
-
-
 											<label for="active">Status:</label>
 											<select name="customer_status" required class="form-control ">
 												<option value="1" selected>Active</option>
@@ -129,20 +127,10 @@ if (@$getCustomer) {
 
 											<div class="col-sm-12 mt-3">
 												<label for="representatives">Representative :</label>
-												<div class="tag-container"
-													style="border: 1px solid #ccc; padding: 5px; min-height: 40px; display: flex; flex-wrap: wrap;">
-												</div>
-												<input type="text" class="form-control mt-3" id="representatives"
-													name="representatives" placeholder="Write Here...">
-												<input type="hidden" id="representative_values"
-													name="representative_values">
+												<input type="text" class="form-control" id="representatives"
+													name="representatives" placeholder="Write Here..."
+													value="<?= @$Getdata['representatives'] ?>">
 											</div>
-
-											<!-- Hidden field to store JSON data -->
-											<input type="hidden" id="existing_tags"
-												value='<?= @$Getdata["representatives"] ?>'>
-
-
 										<?php endif ?>
 									</div>
 									<?php if ($_REQUEST['type'] == 'customer') { ?>
@@ -315,9 +303,9 @@ if (@$getCustomer) {
 
 												<?php } ?>
 												<?php if (@$_REQUEST['type'] == 'expense') { ?>
-													<td><?= $r['customer_add_date'] ?></td>
+													<td><?= date('Y-m-d', strtotime($r['customer_add_date'] ));?></td>
 													<td class="text-capitalize"><?= $r['customer_name'] ?></td>
-													<td><?= $r['customer_status'] ?></td>
+													<td><?= $r['customer_status'] == 1 ? 'Active' : 'Inactive' ?></td>
 												<?php } ?>
 
 
