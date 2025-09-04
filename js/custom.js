@@ -14,21 +14,27 @@ $(document).ready(function () {
       Swal.clickConfirm();
     }
   };
+
   $("#formData").on("submit", function (e) {
     e.preventDefault();
+
     var form = $("#formData");
+    var submitBtn = $("#formData_btn");
+    var originalBtnHtml = submitBtn.html(); // save original text
+
     $.ajax({
       type: "POST",
       url: form.attr("action"),
       data: form.serialize(),
       dataType: "json",
       beforeSend: function () {
-        $("#formData_btn").prop("disabled", true);
+        submitBtn.prop("disabled", true);
+        // show loader (Tailwind spinner)
+        submitBtn.html(`<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span> Processing...`);
       },
       success: function (response) {
-        if (response.sts == "success") {
-
-          $("#formData")[0].reset();
+        if (response.sts === "success") {
+          form[0].reset();
           $("#tableData").load(location.href + " #tableData > *");
           $(".modal").modal("hide");
 
@@ -48,7 +54,13 @@ $(document).ready(function () {
             timer: 1500,
           });
         }
-        $("#formData_btn").prop("disabled", false);
+
+        // restore button
+        submitBtn.prop("disabled", false).html(originalBtnHtml);
+      },
+      error: function () {
+        submitBtn.prop("disabled", false).html(originalBtnHtml);
+        Swal.fire("Error", "Something went wrong", "error");
       },
     });
   });
@@ -81,6 +93,7 @@ $(document).ready(function () {
       },
     }); //ajax call
   }); //main
+
   $("#formData2").on("submit", function (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -109,6 +122,7 @@ $(document).ready(function () {
       },
     }); //ajax call
   }); //main
+
   // for add brand from modal in product add page
   $("#formData3").on("submit", function (e) {
     e.preventDefault();
@@ -152,6 +166,7 @@ $(document).ready(function () {
       }
     });
   });
+
   // for add category from modal in product add page
   $("#formData4").on("submit", function (e) {
     e.preventDefault();
@@ -202,7 +217,6 @@ $(document).ready(function () {
 
     });
   });
-
 
   let isSubmitting = false;
   $("#sale_order_fm").on("submit", function (e) {
@@ -282,6 +296,7 @@ $(document).ready(function () {
     var form = $(this);
     var fd = new FormData(this);
     var submitBtn = $("#add_product_btn");
+    var originalBtnHtml = submitBtn.html(); // store button text
 
     $.ajax({
       url: form.attr("action"),
@@ -292,41 +307,43 @@ $(document).ready(function () {
       processData: false,
       beforeSend: function () {
         submitBtn.prop("disabled", true);
+        // show spinner inside button
+        submitBtn.html(
+          `<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span> Processing...`
+        );
       },
       success: function (response) {
-        // Standalone page behavior
         Swal.fire({
           icon: response.sts,
           title: response.msg,
           timer: 1500,
           showConfirmButton: false,
         });
-        submitBtn.prop("disabled", false);
 
-        // From modal
+        // restore button
+        submitBtn.prop("disabled", false).html(originalBtnHtml);
+
         if ($("#product_add_from").val() === "modal") {
           if (response.sts === "success") {
-            $("#add_product_modal").modal('hide');
+            $("#add_product_modal").modal("hide");
             $("#get_product_name").load(location.href + " #get_product_name > *", function () {
               getProductName();
             });
           }
         } else {
           if (response.sts === "success") {
-            // Reset form and reload whole page
+            // Reset form and reload whole page            
             form[0].reset();
             location.reload();
           }
         }
       },
       error: function () {
-        submitBtn.prop("disabled", false);
+        submitBtn.prop("disabled", false).html(originalBtnHtml);
         Swal.fire("Error", "Something went wrong", "error");
-      }
+      },
     });
   });
-
-
 
   $("#credit_order_client_name").on("change", function () {
     var value = $("#credit_order_client_name :selected").data("id");
@@ -334,6 +351,7 @@ $(document).ready(function () {
     $("#customer_account").val(value);
     $("#client_contact").val(contact);
   });
+
   $("#voucher_general_fm").on("submit", function (e) {
     e.preventDefault();
     var form = $("#voucher_general_fm");
@@ -374,6 +392,7 @@ $(document).ready(function () {
       },
     }); //ajax call
   }); //main
+
   $("#voucher_expense_fm").on("submit", function (e) {
     e.preventDefault();
     var form = $("#voucher_expense_fm");
@@ -420,7 +439,6 @@ $(document).ready(function () {
   });
 
   //ajax call
-  //main
   $("#voucher_single_fm").on("submit", function (e) {
     e.preventDefault();
     var form = $("#voucher_single_fm");
@@ -466,10 +484,10 @@ $(document).ready(function () {
       },
     }); //ajax call
   }); //main
+
   $("#get_product_code").on("keyup", function () {
     var code = $("#get_product_code").val().trim();
     // if (!code) return;
-
     var credit_sale_type = $("#credit_sale_type").val();
     var payment_type = $("#payment_type").val();
     var branch_id = $("#branch_id").val();
@@ -530,6 +548,7 @@ $(document).ready(function () {
   });
 
 }); /*--------------end of-------------------------------------------------------*/
+
 function pending_bills(value) {
   $.ajax({
     url: "php_action/custom_action.php",
@@ -547,6 +566,7 @@ function pending_bills(value) {
     },
   });
 }
+
 function getCustomer_name(value) {
   $.ajax({
     url: "php_action/custom_action.php",
