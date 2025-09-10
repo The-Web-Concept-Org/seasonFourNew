@@ -45,7 +45,7 @@
               <thead>
                 <tr>
                   <th class=""> Date</th>
-                  <th class="">LPO Id</th>
+                  <th class="">Bill ID</th>
                   <th class="">Supplier Name</th>
                   <th class="">Comment</th>
                   <th class="">Amount</th>

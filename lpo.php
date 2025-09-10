@@ -61,7 +61,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
             <?php } ?>
             <div class="row form-group">
               <div class="col-md-2">
-                <label>LPO ID#</label>
+                <label>Bill ID#</label>
                 <?php $result = mysqli_query($dbc, "
     SHOW TABLE STATUS LIKE 'lpo'
 ");

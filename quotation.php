@@ -85,7 +85,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
               <div class="col-md-4">
                 <div class="row">
                   <div class="col-6 pr-1">
-                    <label>ID#</label>
+                    <label>Bill ID#</label>
                     <?php
                     $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'quotations'");
                     $data = mysqli_fetch_assoc($result);

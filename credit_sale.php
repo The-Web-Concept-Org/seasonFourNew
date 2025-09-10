@@ -68,7 +68,7 @@ if (!empty($_REQUEST['edit_order_id'])) {
                         <div class="row form-group">
                             <div class="col-md-4 d-flex ">
                                 <div class="w-100 pe-1">
-                                    <label>ID#</label>
+                                    <label>Bill ID#</label>
                                     <?php $result = mysqli_query($dbc, "
     SHOW TABLE STATUS LIKE 'orders'
 ");
