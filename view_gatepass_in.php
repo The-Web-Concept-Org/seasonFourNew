@@ -59,7 +59,7 @@
                             <thead>
                                 <tr>
                                     <th class=""> Date</th>
-                                    <th class=""> Gatepass Id</th>
+                                    <th class="">Bill ID</th>
                                     <th class="">From Branch</th>
                                     <th class="">To Branch</th>
                                     <th class="">Comment</th>

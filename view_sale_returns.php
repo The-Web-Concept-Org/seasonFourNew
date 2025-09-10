@@ -44,7 +44,7 @@
               <thead>
                 <tr>
                   <th class=""> Date</th>
-                  <th class="">Return Id</th>
+                  <th class="">Bill ID</th>
                   <th class="">Customer Name</th>
                   <th class="">Amount</th>
                   <th class="">Comment</th>

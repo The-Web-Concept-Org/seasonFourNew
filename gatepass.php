@@ -45,7 +45,7 @@ if (!empty($_REQUEST['edit_purchase_id'])) {
                                 <div class="row">
                                     <!-- ID# (approx 50%) -->
                                     <div class="col-6 pr-1">
-                                        <label>ID#</label>
+                                        <label>Bill ID#</label>
                                         <?php
                                         $result = mysqli_query($dbc, "SHOW TABLE STATUS LIKE 'gatepass'");
                                         $data = mysqli_fetch_assoc($result);

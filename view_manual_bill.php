@@ -44,7 +44,7 @@
             <table class="table  dataTable" id="view_orders_tb">
               <thead>
                 <tr>
-                  <th class="" style="width:6%">Bill Id</th>
+                  <th class="" style="width:7%">Bill ID</th>
                   <th class="" style="width:8%"> Date</th>
                   <th class="">Customer Name</th>
                   <th class="">Amount</th>

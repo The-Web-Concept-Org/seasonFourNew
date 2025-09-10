@@ -361,7 +361,7 @@
     // Determine invoice details based on type
     if ($_REQUEST['type'] == "purchase") {
         $nameSHow = 'Supplier Name';
-        $id_name = "Purchase Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "purchase", "purchase_id", $_REQUEST['id']);
         $unique_id = $order['payment_type'] == "credit_purchase" ? 'SF-CRP-' . $order['purchase_id'] : 'SF25-CP-' . $order['purchase_id'];
         $comment = $order['purchase_narration'];
@@ -372,7 +372,7 @@
     } elseif ($_REQUEST['type'] == "gatepass") {
         $nameSHow = 'Customer Name';
         $invoice_name = "Gatepass";
-        $id_name = "Gatepass Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "gatepass", "gatepass_id", $_REQUEST['id']);
         $unique_id = 'SF25-G-' . $order['gatepass_id'];
         $getDate = $order['gatepass_date'];
@@ -382,7 +382,7 @@
         $order_type = $order['payment_type'] == "none" ? "Gatepass" : " (Gatepass)";
     } elseif ($_REQUEST['type'] == "order") {
         $nameSHow = 'Customer Name';
-        $id_name = "Sale Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "orders", "order_id", $_REQUEST['id']);
         $unique_id = 'SF25-S-' . $order['order_id'];
         $invoice_name = $order['payment_type'] == "credit" ? "Credit Invoice" : "Sale Invoice";
@@ -397,11 +397,11 @@
         if ($order['is_delivery_note'] == 1) {
 
             $invoice_name = $order['payment_status'] == 1 ? "Sale Invoice" : "Delivery Note";
-            $id_name = $order['payment_status'] == 1 ? "Sale Invoice Id" : "Delivery Note Id";
+            $id_name = $order['payment_status'] == 1 ? "Bill ID" : "Bill ID";
             $unique_id = 'SF25-DN-' . $order['quotation_id'];
         } else {
             $invoice_name = "Quotation";
-            $id_name = "Quotation Id";
+            $id_name = "Bill ID";
             $unique_id = 'SF25-Q-' . $order['quotation_id'];
         }
         $getDate = $order['quotation_date'];
@@ -412,7 +412,7 @@
     } elseif ($_REQUEST['type'] == "lpo") {
         $nameSHow = 'Supplier Name';
         $invoice_name = "LPO";
-        $id_name = "LPO Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "lpo", "lpo_id", $_REQUEST['id']);
         $unique_id = 'SF25-LPO-' . $order['lpo_id'];
         $getDate = $order['lpo_date'];
@@ -422,7 +422,7 @@
         $order_type = $order['payment_type'] == "none" ? "LPO" : " (LPO)";
     } elseif ($_REQUEST['type'] == "purchase_return") {
         $nameSHow = 'Supplier Name';
-        $id_name = "Purchase Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "purchase_return", "purchase_id", $_REQUEST['id']);
         $unique_id = 'SF25-PR-' . $order['purchase_id'];
         $comment = $order['purchase_narration'];
@@ -432,7 +432,7 @@
         $order_item = mysqli_query($dbc, "SELECT purchase_return_item.*,product.* FROM purchase_return_item INNER JOIN product ON purchase_return_item.product_id=product.product_id WHERE purchase_return_item.purchase_id='" . $_REQUEST['id'] . "'");
     } elseif ($_REQUEST['type'] == "order_return") {
         $nameSHow = 'Customer Name';
-        $id_name = "Sale Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "orders_return", "order_id", $_REQUEST['id']);
         $unique_id = 'SF25R-S-' . $order['order_id'];
         $invoice_name = $order['payment_type'] == "credit" ? "Credit Return Invoice" : "Sale Return Invoice";
@@ -442,7 +442,7 @@
         $table_row = $order['payment_type'] == "credit" ? "300px" : "350px";
         $order_type = $order['payment_type'] == "none" ? "credit sale" : ($order['payment_type'] == "credit" ? $order['credit_sale_type'] . " (Credit)" : "cash sale");
     } elseif ($_REQUEST['type'] == "manualbill") {
-        $id_name = "Id";
+        $id_name = "Bill ID";
         $order = fetchRecord($dbc, "manual_bill", "order_id", $_REQUEST['id']);
         $unique_id = 'SF25-Id-' . $order['order_id'];
         $invoice_name = str_replace('_', ' ', $order['type']);
