@@ -908,20 +908,34 @@
                     <?php if ($pageIndex === $totalPages - 1): ?>
                         <?php if (($_REQUEST['type'] == "quotation" && $order['is_delivery_note'] != 1) || ($_REQUEST['type'] == "manualbill" && $order['type'] == 'quotation')): ?>
                             <div class="mb-2">
+
+                                <!-- Checkbox (only visible on screen, hidden in print) -->
+                                <div class="form-check mb-3 d-print-none text-left">
+                                    <input type="checkbox" class="form-check-input" id="showPaymentDetails" checked>
+                                    <label class="form-check-label" for="showPaymentDetails">
+                                        Show Payment Details
+                                    </label>
+                                </div>
+
+                                <!-- Payment Mode -->
                                 <div class="row">
                                     <div class="col-3 d-flex align-items-start">
-                                        <p><strong class="pr-1">Payment Mode:</strong> Cash </p>
+                                        <p>
+                                            <strong class="pr-1">Payment Mode:</strong>
+                                            <span id="paymentMode"> Cash</span>
+                                        </p>
                                     </div>
-
                                     <div class="col-9"></div>
                                 </div>
+
+                                <!-- Price Validity + Prepared By -->
                                 <div class="row mt-3">
                                     <div class="col-3 d-flex align-items-start">
-                                        <p><strong class="pr-3">Price Validity:</strong> 7 Days </p>
+                                        <p>
+                                            <strong class="pr-3">Price Validity:</strong>
+                                            <span id="priceValidity"> 7 Days</span>
+                                        </p>
                                     </div>
-
-
-
                                     <div class="col-9 w-100">
                                         <div class="row w-100 text-right ml-auto mr-3">
                                             <div class="col-12 text-right d-flex justify-content-end">
@@ -937,6 +951,9 @@
                                     </div>
                                 </div>
                             </div>
+
+
+
                         <?php else:
                             if (($_REQUEST['type'] ?? '') !== 'gatepass') { ?>
                                 <div class="row  m-0 pl-5">
@@ -990,6 +1007,13 @@
 </body>
 
 </html>
+<!-- JS to Toggle Values -->
+<script>
+    document.getElementById("showPaymentDetails").addEventListener("change", function () {
+        document.getElementById("paymentMode").textContent = this.checked ? "Cash" : "";
+        document.getElementById("priceValidity").textContent = this.checked ? "7 Days" : "";
+    });
+</script>
 <script type="text/javascript">
     const urlParams = new URLSearchParams(window.location.search);
     const isPdf = urlParams.get('pdf') === 'true';
