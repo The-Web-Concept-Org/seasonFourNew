@@ -363,26 +363,26 @@
                                 <?php endif ?>
 
                                 <td><?= $row['transaction_remarks'] ?></td>
-                                <td class="text-primary h6"><?= @number_format($row['debit']) ?></td>
-                                <td class="text-success h6 font-weight-bolder"><?= @number_format($row['credit']) ?></td>
+                                <td class="text-primary h6"><?= @$row['debit'] ?></td>
+                                <td class="text-success h6 font-weight-bolder"><?= @$row['credit'] ?></td>
 
 
                                 <?php if ($check_remaing_balance < 0 and $row['transaction_from'] == "invoice"): ?>
                                   <td class="text-danger">
-                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?>
+                                    <?= ((float) $row['credit'] - (float) $row['debit']) + (float) $temp ?>
                                   </td>
                                 <?php elseif ($row['transaction_from'] == "voucher"): ?>
                                   <td class="text-info">
-                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?>
+                                    <?= ((float) $row['credit'] - (float) $row['debit']) + (float) $temp ?>
                                   </td>
                                 <?php else: ?>
                                   <td class="text-success">
-                                    <?= number_format(((int) $row['credit'] - (int) $row['debit']) + (int) $temp) ?>
+                                    <?= ((float) $row['credit'] - (float) $row['debit']) + (float) $temp ?>
                                   </td>
                                 <?php endif ?>
                                 <?php if (isset($_POST['fullledger'])): ?>
 
-                                  <td class=" font-weight-bolder"><?= @number_format($show_rem_bal) ?></td>
+                                  <td class=" font-weight-bolder"><?= $show_rem_bal ?></td>
 
                                   <td><?= $comment ?></td>
                                 <?php endif; ?>
@@ -394,7 +394,7 @@
 
 
 
-                            $temp = ((int) $row['credit'] - (int) $row['debit']) + $temp; ?>
+                            $temp = ((float) $row['credit'] - (float) $row['debit']) + $temp; ?>
 
 
 
@@ -407,9 +407,9 @@
                           <?php
                           $open_b = mysqli_fetch_assoc(mysqli_query($dbc, $opening_sql));
                           if (@$open_b['debit'] == 0) {
-                            $opening_balance = @(int) $open_b['credit'];
+                            $opening_balance = @(float) $open_b['credit'];
                           } else {
-                            $opening_balance = @(int) $open_b['debit'];
+                            $opening_balance = @(float) $open_b['debit'];
                           }
 
 
@@ -430,7 +430,7 @@
                               <td colspan="2"></td>
                             <?php endif; ?>
                             <td colspan="3" align="right">Total Debits</td>
-                            <td colspan="4" class='h3 text-info'><?= number_format($total_debit) ?></td>
+                            <td colspan="4" class='h3 text-info'><?= $total_debit ?></td>
                           </tr>
                           <tr>
                             <?php if (isset($_POST['fullledger'])): ?>
@@ -439,7 +439,7 @@
                               <td colspan="2"></td>
                             <?php endif; ?>
                             <td colspan="3" align="right">Total Credits</td>
-                            <td colspan="4" class='h3 text-warning'><?= number_format($total_credit) ?></td>
+                            <td colspan="4" class='h3 text-warning'><?= $total_credit ?></td>
                           </tr>
 
                           <tr>
@@ -459,9 +459,9 @@
 
 
                             <?php if ($temp <= 0): ?>
-                              <td colspan="4" class='h3 text-danger'><?= number_format($temp) ?></td>
+                              <td colspan="4" class='h3 text-danger'><?= $temp ?></td>
                             <?php else: ?>
-                              <td colspan="4" class='h3 text-success'><?= number_format($temp) ?></td>
+                              <td colspan="4" class='h3 text-success'><?= $temp ?></td>
                             <?php endif ?>
 
                           </tr>

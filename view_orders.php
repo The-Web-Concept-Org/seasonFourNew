@@ -51,6 +51,7 @@
                   <th class="">Comment</th>
                   <th class="">Sale Type</th>
                   <th class="">File</th>
+                  <th class="">Status</th>
                   <th class="">Action</th>
                 </tr>
               </thead>
@@ -96,6 +97,13 @@
                         </a>
                       <?php endif; ?>
                     </td>
+                    <td>
+                      <?php if ($r['payment_status'] == 1): ?>
+                        <span class="bg-success btn p-1 rounded text-dark">Paid</span>
+                      <?php else: ?>
+                        <span class="bg-danger p-1 rounded text-white">Unpaid</span>
+                      <?php endif; ?>
+                    </td>
 
                     <td class="d-flex">
                       <button type="button" class="btn btn-admin2 btn-sm m-1 d-inline-block view-stock-btn"
@@ -135,6 +143,13 @@
 
 
                       <?php endif; ?>
+                      <?php if (@$r['payment_type'] == "credit" && $r['payment_status'] == 0): ?>
+                        <button type="button" class="btn btn-primary btn-sm m-1 payBtn"
+                          data-id="<?= base64_encode($r['order_id']) ?>">
+                          Pay
+                        </button>
+                      <?php endif; ?>
+
                       <?php if (@$userPrivileges['nav_delete'] == 1 || $fetchedUserRole == "admin"): ?>
                         <a href="#" onclick="deleteAlert('<?= $r['order_id'] ?>','orders','order_id','view_orders_tb')"
                           class="btn btn-danger btn-sm m-1">Delete</a>
@@ -182,6 +197,63 @@
     </div>
   </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  $(document).ready(function () {
+    $('.payBtn').click(function () {
+      let pay_id = $(this).data('id');
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Mark this order as Paid?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Pay Now'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: 'php_action/custom_action.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+              pay_now: true,
+              pay_id: pay_id
+            },
+            success: function (response) {
+              if (response.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Paid!',
+                  text: response.message,
+                  timer: 1500,
+                  showConfirmButton: false
+                });
+                setTimeout(() => location.reload(), 1500);
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: response.message
+                });
+              }
+            },
+            error: function (xhr, status, error) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Request Failed',
+                text: 'Something went wrong: ' + error
+              });
+            }
+          });
+        }
+      });
+    });
+  });
+</script>
 
 </html>
 <?php include_once 'includes/foot.php'; ?>

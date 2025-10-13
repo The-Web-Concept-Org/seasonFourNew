@@ -127,15 +127,15 @@
 
 
                 <div class="form-group col-sm-4 d-print-none">
-                       <br />
+                  <br />
                   <!-- <button class="mt-2 ml-1 btn btn-admin float-right" name="genealledger" type="submit">Ledger Detials</button> -->
 
                   <button class="mt-2  btn btn-admin2 " name="fullledger" type="submit">Get Due amount
                     Details</button>
                   <?php
                   if (isset($_POST['genealledger']) or isset($_POST['fullledger'])): ?>
-                    <button class="mt-2 btn btn-primary " onclick="window.print();"
-                      style="margin-right: 15px;">Print Report</button>
+                    <button class="mt-2 btn btn-primary " onclick="window.print();" style="margin-right: 15px;">Print
+                      Report</button>
                   <?php endif ?>
 
                 </div><!-- group -->
@@ -281,7 +281,7 @@
                           // else{
                           //   $next_date='special';
                           // }
-                          $your_date = strtotime($next_date);
+                          $your_date = @strtotime($next_date);
                           $datediff = $your_date - $now;
                           $total_days = round($datediff / (60 * 60 * 24));
                           ($total_days);
@@ -357,7 +357,7 @@
                                   // else{
                                   //   $next_date='special';
                                   // }
-                                  $your_date = strtotime($next_date);
+                                  $your_date = @strtotime($next_date);
                                   $datediff = $your_date - $now;
                                   $total_days = round($datediff / (60 * 60 * 24));
                                   if ($daytype <= 0) {
@@ -408,7 +408,7 @@
                       <tr>
 
                         <td colspan="8" class="text-right text-danger">Due Amount</td>
-                        <td class="text-danger h3"><?= number_format($totalcreditfinal) ?></td>
+                        <td class="text-danger h3"><?= $totalcreditfinal ?></td>
                       </tr>
                       <tr>
 
@@ -416,7 +416,7 @@
                         <td class="h3">
                           <?php
                           $q = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT sum(credit-debit) as newblance from transactions WHERE customer_id = '$customer'  "));
-                          echo number_format($q['newblance']);
+                          echo $q['newblance'];
                           ?>
                         </td>
                       </tr>

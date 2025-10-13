@@ -3587,4 +3587,17 @@ if (isset($_POST['branch_id_for_ledgers']) && isset($_POST['type_for_ledgers']))
 
 }
 // End when select Branch then show only that Branch Customer, Supplier & Expance
+
+
+if (isset($_POST['pay_now'])) {
+	$order_id = base64_decode($_POST['pay_id']);
+	$update = mysqli_query($dbc, "UPDATE orders SET payment_status = 1 WHERE order_id = '$order_id'");
+
+	if ($update) {
+		echo json_encode(['success' => true, 'message' => 'Payment marked as Paid successfully.']);
+	} else {
+		echo json_encode(['success' => false, 'message' => 'Error updating payment status.']);
+	}
+	exit;
+}
 ?>
